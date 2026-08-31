@@ -149,7 +149,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Brand Logo */}
+            {/* Brand Logo with Ultra HD round badge */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform bg-white">
                 <Image
@@ -241,7 +241,7 @@ export default function LandingPage() {
               Comment ça marche
             </a>
             <a href="#communaute" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-[#16a34a]">
-              🎵 Réseaux Sociaux & TikTok
+              🎵 Réseaux Sociaux
             </a>
             <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               FAQ
@@ -277,7 +277,7 @@ export default function LandingPage() {
         )}
       </nav>
 
-      {/* 🌟 HERO SECTION WITH AUTHENTIC ENO LIVRAISON PHOTOS */}
+      {/* 🌟 HERO SECTION WITH ULTRA-SHARP HD CARDS */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/50 via-white to-white py-12 lg:py-20 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
@@ -348,15 +348,15 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right Side: 3D ROTATING PHOTO CARD STACK WITH REAL VISUALS */}
+            {/* Right Side: 3D ROTATING PHOTO CARD STACK WITH HIGH-RES SHARP ASSETS */}
             <div className="lg:col-span-6 relative py-6">
               <div className="wrap_3d_card">
-                {/* 3D Card 1: Official ENO LIVRAISON Box & Rider */}
+                {/* 3D Card 1: High-res Delivery Courier */}
                 <div className="rotating_card group">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/eno_rider_box.png"
-                      alt="Flotte officielle ENO LIVRAISON avec caisson vert"
+                      src="/images/african_delivery_rider.jpg"
+                      alt="Flotte de livreurs ENO LIVRAISON"
                       width={300}
                       height={400}
                       className="w-full h-full object-cover"
@@ -364,21 +364,21 @@ export default function LandingPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
-                      FLOTTE OFFICIELLE ENO
+                      LIVREUR À MOTO EXPRESS
                     </div>
                     <div className="absolute bottom-4 left-3 right-3 text-white">
-                      <p className="text-xs font-black">Caissons Sécurisés ENO</p>
-                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Livraison rapide Cotonou & Lokossa</p>
+                      <p className="text-xs font-black">Livraison Rapide (&lt; 2h)</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Cotonou, Calavi & Lokossa</p>
                     </div>
                   </div>
                 </div>
 
-                {/* 3D Card 2: Handover in Lokossa / Cotonou */}
+                {/* 3D Card 2: High-res Professional African Closeuse */}
                 <div className="rotating_card group">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/eno_delivery_handover.png"
-                      alt="Remise de colis en main propre par livreur ENO"
+                      src="/images/african_closeuse_woman.jpg"
+                      alt="Closeuse téléphonique professionnelle ENO LIVRAISON"
                       width={300}
                       height={400}
                       className="w-full h-full object-cover"
@@ -386,21 +386,21 @@ export default function LandingPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-[#091b14] text-[#86efac] border border-emerald-600 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
-                      LOKOSSA & COTONOU
+                      CLOSING 15 MIN
                     </div>
                     <div className="absolute bottom-4 left-3 right-3 text-white">
-                      <p className="text-xs font-black">Remise en Main Propre</p>
-                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Rapide • Fiable • Sécurisée</p>
+                      <p className="text-xs font-black">Centre d&apos;Appels Dédié</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Confirmation & Relance Prospect</p>
                     </div>
                   </div>
                 </div>
 
-                {/* 3D Card 3: Professional Call Center Closing */}
+                {/* 3D Card 3: 3D Cash Wallet COD */}
                 <div className="rotating_card group">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
-                      alt="Centre d'appel et closing téléphonique professionnel"
+                      src="/images/cash_wallet_3d.jpg"
+                      alt="Encaissement sécurisé Cash on Delivery et virement Mobile Money"
                       width={300}
                       height={400}
                       className="w-full h-full object-cover"
@@ -408,33 +408,33 @@ export default function LandingPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
-                      CLOSING 15 MIN
+                      CASH ON DELIVERY
                     </div>
                     <div className="absolute bottom-4 left-3 right-3 text-white">
-                      <p className="text-xs font-black">Confirmation & Relance</p>
-                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Équipe dédiée aux e-commerçants</p>
+                      <p className="text-xs font-black">Reversement MoMo Journalier</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">MTN MoMo • Moov Money • Wave</p>
                     </div>
                   </div>
                 </div>
 
-                {/* 3D Card 4: TikTok Community & Social Proof */}
+                {/* 3D Card 4: 3D Closing & Dashboard Mobile */}
                 <div className="rotating_card group">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/eno_social_proof.png"
-                      alt="Compte officiel TikTok @enolivraison"
+                      src="/images/closing_phone_3d.jpg"
+                      alt="Dashboard et synchronisation Shopify"
                       width={300}
                       height={400}
-                      className="w-full h-full object-cover object-top"
+                      className="w-full h-full object-cover"
                       priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-black/80 border border-emerald-400 text-emerald-300 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
-                      TIKTOK @ENOLIVRAISON
+                      ESPACE PARTENAIRE
                     </div>
                     <div className="absolute bottom-4 left-3 right-3 text-white">
-                      <p className="text-xs font-black">1 150+ Abonnés • 1 An d&apos;activité</p>
-                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Transparence & Communauté active</p>
+                      <p className="text-xs font-black">Suivi en Temps Réel</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Stocks, commandes et finances</p>
                     </div>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ export default function LandingPage() {
               Deux Agences Opérationnelles à votre Service
             </h2>
             <p className="text-slate-600 text-sm sm:text-base font-normal">
-              Que vous vendiez à Cotonou, Calavi, Porto-Novo ou dans le Mono à Lokossa, ENO LIVRAISON prend en charge vos stocks et vos livraisons.
+              Que vous vendiez à Cotonou, Calavi, Porto-Novo ou dans le Mono à Lokossa, ENO LIVRAISON prend en charge vos stocks et vos livraisons express.
             </p>
           </div>
 
@@ -572,43 +572,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
-          {/* Photo Gallery Banner of Real Fleet & Handover */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-lg relative h-72 group">
-              <Image
-                src="/images/eno_rider_box.png"
-                alt="Livreur ENO LIVRAISON à moto avec son caisson officiel vert"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="absolute bottom-5 left-5 right-5 text-white">
-                <span className="px-2.5 py-1 rounded-full bg-[#16a34a] text-[10px] font-black uppercase tracking-wider">
-                  Équipements Haute Sécurité
-                </span>
-                <h4 className="text-base font-black text-white mt-1">Motos & Caissons Isothermes ENO</h4>
-                <p className="text-xs text-emerald-300 font-medium">Vos colis sont protégés de la poussière et des intempéries.</p>
-              </div>
-            </div>
-
-            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-lg relative h-72 group">
-              <Image
-                src="/images/eno_delivery_handover.png"
-                alt="Remise de colis en main propre à Lokossa par livreur ENO"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="absolute bottom-5 left-5 right-5 text-white">
-                <span className="px-2.5 py-1 rounded-full bg-[#091b14] text-[#86efac] border border-emerald-500 text-[10px] font-black uppercase tracking-wider">
-                  Confiance & Courtoisie
-                </span>
-                <h4 className="text-base font-black text-white mt-1">Livraison en Main Propre & Sourire</h4>
-                <p className="text-xs text-emerald-300 font-medium">Validation du code client et encaissement sécurisé.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -650,7 +613,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 📦 4 SERVICES MAJEURS */}
+      {/* 📦 4 SERVICES MAJEURS WITH HD VISUALS */}
       <section id="services" className="py-20 bg-emerald-50/20 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
@@ -670,7 +633,7 @@ export default function LandingPage() {
             <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
-                  src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
+                  src="/images/african_closeuse_woman.jpg"
                   alt="Closeuse téléphonique ENO LIVRAISON"
                   width={400}
                   height={250}
@@ -738,7 +701,7 @@ export default function LandingPage() {
             <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
-                  src="/images/eno_rider_box.png"
+                  src="/images/african_delivery_rider.jpg"
                   alt="Livreur ENO LIVRAISON à moto"
                   width={400}
                   height={250}
@@ -772,7 +735,7 @@ export default function LandingPage() {
             <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden bg-slate-100">
                 <Image
-                  src="/images/eno_delivery_handover.png"
+                  src="/images/closing_phone_3d.jpg"
                   alt="Remise colis ENO LIVRAISON"
                   width={400}
                   height={250}
@@ -804,118 +767,129 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 🎵 SECTION: RÉSEAUX SOCIAUX & TIKTOK OFFICIEL */}
+      {/* 🎵 SECTION: RÉSEAUX SOCIAUX SANS CAPTURES ÉCRAN (CLEAN & PROFESSIONAL) */}
       <section id="communaute" className="py-20 bg-[#07130e] text-white relative overflow-hidden border-b border-emerald-950">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Col: Info & Stats */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-                <Video className="w-4 h-4 text-[#22c55e]" />
-                COMMUNAUTÉ ACTIVE SUR LES RÉSEAUX
+          <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+            <span className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 inline-flex items-center gap-1.5">
+              <Share2 className="w-3.5 h-3.5 text-[#22c55e]" /> COMMUNAUTÉ OFFICIELLE
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Rejoignez <span className="text-[#22c55e]">ENO LIVRAISON</span> sur les Réseaux Sociaux
+            </h2>
+            <p className="text-emerald-100/70 text-sm sm:text-base font-normal leading-relaxed">
+              Suivez nos livraisons quotidiennes à Cotonou et Lokossa, découvrez nos astuces pour e-commerçants et restez informés de nos offres partenaires.
+            </p>
+          </div>
+
+          {/* 3 Metric counters */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            <div className="p-6 rounded-3xl bg-emerald-950/50 border border-emerald-900/60 text-center space-y-1">
+              <div className="w-10 h-10 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-3">
+                <Heart className="w-5 h-5 fill-current" />
               </div>
-
-              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                Suivez <span className="text-[#22c55e]">ENO LIVRAISON</span> sur TikTok & Réseaux Sociaux
-              </h2>
-
-              <p className="text-emerald-100/70 text-sm sm:text-base font-normal leading-relaxed">
-                Rejoignez plus de <strong>1 150 abonnés</strong> sur notre compte officiel TikTok <strong>@enolivraison</strong>. Découvrez les coulisses de nos livraisons à moto à Cotonou et Lokossa, les astuces e-commerce, et la célébration de notre 1ère année d&apos;existence avec nos partenaires !
-              </p>
-
-              {/* 3 Metric counters */}
-              <div className="grid grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60">
-                  <div className="flex items-center gap-2 text-rose-400">
-                    <Heart className="w-4 h-4 fill-rose-500" />
-                    <span className="text-xs font-bold uppercase">J&apos;aime</span>
-                  </div>
-                  <p className="text-2xl sm:text-3xl font-black text-white mt-1">4 350+</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60">
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <Users className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase">Abonnés</span>
-                  </div>
-                  <p className="text-2xl sm:text-3xl font-black text-[#22c55e] mt-1">1 150+</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60">
-                  <div className="flex items-center gap-2 text-amber-400">
-                    <Calendar className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase">Expérience</span>
-                  </div>
-                  <p className="text-2xl sm:text-3xl font-black text-amber-400 mt-1">1 AN +</p>
-                </div>
-              </div>
-
-              {/* Social Channels Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-4">
-                <a
-                  href="https://www.tiktok.com/@enolivraison"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-emerald-50 font-black text-xs flex items-center gap-2 shadow-lg transition-all active:scale-95"
-                >
-                  <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[10px] font-black">
-                    Tk
-                  </span>
-                  <span>TikTok (@enolivraison)</span>
-                  <ArrowUpRight className="w-4 h-4 text-[#16a34a]" />
-                </a>
-
-                <a
-                  href="https://wa.me/2290164291884"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3.5 rounded-2xl bg-[#25d366] hover:bg-emerald-600 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
-                >
-                  <MessageSquare className="w-4 h-4 fill-white" />
-                  <span>WhatsApp (@enolivraison)</span>
-                </a>
-              </div>
+              <p className="text-3xl font-black text-white">4 350+</p>
+              <p className="text-xs text-emerald-300/70 font-semibold uppercase tracking-wider">Mentions J&apos;aime TikTok</p>
             </div>
 
-            {/* Right Col: Screenshot Card */}
-            <div className="lg:col-span-6 flex justify-center">
-              <div className="w-full max-w-md rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl bg-black relative group">
-                <div className="p-3 bg-emerald-950/80 border-b border-emerald-900 flex items-center justify-between text-xs text-slate-300">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span className="ml-2 font-mono text-[11px] text-emerald-400">tiktok.com/@enolivraison</span>
-                  </div>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
-                    Profil Officiel
-                  </span>
-                </div>
-
-                <div className="relative h-96 w-full">
-                  <Image
-                    src="/images/eno_social_proof.png"
-                    alt="Aperçu du compte TikTok officiel EnoLivraison"
-                    fill
-                    className="object-cover object-top"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4 text-center">
-                    <a
-                      href="https://www.tiktok.com/@enolivraison"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-black shadow-lg"
-                    >
-                      <span>S&apos;abonner à EnoLivraison</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
+            <div className="p-6 rounded-3xl bg-emerald-950/50 border border-emerald-900/60 text-center space-y-1">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                <Users className="w-5 h-5" />
               </div>
+              <p className="text-3xl font-black text-[#22c55e]">1 150+</p>
+              <p className="text-xs text-emerald-300/70 font-semibold uppercase tracking-wider">Abonnés Actifs</p>
             </div>
+
+            <div className="p-6 rounded-3xl bg-emerald-950/50 border border-emerald-900/60 text-center space-y-1">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <p className="text-3xl font-black text-amber-400">1 AN +</p>
+              <p className="text-xs text-emerald-300/70 font-semibold uppercase tracking-wider">Au Service des E-commerçants</p>
+            </div>
+          </div>
+
+          {/* Social Channels Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {/* TikTok */}
+            <a
+              href="https://www.tiktok.com/@enolivraison"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-6 rounded-3xl bg-[#091b14] border border-emerald-900/80 hover:border-emerald-500 transition-all shadow-xl group flex flex-col justify-between space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center font-black text-lg border border-emerald-500/40">
+                  Tk
+                </div>
+                <ArrowUpRight className="w-5 h-5 text-emerald-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-white">TikTok Officiel</h4>
+                <p className="text-xs text-emerald-400 font-bold mt-0.5">@enolivraison</p>
+                <p className="text-xs text-emerald-200/70 mt-2 font-normal">
+                  Vidéos quotidiennes des livraisons de colis et conseils pour vos boutiques.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-emerald-900/60 text-xs font-bold text-white flex items-center gap-2">
+                <span>Rejoindre 1 150+ abonnés</span>
+                <span className="text-[#22c55e]">→</span>
+              </div>
+            </a>
+
+            {/* WhatsApp Cotonou */}
+            <a
+              href="https://wa.me/2290164291884"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-6 rounded-3xl bg-[#091b14] border border-emerald-900/80 hover:border-emerald-500 transition-all shadow-xl group flex flex-col justify-between space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-[#25d366]/20 text-[#25d366] flex items-center justify-center font-black border border-[#25d366]/40">
+                  <MessageSquare className="w-6 h-6 fill-current" />
+                </div>
+                <ArrowUpRight className="w-5 h-5 text-emerald-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-white">WhatsApp Cotonou</h4>
+                <p className="text-xs text-[#25d366] font-bold mt-0.5">+229 01 64 29 18 84</p>
+                <p className="text-xs text-emerald-200/70 mt-2 font-normal">
+                  Courses et ramassages dans Cotonou, Abomey-Calavi et Porto-Novo.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-emerald-900/60 text-xs font-bold text-white flex items-center gap-2">
+                <span>Écrire sur WhatsApp</span>
+                <span className="text-[#22c55e]">→</span>
+              </div>
+            </a>
+
+            {/* WhatsApp Lokossa */}
+            <a
+              href="https://wa.me/2290167510082"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-6 rounded-3xl bg-[#091b14] border border-emerald-900/80 hover:border-emerald-500 transition-all shadow-xl group flex flex-col justify-between space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-[#25d366]/20 text-[#25d366] flex items-center justify-center font-black border border-[#25d366]/40">
+                  <MessageSquare className="w-6 h-6 fill-current" />
+                </div>
+                <ArrowUpRight className="w-5 h-5 text-emerald-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-white">WhatsApp Lokossa</h4>
+                <p className="text-xs text-[#25d366] font-bold mt-0.5">+229 01 67 51 00 82</p>
+                <p className="text-xs text-emerald-200/70 mt-2 font-normal">
+                  Livraisons directes à Lokossa et dans toute la région du Mono.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-emerald-900/60 text-xs font-bold text-white flex items-center gap-2">
+                <span>Écrire sur WhatsApp</span>
+                <span className="text-[#22c55e]">→</span>
+              </div>
+            </a>
           </div>
         </div>
       </section>
@@ -1147,7 +1121,7 @@ export default function LandingPage() {
                   rel="noopener noreferrer"
                   className="px-3 py-1.5 rounded-xl bg-emerald-950 text-white hover:bg-emerald-900 border border-emerald-800 text-[10px] font-bold flex items-center gap-1.5 transition-colors"
                 >
-                  <span className="text-emerald-400">TikTok :</span> @enolivraison
+                  <span className="text-emerald-400 font-black">TikTok :</span> @enolivraison
                 </a>
                 <a
                   href="https://wa.me/2290164291884"
