@@ -20,6 +20,7 @@ import {
   Store,
   MapPin,
   CheckCircle2,
+  MessageSquare,
 } from "lucide-react";
 
 function AuthForm() {
@@ -231,6 +232,7 @@ function AuthForm() {
               <option value="Cotonou">Cotonou</option>
               <option value="Abomey-Calavi">Abomey-Calavi</option>
               <option value="Porto-Novo">Porto-Novo</option>
+              <option value="Lokossa">Lokossa (Mono & Couffo)</option>
               <option value="Parakou">Parakou</option>
               <option value="Autre">Autre ville</option>
             </select>
@@ -548,6 +550,39 @@ export default function LoginPage() {
         <Suspense fallback={<div className="text-center text-slate-400 text-xs">Chargement...</div>}>
           <AuthForm />
         </Suspense>
+
+        {/* Assistance Agences Contact Footer */}
+        <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-2">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            Besoin d&apos;aide pour votre inscription ?
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
+            <a
+              href="tel:+2290164291884"
+              className="text-slate-700 hover:text-[#16a34a] font-semibold flex items-center gap-1"
+            >
+              <span className="text-[#16a34a] font-bold">Cotonou :</span> +229 01 64 29 18 84
+            </a>
+            <span className="text-slate-300">•</span>
+            <a
+              href="tel:+2290167510082"
+              className="text-slate-700 hover:text-[#16a34a] font-semibold flex items-center gap-1"
+            >
+              <span className="text-[#16a34a] font-bold">Lokossa :</span> +229 01 67 51 00 82
+            </a>
+          </div>
+          <div className="pt-1">
+            <a
+              href="https://wa.me/2290164291884"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-[#25d366] hover:underline font-bold"
+            >
+              <MessageSquare className="w-3.5 h-3.5 fill-current" />
+              Contacter le support WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

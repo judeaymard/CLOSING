@@ -11,9 +11,9 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "ENO LIVRAISON — Vos colis, notre priorité | Closing, Stockage & Livraison au Bénin",
   description:
-    "ENO LIVRAISON : Votre partenaire logistique de confiance au Bénin. Closing téléphonique sous 15 min, stockage offert à Cotonou & Calavi, et livraison express Cash On Delivery.",
+    "ENO LIVRAISON : Votre partenaire logistique de confiance au Bénin. Agences à Cotonou et Lokossa. Closing téléphonique sous 15 min, stockage offert et livraison express Cash On Delivery.",
   keywords:
-    "ENO LIVRAISON, Vos colis notre priorité, livraison Bénin, logistique e-commerce Cotonou, closing Bénin, transport colis Calavi, Cash on delivery Bénin",
+    "ENO LIVRAISON, Vos colis notre priorité, livraison Cotonou, livraison Lokossa, logistique e-commerce Bénin, closing Bénin, transport colis Calavi, Cash on delivery Bénin, Mono Couffo",
   icons: {
     icon: "/images/eno_livraison_logo.png",
     apple: "/images/eno_livraison_logo.png",

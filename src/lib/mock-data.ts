@@ -312,3 +312,42 @@ export function generateOrderNumber(): string {
   }
   return result;
 }
+
+export const agencyConfig = {
+  name: 'ENO LIVRAISON',
+  slogan: 'Vos colis, notre priorité',
+  email: 'contact@enolivraison.bj',
+  socials: {
+    tiktok: 'https://www.tiktok.com/@enolivraison',
+    tiktokHandle: '@enolivraison',
+    facebook: 'https://www.facebook.com/enolivraison',
+    facebookName: 'EnoLivraison',
+    instagram: 'https://www.instagram.com/enolivraison',
+    instagramHandle: '@enolivraison',
+  },
+  agencies: [
+    {
+      city: 'Cotonou',
+      name: 'Agence de Cotonou',
+      phone: '+229 01 64 29 18 84',
+      phoneRaw: '2290164291884',
+      phoneSecondary: '+229 01 93 83 79 06',
+      phoneSecondaryRaw: '2290193837906',
+      whatsapp: 'https://wa.me/2290164291884',
+      coverage: 'Cotonou • Abomey-Calavi • Porto-Novo',
+      badge: 'Pôle Atlantique & Littoral',
+      address: 'Cadjehoun / Haie-Vive, Cotonou, Bénin',
+    },
+    {
+      city: 'Lokossa',
+      name: 'Agence de Lokossa',
+      phone: '+229 01 67 51 00 82',
+      phoneRaw: '2290167510082',
+      whatsapp: 'https://wa.me/2290167510082',
+      coverage: 'Lokossa & Région du Mono',
+      badge: 'Pôle Grand Sud-Ouest',
+      address: 'Centre-ville, Lokossa, Bénin',
+    },
+  ],
+};
+
