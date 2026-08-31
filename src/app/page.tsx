@@ -323,60 +323,106 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right Side: AUTHENTIC PHOTOGRAPHIC SHOWCASE */}
+            {/* Right Side: 3D ROTATING PHOTO CARD STACK (L'animation rotative 3D) */}
             <div className="lg:col-span-6 relative py-6">
-              <div className="grid grid-cols-2 gap-4 relative">
-                {/* Real Photo 1: Courier on Bike with Green ENO Box */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 group transform hover:-translate-y-2 transition-transform duration-500">
-                  <div className="relative h-72 sm:h-80 w-full">
+              <div className="wrap_3d_card">
+                {/* 3D Card 1: Vraie photo du livreur à moto avec caisson vert ENO */}
+                <div className="rotating_card group">
+                  <div className="relative w-full h-full">
                     <Image
                       src="/images/eno_courier_bike.png"
-                      alt="Livreur ENO LIVRAISON professionnel à moto avec caisson vert officiel"
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      alt="Livreur ENO LIVRAISON à moto avec caisson vert officiel"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
                       priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
                       FLOTTE OFFICIELLE ENO
                     </div>
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                    <div className="absolute bottom-4 left-3 right-3 text-white">
                       <p className="text-xs font-black">Caisson Isotherme Sécurisé</p>
-                      <p className="text-[10px] text-emerald-300 font-bold">Cotonou, Calavi, Porto-Novo</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Cotonou, Calavi & Porto-Novo</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Real Photo 2: Delivery Handover with Happy Customer */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 group transform hover:-translate-y-2 transition-transform duration-500 mt-6 sm:mt-8">
-                  <div className="relative h-72 sm:h-80 w-full">
+                {/* 3D Card 2: Vraie photo de la remise de colis à Lokossa */}
+                <div className="rotating_card group">
+                  <div className="relative w-full h-full">
                     <Image
                       src="/images/eno_delivery_handover.png"
-                      alt="Remise de colis en main propre par un livreur ENO LIVRAISON à Lokossa"
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      alt="Remise de colis en main propre par un coursier ENO"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
                       priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
                     <div className="absolute top-3 left-3 bg-[#091b14] text-[#86efac] border border-emerald-500 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
                       SATISFACTION CLIENT
                     </div>
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                    <div className="absolute bottom-4 left-3 right-3 text-white">
                       <p className="text-xs font-black">Remise en main propre</p>
-                      <p className="text-[10px] text-emerald-300 font-bold">Lokossa & Région Mono</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Lokossa & Région Mono</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Floating Trust Badge */}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 z-10 whitespace-nowrap">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#16a34a] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5" />
+                {/* 3D Card 3: Closeuse professionnelle */}
+                <div className="rotating_card group">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
+                      alt="Closeuse professionnelle ENO LIVRAISON"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+                    <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
+                      CLOSING 15 MIN
+                    </div>
+                    <div className="absolute bottom-4 left-3 right-3 text-white">
+                      <p className="text-xs font-black">Centre de Closing Téléphonique</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Confirmation & Prise d&apos;adresse</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-slate-900">1 An de Confiance au Bénin</p>
-                    <p className="text-[10px] text-emerald-700 font-bold">Des milliers de colis livrés avec succès</p>
+                </div>
+
+                {/* 3D Card 4: Paiement Cash COD */}
+                <div className="rotating_card group">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/images/gros-plan-livreur-colis_23-2149095905.avif"
+                      alt="Paiement cash COD et remise colis"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+                    <div className="absolute top-3 left-3 bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
+                      CASH COD
+                    </div>
+                    <div className="absolute bottom-4 left-3 right-3 text-white">
+                      <p className="text-xs font-black">Encaissement & Virement Daily</p>
+                      <p className="text-[10px] text-emerald-300 font-bold mt-0.5">Reversement MTN MoMo & Moov</p>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Floating Trust Badge */}
+              <div className="mt-8 mx-auto max-w-sm bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center justify-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#16a34a] flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-900">1 An de Confiance au Bénin</p>
+                  <p className="text-[10px] text-emerald-700 font-bold">Des milliers de colis livrés avec succès</p>
                 </div>
               </div>
             </div>
