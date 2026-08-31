@@ -30,6 +30,9 @@ import {
   TrendingUp,
   Flame,
   Award,
+  Play,
+  Heart,
+  Share2,
 } from "lucide-react";
 import { enoAgencies, enoSocials } from "@/lib/mock-data";
 
@@ -562,104 +565,345 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 📱 SECTION COMMUNAUTÉ TIKTOK & RÉSEAUX SOCIAUX */}
-      <section id="communaute" className="py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white border-b border-slate-200 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-[#0a2016] to-[#06170f] rounded-3xl p-8 sm:p-12 text-white border border-emerald-800/50 shadow-2xl relative overflow-hidden">
-            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#16a34a]/15 rounded-full blur-3xl pointer-events-none"></div>
+      {/* 📱 SECTION COMMUNAUTÉ TIKTOK & RÉSEAUX SOCIAUX — FORMAT REELS IMMERSIF */}
+      <section id="communaute" className="py-20 bg-[#06140e] text-white relative overflow-hidden border-b border-emerald-950">
+        {/* Subtle Ambient Glows */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-rose-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-            <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
-              {/* Left text */}
-              <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-                  <Flame className="w-4 h-4 text-rose-400" />
-                  REJOIGNEZ NOTRE COMMUNAUTÉ OFFICIELLE
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-widest border border-emerald-500/30 inline-flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-rose-400" /> COULISSES & IMMERSION TERRAIN
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Vivez l&apos;expérience sur <span className="text-[#22c55e]">TikTok</span> & nos Réseaux
+            </h2>
+            <p className="text-emerald-100/70 text-sm sm:text-base font-normal">
+              Découvrez le quotidien de nos livreurs, les réceptions en entrepôt, les tournées à Cotonou et Lokossa, et les retours d&apos;expérience de nos clients.
+            </p>
+          </div>
+
+          {/* 🌟 CREATOR PROFILE BAR (Style Carte Créateur TikTok Officiel) */}
+          <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-3xl bg-emerald-950/40 border border-emerald-800/40 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            {/* Left: Avatar & Identity */}
+            <div className="flex items-center gap-4 text-center sm:text-left">
+              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#22c55e] shadow-lg bg-white shrink-0">
+                <Image
+                  src="/images/eno_livraison_logo.png"
+                  alt="Avatar EnoLivraison TikTok"
+                  fill
+                  className="object-contain p-1"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                  <h3 className="text-base font-black text-white">EnoLivraison</h3>
+                  <span className="w-4 h-4 rounded-full bg-[#22c55e] text-white flex items-center justify-center text-[10px] font-black" title="Certifié officiel">
+                    ✓
+                  </span>
                 </div>
+                <p className="text-xs font-semibold text-emerald-400 font-mono">@enolivraison</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">« Vos colis, notre priorité ! 📍 Cotonou & Lokossa »</p>
+              </div>
+            </div>
 
-                <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-                  Suivez les coulisses de vos livraisons sur <span className="text-[#22c55e]">TikTok</span> & nos Réseaux
-                </h2>
+            {/* Middle: Live Verified Stats */}
+            <div className="flex items-center gap-6 border-y md:border-y-0 md:border-x border-emerald-800/50 py-3 md:py-0 px-0 md:px-8 text-center">
+              <div>
+                <p className="text-xl font-black text-white">{enoSocials.tiktok.followers}</p>
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Abonnés</p>
+              </div>
+              <div className="w-px h-8 bg-emerald-800/50"></div>
+              <div>
+                <p className="text-xl font-black text-[#22c55e]">{enoSocials.tiktok.likes}</p>
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">J&apos;aime</p>
+              </div>
+              <div className="w-px h-8 bg-emerald-800/50"></div>
+              <div>
+                <p className="text-xl font-black text-amber-400">1 An</p>
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">D&apos;existence</p>
+              </div>
+            </div>
 
-                <p className="text-sm text-emerald-100/80 font-normal leading-relaxed">
-                  Découvrez le quotidien de nos livreurs à Cotonou et Lokossa, nos astuces e-commerce, nos retours d&apos;expérience et les témoignages de nos clients satisfaits.
-                </p>
+            {/* Right: Action Button */}
+            <div className="shrink-0">
+              <a
+                href={enoSocials.tiktok.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition-all active:scale-95"
+              >
+                <span>S&apos;abonner sur TikTok</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
 
-                {/* Live TikTok KPIs */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 pt-1">
-                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60">
-                    <p className="text-2xl font-black text-white">{enoSocials.tiktok.followers}</p>
-                    <p className="text-[11px] text-emerald-300/80 font-medium">Abonnés TikTok</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60">
-                    <p className="text-2xl font-black text-[#22c55e]">{enoSocials.tiktok.likes}</p>
-                    <p className="text-[11px] text-emerald-300/80 font-medium">J&apos;aime & Réactions</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60 col-span-2 sm:col-span-1">
-                    <p className="text-2xl font-black text-amber-400">1 An</p>
-                    <p className="text-[11px] text-emerald-300/80 font-medium">D&apos;existence fêté</p>
-                  </div>
-                </div>
+          {/* 🎬 3 REALISTIC SMARTPHONE VIDEO REELS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* Reel 1: Flotte & Tournée Cotonou */}
+            <a
+              href={enoSocials.tiktok.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+            >
+              <Image
+                src="/images/eno_courier_bike.png"
+                alt="Tournée en moto Eno Livraison à Cotonou"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/40"></div>
 
-                {/* Social links buttons */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-                  <a
-                    href={enoSocials.tiktok.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/25 transition-all flex items-center gap-2 active:scale-95"
-                  >
-                    <span>🎵 Suivre sur TikTok ({enoSocials.tiktok.handle})</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </a>
+              {/* Top Reel Header */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[#86efac] border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider">
+                  🛵 TOURNÉE EXPRESS
+                </span>
+                <span className="text-[10px] font-mono font-bold text-white bg-black/50 px-2 py-0.5 rounded-full">
+                  Cotonou
+                </span>
+              </div>
 
-                  <a
-                    href={enoSocials.facebook.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-3 rounded-2xl bg-[#1877f2] hover:bg-blue-600 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
-                  >
-                    <span>Facebook</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </a>
-
-                  <a
-                    href={enoSocials.instagram.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
-                  >
-                    <span>Instagram</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </a>
+              {/* Center Play Button */}
+              <div className="relative z-10 self-center my-auto">
+                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl group-hover:scale-115 group-hover:bg-[#16a34a] transition-all duration-300">
+                  <Play className="w-6 h-6 fill-white ml-1" />
                 </div>
               </div>
 
-              {/* Right image: TikTok Community Screen */}
-              <div className="lg:col-span-5 relative flex justify-center">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-900/80 bg-slate-950 w-full max-w-sm">
-                  <div className="relative h-72 w-full">
-                    <Image
-                      src="/images/eno_tiktok_community.png"
-                      alt="Compte officiel TikTok EnoLivraison au Bénin"
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                    <div className="absolute top-3 right-3 bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
-                      TIKTOK OFFICIEL
+              {/* Reel Sidebar & Bottom Info */}
+              <div className="relative z-10 flex items-end justify-between gap-3">
+                <div className="space-y-1 text-left max-w-[80%]">
+                  <p className="text-xs font-black text-white line-clamp-2">
+                    Départ en tournée du matin avec les caissons isothermes sécurisés 📦
+                  </p>
+                  <p className="text-[10px] text-emerald-300 font-semibold flex items-center gap-1">
+                    <span>🎵</span> Son original - EnoLivraison
+                  </p>
+                </div>
+
+                {/* Vertical Interaction Stats */}
+                <div className="flex flex-col items-center gap-3 text-white text-[10px] font-bold">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-rose-500">
+                      <Heart className="w-4 h-4 fill-rose-500" />
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <p className="text-sm font-black">EnoLivraison • @enolivraison</p>
-                      <p className="text-xs text-emerald-300 font-bold mt-0.5">
-                        « Vos colis, notre priorité ! »
-                      </p>
-                      <p className="text-[11px] text-slate-300 mt-1">
-                        Cotonou : 01 64 29 18 84 | Lokossa : 01 67 51 00 82
-                      </p>
+                    <span>1.4K</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <MessageSquare className="w-4 h-4" />
                     </div>
+                    <span>84</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                    <span>42</span>
                   </div>
                 </div>
               </div>
+            </a>
+
+            {/* Reel 2: Remise de Colis Lokossa */}
+            <a
+              href={enoSocials.tiktok.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+            >
+              <Image
+                src="/images/eno_delivery_handover.png"
+                alt="Remise de colis à Lokossa par Eno Livraison"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/40"></div>
+
+              {/* Top Reel Header */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[#86efac] border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider">
+                  ✨ SATISFACTION CLIENT
+                </span>
+                <span className="text-[10px] font-mono font-bold text-white bg-black/50 px-2 py-0.5 rounded-full">
+                  Lokossa
+                </span>
+              </div>
+
+              {/* Center Play Button */}
+              <div className="relative z-10 self-center my-auto">
+                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl group-hover:scale-115 group-hover:bg-[#16a34a] transition-all duration-300">
+                  <Play className="w-6 h-6 fill-white ml-1" />
+                </div>
+              </div>
+
+              {/* Reel Sidebar & Bottom Info */}
+              <div className="relative z-10 flex items-end justify-between gap-3">
+                <div className="space-y-1 text-left max-w-[80%]">
+                  <p className="text-xs font-black text-white line-clamp-2">
+                    Colis remis en main propre avec le sourire ! La confiance de nos clients ✨
+                  </p>
+                  <p className="text-[10px] text-emerald-300 font-semibold flex items-center gap-1">
+                    <span>🎵</span> Son original - EnoLivraison
+                  </p>
+                </div>
+
+                {/* Vertical Interaction Stats */}
+                <div className="flex flex-col items-center gap-3 text-white text-[10px] font-bold">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-rose-500">
+                      <Heart className="w-4 h-4 fill-rose-500" />
+                    </div>
+                    <span>2.1K</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                    <span>132</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                    <span>68</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+
+            {/* Reel 3: Anniversaire 1 An */}
+            <a
+              href={enoSocials.tiktok.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+            >
+              <Image
+                src="/images/eno_tiktok_community.png"
+                alt="1 An de Eno Livraison au Bénin"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/40"></div>
+
+              {/* Top Reel Header */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="px-2.5 py-1 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase tracking-wider">
+                  🎉 1 AN D&apos;EXISTENCE
+                </span>
+                <span className="text-[10px] font-mono font-bold text-white bg-black/50 px-2 py-0.5 rounded-full">
+                  Bénin
+                </span>
+              </div>
+
+              {/* Center Play Button */}
+              <div className="relative z-10 self-center my-auto">
+                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl group-hover:scale-115 group-hover:bg-[#16a34a] transition-all duration-300">
+                  <Play className="w-6 h-6 fill-white ml-1" />
+                </div>
+              </div>
+
+              {/* Reel Sidebar & Bottom Info */}
+              <div className="relative z-10 flex items-end justify-between gap-3">
+                <div className="space-y-1 text-left max-w-[80%]">
+                  <p className="text-xs font-black text-white line-clamp-2">
+                    1 an déjà au service des commerçants du Bénin ! Merci à tous nos partenaires 🙏
+                  </p>
+                  <p className="text-[10px] text-emerald-300 font-semibold flex items-center gap-1">
+                    <span>🎵</span> Son original - EnoLivraison
+                  </p>
+                </div>
+
+                {/* Vertical Interaction Stats */}
+                <div className="flex flex-col items-center gap-3 text-white text-[10px] font-bold">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-rose-500">
+                      <Heart className="w-4 h-4 fill-rose-500" />
+                    </div>
+                    <span>3.5K</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                    <span>210</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                    <span>115</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          {/* 🔗 UNIFIED SOCIAL CHANNELS BAR */}
+          <div className="max-w-4xl mx-auto pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              {/* TikTok */}
+              <a
+                href={enoSocials.tiktok.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-2xl bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-800/40 hover:border-emerald-500/60 transition-all flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm font-black">
+                    🎵
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-white">TikTok</p>
+                    <p className="text-[10px] text-emerald-300 font-mono">@enolivraison</p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+              </a>
+
+              {/* Facebook */}
+              <a
+                href={enoSocials.facebook.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-2xl bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-800/40 hover:border-emerald-500/60 transition-all flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-sm font-black">
+                    f
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-white">Facebook</p>
+                    <p className="text-[10px] text-emerald-300 font-medium">Eno Livraison</p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+              </a>
+
+              {/* Instagram */}
+              <a
+                href={enoSocials.instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-2xl bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-800/40 hover:border-emerald-500/60 transition-all flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-pink-600/20 text-pink-400 flex items-center justify-center text-sm font-black">
+                    📸
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-white">Instagram</p>
+                    <p className="text-[10px] text-emerald-300 font-mono">@enolivraison</p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+              </a>
             </div>
           </div>
         </div>
