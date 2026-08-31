@@ -39,6 +39,7 @@ import { enoAgencies, enoSocials } from "@/lib/mock-data";
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [riderModalOpen, setRiderModalOpen] = useState(false);
 
   const steps = [
     {
@@ -162,18 +163,22 @@ export default function LandingPage() {
               </div>
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-6 text-xs xl:text-sm font-semibold text-slate-700">
+            {/* Desktop Navigation Links — Serrés pour rester strictement sur une seule ligne */}
+            <div className="hidden lg:flex items-center gap-3.5 xl:gap-5 text-xs xl:text-sm font-semibold text-slate-700 whitespace-nowrap flex-nowrap">
               <a href="#services" className="hover:text-[#16a34a] transition-colors">
                 Services
               </a>
-              <a href="#agences" className="hover:text-[#16a34a] transition-colors flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-[#16a34a]" /> Agences
+              <a href="#comment-ca-marche" className="hover:text-[#16a34a] transition-colors">
+                Comment ça marche
               </a>
-              <a href="#closing" className="hover:text-[#16a34a] transition-colors">
-                Closing 15 min
-              </a>
-              <a href="#communaute" className="hover:text-[#16a34a] transition-colors flex items-center gap-1 text-emerald-700">
+              <button
+                onClick={() => setRiderModalOpen(true)}
+                className="hover:text-[#16a34a] transition-colors flex items-center gap-1 cursor-pointer font-semibold text-emerald-700 hover:text-emerald-800"
+              >
+                <Truck className="w-3.5 h-3.5 text-[#16a34a]" />
+                <span>Devenir livreur</span>
+              </button>
+              <a href="#communaute" className="hover:text-[#16a34a] transition-colors flex items-center gap-1">
                 <Flame className="w-3 h-3 text-rose-500" /> Communauté
               </a>
               <a href="#pourquoi" className="hover:text-[#16a34a] transition-colors">
@@ -185,19 +190,19 @@ export default function LandingPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="hidden sm:flex items-center gap-3 shrink-0">
+            <div className="hidden sm:flex items-center gap-2.5 shrink-0">
               <a
                 href={enoSocials.whatsappCotonou}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#16a34a] border border-emerald-200 text-xs font-bold transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#16a34a] border border-emerald-200 text-xs font-bold transition-all active:scale-95 whitespace-nowrap"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-[#25d366] fill-[#25d366]" />
                 <span>WhatsApp</span>
               </a>
               <Link
                 href="/partenaire"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95 whitespace-nowrap"
               >
                 <Users className="w-3.5 h-3.5 text-emerald-100" />
                 <span>Espace Partenaire</span>
@@ -230,13 +235,19 @@ export default function LandingPage() {
             <a href="#services" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               Nos Services
             </a>
-            <a href="#agences" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-[#16a34a]">
-              Nos 2 Agences (Cotonou & Lokossa)
+            <a href="#comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-[#16a34a]">
+              Comment ça marche
             </a>
-            <a href="#closing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
-              Closing Téléphonique
-            </a>
-            <a href="#communaute" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-emerald-700">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setRiderModalOpen(true);
+              }}
+              className="w-full text-left text-sm font-bold text-emerald-700 flex items-center gap-2"
+            >
+              <Truck className="w-4 h-4 text-[#16a34a]" /> Devenir livreur (Recrutement)
+            </button>
+            <a href="#communaute" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               Réseaux Sociaux (@enolivraison)
             </a>
             <a href="#pourquoi" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
@@ -1529,6 +1540,102 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      {/* 🛵 MODALE INTERACTIVE: DEVENIR LIVREUR ENO LIVRAISON */}
+      {riderModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+          <div className="relative w-full max-w-lg bg-[#071710] border border-emerald-800/80 rounded-3xl p-6 sm:p-8 text-white shadow-2xl space-y-6 overflow-hidden">
+            {/* Ambient Background */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#16a34a]/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setRiderModalOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-emerald-950/80 hover:bg-emerald-900 text-slate-300 hover:text-white transition-colors"
+              aria-label="Fermer la boîte"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full bg-[#16a34a] text-white text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow">
+                <Truck className="w-3.5 h-3.5" /> RECRUTEMENT LIVREURS OUVERT
+              </span>
+              <h3 className="text-2xl font-black text-white">
+                Rejoignez la Flotte <span className="text-[#22c55e]">ENO LIVRAISON</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                Vous possédez une moto et connaissez bien votre ville ? Devenez livreur officiel ENO à Cotonou ou Lokossa avec un volume journalier de colis garanti.
+              </p>
+            </div>
+
+            {/* Photo Thumbnail + 3 Perks */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60">
+              <div className="sm:col-span-4 relative h-28 rounded-xl overflow-hidden border border-emerald-700/60">
+                <Image
+                  src="/images/eno_courier_bike.png"
+                  alt="Livreur ENO LIVRAISON à moto"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="sm:col-span-8 space-y-2 text-xs">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                  <span><strong>Caisson isotherme officiel</strong> vert floqué ENO mis à disposition.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                  <span><strong>Rémunération motivante</strong> par course livrée avec paiement régulier.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                  <span>Affectation immédiate sur <strong>Cotonou</strong> ou <strong>Lokossa</strong>.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Direct WhatsApp Recruitment Actions */}
+            <div className="space-y-2.5 pt-1">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                Postuler directement par WhatsApp :
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Cotonou Application */}
+                <a
+                  href="https://wa.me/2290164291884?text=Bonjour%20ENO%20LIVRAISON%2C%20je%20souhaite%20postuler%20comme%20LIVREUR%20%C3%A0%20COTONOU.%20Voici%20mes%20informations%20%3A"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3.5 rounded-2xl bg-[#25d366] hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 text-center"
+                >
+                  <MessageSquare className="w-4 h-4 fill-white shrink-0" />
+                  <span>Agence Cotonou<br /><span className="text-[10px] font-mono font-normal">01 64 29 18 84</span></span>
+                </a>
+
+                {/* Lokossa Application */}
+                <a
+                  href="https://wa.me/2290167510082?text=Bonjour%20ENO%20LIVRAISON%2C%20je%20souhaite%20postuler%20comme%20LIVREUR%20%C3%A0%20LOKOSSA.%20Voici%20mes%20informations%20%3A"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3.5 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 text-center"
+                >
+                  <MessageSquare className="w-4 h-4 fill-white shrink-0" />
+                  <span>Agence Lokossa<br /><span className="text-[10px] font-mono font-normal">01 67 51 00 82</span></span>
+                </a>
+              </div>
+            </div>
+
+            {/* Direct Call Footer */}
+            <div className="pt-3 border-t border-emerald-900/60 text-center text-slate-400 text-xs">
+              <span>Vous préférez appeler ? </span>
+              <a href="tel:+2290164291884" className="text-[#22c55e] font-bold hover:underline">
+                +229 01 64 29 18 84
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
