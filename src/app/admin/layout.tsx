@@ -122,13 +122,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Bottom Sidebar Footer */}
         <div className="space-y-3 pt-6 border-t border-emerald-900/60">
-          <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-900/40 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-emerald-200">Agences ENO</span>
-              <span className="text-[9px] bg-emerald-500/20 text-[#22c55e] px-1.5 py-0.5 rounded font-black">2 Pôles</span>
+          <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 space-y-1.5 text-xs">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase text-emerald-400">
+              <span>Agences ENO Actives</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             </div>
-            <p className="text-[10px] text-emerald-300/80">📍 Cotonou : +229 01 64 29 18 84</p>
-            <p className="text-[10px] text-emerald-300/80">📍 Lokossa : +229 01 67 51 00 82</p>
+            <p className="text-[11px] text-slate-200">Cotonou : <strong className="text-white font-mono">01 64 29 18 84</strong></p>
+            <p className="text-[11px] text-slate-200">Lokossa : <strong className="text-white font-mono">01 67 51 00 82</strong></p>
           </div>
 
           <button

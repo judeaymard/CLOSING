@@ -20,7 +20,6 @@ import {
   Store,
   MapPin,
   CheckCircle2,
-  MessageSquare,
 } from "lucide-react";
 
 function AuthForm() {
@@ -232,9 +231,9 @@ function AuthForm() {
               <option value="Cotonou">Cotonou</option>
               <option value="Abomey-Calavi">Abomey-Calavi</option>
               <option value="Porto-Novo">Porto-Novo</option>
-              <option value="Lokossa">Lokossa (Mono & Couffo)</option>
+              <option value="Lokossa">Lokossa (Mono)</option>
               <option value="Parakou">Parakou</option>
-              <option value="Autre">Autre ville</option>
+              <option value="Autre">Autre ville du Bénin</option>
             </select>
           </div>
 
@@ -523,25 +522,26 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Social Proof */}
-        <div className="relative z-10 flex items-center gap-3 pt-4 border-t border-emerald-900/60">
-          <div className="flex -space-x-2">
-            <div className="w-8 h-8 rounded-full bg-[#16a34a] text-white text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
-              E
+        {/* Social Proof & Real Agencies */}
+        <div className="relative z-10 space-y-3 pt-4 border-t border-emerald-900/60">
+          <div className="flex items-center gap-3">
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-emerald-700 shrink-0">
+              <Image
+                src="/images/eno_delivery_handover.png"
+                alt="Livreur ENO LIVRAISON remettant un colis"
+                fill
+                className="object-cover"
+              />
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#0f291e] text-[#86efac] text-xs font-black flex items-center justify-center border-2 border-emerald-500">
-              N
-            </div>
-            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
-              O
-            </div>
-            <div className="w-8 h-8 rounded-full bg-slate-800 text-emerald-300 text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
-              +
+            <div>
+              <p className="text-xs font-bold text-white">
+                Plus de 1 An d&apos;expertise terrain au Bénin
+              </p>
+              <p className="text-[11px] text-emerald-300/80">
+                Cotonou : <strong className="text-white">01 64 29 18 84</strong> • Lokossa : <strong className="text-white">01 67 51 00 82</strong>
+              </p>
             </div>
           </div>
-          <p className="text-xs font-semibold text-emerald-200/80">
-            <span className="text-white font-bold">+200 e-commerçants béninois</span> font confiance à ENO LIVRAISON
-          </p>
         </div>
       </div>
 
@@ -550,39 +550,6 @@ export default function LoginPage() {
         <Suspense fallback={<div className="text-center text-slate-400 text-xs">Chargement...</div>}>
           <AuthForm />
         </Suspense>
-
-        {/* Assistance Agences Contact Footer */}
-        <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-2">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Besoin d&apos;aide pour votre inscription ?
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-            <a
-              href="tel:+2290164291884"
-              className="text-slate-700 hover:text-[#16a34a] font-semibold flex items-center gap-1"
-            >
-              <span className="text-[#16a34a] font-bold">Cotonou :</span> +229 01 64 29 18 84
-            </a>
-            <span className="text-slate-300">•</span>
-            <a
-              href="tel:+2290167510082"
-              className="text-slate-700 hover:text-[#16a34a] font-semibold flex items-center gap-1"
-            >
-              <span className="text-[#16a34a] font-bold">Lokossa :</span> +229 01 67 51 00 82
-            </a>
-          </div>
-          <div className="pt-1">
-            <a
-              href="https://wa.me/2290164291884"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[#25d366] hover:underline font-bold"
-            >
-              <MessageSquare className="w-3.5 h-3.5 fill-current" />
-              Contacter le support WhatsApp
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );

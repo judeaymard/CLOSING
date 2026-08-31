@@ -123,10 +123,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Bottom Sidebar Footer */}
-        <div className="space-y-3 pt-6 border-t border-emerald-900/60">
+        <div className="space-y-3 pt-4 border-t border-emerald-900/60">
+          {/* Direct Agency Assistance */}
+          <div className="p-3 rounded-2xl bg-emerald-950/80 border border-emerald-800/60 text-xs space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase text-emerald-400">
+              <span>Assistance Agences</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <div className="space-y-1 text-[11px] text-slate-300">
+              <p>📍 Cotonou : <strong className="text-white font-mono">01 64 29 18 84</strong></p>
+              <p>📍 Lokossa : <strong className="text-white font-mono">01 67 51 00 82</strong></p>
+            </div>
+            <a
+              href="https://wa.me/2290164291884"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center py-1.5 rounded-xl bg-[#25d366] hover:bg-emerald-600 text-white font-bold text-[10px] transition-colors mt-2"
+            >
+              WhatsApp Support
+            </a>
+          </div>
+
           {/* Active Account Pill */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span>Boutique certifiée ENO</span>
           </div>
 
