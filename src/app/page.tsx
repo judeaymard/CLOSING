@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -40,6 +40,23 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [riderModalOpen, setRiderModalOpen] = useState(false);
+  const [liveToastIndex, setLiveToastIndex] = useState(0);
+  const [showLiveToast, setShowLiveToast] = useState(true);
+
+  const liveActivities = [
+    { location: "Cotonou (Cadjehoun)", action: "Colis remis en main propre", amount: "18 500 F CFA", time: "il y a 2 min", status: "Livré" },
+    { location: "Lokossa (Centre)", action: "Livraison express effectuée", amount: "24 000 F CFA", time: "il y a 4 min", status: "Reversé" },
+    { location: "Abomey-Calavi", action: "Commande validée par closing", amount: "14 000 F CFA", time: "il y a 6 min", status: "Confirmé" },
+    { location: "Porto-Novo", action: "Paiement Cash COD encaissé", amount: "32 500 F CFA", time: "il y a 9 min", status: "Livré" },
+    { location: "Cotonou (Haie-Vive)", action: "Client closé sous 11 minutes", amount: "21 000 F CFA", time: "il y a 12 min", status: "En route" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveToastIndex((prev) => (prev + 1) % liveActivities.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [liveActivities.length]);
 
   const steps = [
     {
@@ -374,6 +391,17 @@ export default function LandingPage() {
                 </div>
               </div>
 
+              {/* Floating Live Animated Badges around 3D Carousel */}
+              <div className="absolute -top-3 -left-2 z-20 float_badge_1 hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-xl border border-emerald-200 text-xs font-bold text-slate-800">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] radar_pulse"></span>
+                <span>Flotte en tournée active</span>
+              </div>
+
+              <div className="absolute bottom-16 -right-3 z-20 float_badge_2 hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#071710]/95 backdrop-blur-md shadow-xl border border-emerald-800 text-xs font-bold text-white">
+                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-bounce" />
+                <span>Closing moyen : 12 min</span>
+              </div>
+
               {/* Floating Trust Badge */}
               <div className="mt-6 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full shadow-md border border-emerald-100 flex items-center justify-center gap-3">
                 <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-[#16a34a] flex items-center justify-center shrink-0">
@@ -388,6 +416,36 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* 🏎️ BANDEAU DÉFILANT INFINI EN DIRECT (MARQUEE TICKER) */}
+      <div className="bg-[#06170f] py-4 overflow-hidden border-y border-emerald-900/60 select-none relative">
+        <div className="marquee_track flex items-center gap-8 text-xs font-black uppercase tracking-wider text-emerald-200">
+          {[
+            "⚡ CLOSING TÉLÉPHONIQUE EN 15 MIN CHRONO",
+            "🛵 LIVRAISONS EXPRESS < 2H À DOMICILE",
+            "📍 DEUX AGENCES PHYSIQUES : COTONOU & LOKOSSA",
+            "📦 STOCKAGE EN ENTREPÔT 100% OFFERT",
+            "💰 REVERSEMENT CASH ON DELIVERY QUOTIDIEN (MTN & MOOV)",
+            "⭐ +200 E-COMMERÇANTS BÉNINOIS ACTIFS",
+            "🔒 CAISSONS ISOTHERMES FLOQUÉS ENO LIVRAISON",
+            "📱 SUIVEZ-NOUS SUR TIKTOK @ENOLIVRAISON",
+            "⚡ CLOSING TÉLÉPHONIQUE EN 15 MIN CHRONO",
+            "🛵 LIVRAISONS EXPRESS < 2H À DOMICILE",
+            "📍 DEUX AGENCES PHYSIQUES : COTONOU & LOKOSSA",
+            "📦 STOCKAGE EN ENTREPÔT 100% OFFERT",
+            "💰 REVERSEMENT CASH ON DELIVERY QUOTIDIEN (MTN & MOOV)",
+            "⭐ +200 E-COMMERÇANTS BÉNINOIS ACTIFS",
+            "🔒 CAISSONS ISOTHERMES FLOQUÉS ENO LIVRAISON",
+            "📱 SUIVEZ-NOUS SUR TIKTOK @ENOLIVRAISON",
+          ].map((text, idx) => (
+            <div key={idx} className="flex items-center gap-3 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
+              <span>{text}</span>
+              <span className="text-emerald-800">•</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* 📍 SECTION NOS AGENCES PHYSIQUES AU BÉNIN (COTONOU & LOKOSSA) */}
       <section id="agences" className="py-20 bg-[#071710] text-white relative overflow-hidden border-b border-emerald-950">
@@ -1589,6 +1647,41 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 🔔 NOTIFICATION FLOTTANTE EN DIRECT (LIVE ACTIVITY TOAST) */}
+      {showLiveToast && (
+        <div className="fixed bottom-5 left-5 z-40 max-w-xs sm:max-w-sm bg-[#071710]/95 backdrop-blur-md border border-emerald-800/80 rounded-2xl p-3.5 shadow-2xl text-white flex items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center shrink-0 radar_pulse">
+              <Truck className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase text-[#22c55e] bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
+                  {liveActivities[liveToastIndex].status}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {liveActivities[liveToastIndex].time}
+                </span>
+              </div>
+              <p className="text-xs font-bold text-white mt-0.5">
+                {liveActivities[liveToastIndex].location}
+              </p>
+              <p className="text-[11px] text-emerald-300">
+                {liveActivities[liveToastIndex].action} • <strong className="text-white">{liveActivities[liveToastIndex].amount}</strong>
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowLiveToast(false)}
+            className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors shrink-0"
+            title="Masquer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>
