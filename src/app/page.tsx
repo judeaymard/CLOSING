@@ -597,10 +597,11 @@ export default function LandingPage() {
           </div>
 
           {/* 🌟 CREATOR PROFILE BAR (Style Carte Créateur TikTok Officiel) */}
-          <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-3xl bg-emerald-950/40 border border-emerald-800/40 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+          {/* 🌟 CREATOR PROFILE BAR (Style Carte Créateur TikTok Officiel — Preuves sur une seule ligne) */}
+          <div className="max-w-5xl mx-auto p-4 sm:p-5 rounded-3xl bg-emerald-950/40 border border-emerald-800/40 backdrop-blur-md flex flex-col xl:flex-row items-center justify-between gap-5 shadow-xl">
             {/* Left: Avatar & Identity */}
-            <div className="flex items-center gap-4 text-center sm:text-left">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#22c55e] shadow-lg bg-white shrink-0">
+            <div className="flex items-center gap-3.5 text-center sm:text-left shrink-0">
+              <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-[#22c55e] shadow-lg bg-white shrink-0">
                 <Image
                   src="/images/eno_livraison_logo.png"
                   alt="Avatar EnoLivraison TikTok"
@@ -616,25 +617,29 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <p className="text-xs font-semibold text-emerald-400 font-mono">@enolivraison</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">« Vos colis, notre priorité ! 📍 Cotonou & Lokossa »</p>
+                <p className="text-[11px] text-slate-300 mt-0.5 whitespace-nowrap">« Vos colis, notre priorité ! 📍 Cotonou & Lokossa »</p>
               </div>
             </div>
 
-            {/* Middle: Live Verified Stats */}
-            <div className="flex items-center gap-6 border-y md:border-y-0 md:border-x border-emerald-800/50 py-3 md:py-0 px-0 md:px-8 text-center">
-              <div>
-                <p className="text-xl font-black text-white">{enoSocials.tiktok.followers}</p>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Abonnés</p>
+            {/* Middle: Live Verified Stats — TOUTES LES PREUVES STRICTEMENT SUR UNE SEULE LIGNE */}
+            <div className="flex items-center justify-center gap-3.5 sm:gap-6 border-y xl:border-y-0 xl:border-x border-emerald-800/60 py-3 xl:py-0 px-2 xl:px-6 text-center whitespace-nowrap shrink-0">
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight">1&nbsp;157+</span>
+                <span className="text-[11px] uppercase font-bold text-slate-300 tracking-wider">Abonnés</span>
               </div>
-              <div className="w-px h-8 bg-emerald-800/50"></div>
-              <div>
-                <p className="text-xl font-black text-[#22c55e]">{enoSocials.tiktok.likes}</p>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">J&apos;aime</p>
+
+              <span className="text-emerald-600 font-bold text-sm">•</span>
+
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="text-xl sm:text-2xl font-black text-[#22c55e] tracking-tight">4&nbsp;351+</span>
+                <span className="text-[11px] uppercase font-bold text-slate-300 tracking-wider">J&apos;aime</span>
               </div>
-              <div className="w-px h-8 bg-emerald-800/50"></div>
-              <div>
-                <p className="text-xl font-black text-amber-400">1 An</p>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">D&apos;existence</p>
+
+              <span className="text-emerald-600 font-bold text-sm">•</span>
+
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="text-xl sm:text-2xl font-black text-amber-400 tracking-tight">1&nbsp;An</span>
+                <span className="text-[11px] uppercase font-bold text-slate-300 tracking-wider">d&apos;existence</span>
               </div>
             </div>
 
@@ -644,7 +649,7 @@ export default function LandingPage() {
                 href={enoSocials.tiktok.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition-all active:scale-95"
+                className="px-6 py-3 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap"
               >
                 <span>S&apos;abonner sur TikTok</span>
                 <ArrowUpRight className="w-4 h-4" />

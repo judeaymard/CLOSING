@@ -31,8 +31,8 @@ export const enoSocials = {
   tiktok: {
     handle: '@enolivraison',
     url: 'https://www.tiktok.com/@enolivraison',
-    followers: '1 157+',
-    likes: '4 351+',
+    followers: '1\u00A0157+',
+    likes: '4\u00A0351+',
     label: 'TikTok Officiel',
   },
   facebook: {
