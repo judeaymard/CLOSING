@@ -93,51 +93,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#16a34a] selection:text-white overflow-x-hidden">
-      {/* 🚀 TOP ANNOUNCEMENT BAR: FINITION HAUT DE GAMME */}
-      <div className="bg-[#071710] text-emerald-100 border-b border-emerald-950/80 py-2 px-4 text-xs select-none">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left: Agency Hotlines */}
-          <div className="flex items-center gap-3 overflow-hidden text-[11px]">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold uppercase text-[9px] tracking-wider border border-emerald-500/30 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              En direct
-            </span>
-            <div className="flex items-center gap-2.5 text-slate-300 truncate">
-              <a href="tel:+2290164291884" className="hover:text-white transition-colors flex items-center gap-1">
-                <span className="text-emerald-400 font-semibold">Cotonou :</span>
-                <span className="font-mono font-bold text-white">01 64 29 18 84</span>
-              </a>
-              <span className="text-emerald-800">•</span>
-              <a href="tel:+2290167510082" className="hover:text-white transition-colors flex items-center gap-1">
-                <span className="text-emerald-400 font-semibold">Lokossa :</span>
-                <span className="font-mono font-bold text-white">01 67 51 00 82</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Right: Quick Links */}
-          <div className="flex items-center gap-4 text-[11px] font-semibold shrink-0">
-            <a
-              href={enoSocials.tiktok.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1 text-slate-300 hover:text-white transition-colors"
-            >
-              <span className="text-rose-400 text-xs">🎵</span> TikTok : <span className="text-emerald-300">@enolivraison</span>
-            </a>
-            <a
-              href={enoSocials.whatsappCotonou}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[#25d366] hover:text-emerald-300 transition-colors"
-            >
-              <MessageSquare className="w-3.5 h-3.5 fill-current" />
-              <span className="hidden sm:inline">WhatsApp Support</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* 💎 NAVIGATION BAR: DESIGN ÉPURÉ SANS DÉBORDEMENT */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -283,11 +238,6 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Copy (6 cols) */}
             <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 text-[#15803d] text-xs font-bold border border-emerald-300 shadow-2xs">
-                <Sparkles className="w-4 h-4 text-[#16a34a]" />
-                RAPIDE • FIABLE • SÉCURISÉE AU BÉNIN
-              </div>
-
               <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black text-slate-900 leading-tight tracking-tight">
                 Vos colis, notre priorité avec <span className="text-[#16a34a]">ENO LIVRAISON</span>
               </h1>
