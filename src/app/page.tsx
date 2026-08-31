@@ -634,52 +634,42 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 🌟 3 CARTES D'IMMERSION TERRAIN & PREUVES RÉELLES TIKTOK (OPTION 1) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {/* Carte 1: Flotte & Tournées Cotonou */}
-            <div className="group relative rounded-3xl overflow-hidden border border-emerald-800/50 hover:border-[#22c55e] bg-slate-950 h-[460px] shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-6 reveal-left delay-150">
+          {/* 🌟 3 CARTES ÉPURÉES & SANS SURCHARGE */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* Carte 1: Flotte Cotonou */}
+            <div className="group relative rounded-3xl overflow-hidden border border-emerald-900/60 hover:border-emerald-500 bg-[#071710] h-[380px] shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between p-6 reveal-left delay-150">
               <Image
-                src="/images/eno_courier_bike.png"
-                alt="Flotte officielle de motos Eno Livraison à Cotonou"
+                src="/images/eno_card_1.png"
+                alt="Flotte de livraison Cotonou"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/60 to-black/30"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/70 to-transparent"></div>
 
-              {/* Top Badges */}
-              <div className="relative z-10 flex items-center justify-between gap-2">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md text-[#86efac] border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse"></span>
-                  TOURNÉES EXPRESS • COTONOU
+              {/* Top Tag */}
+              <div className="relative z-10 flex justify-between items-center">
+                <span className="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 text-[10px] font-bold uppercase tracking-wider">
+                  Cotonou & Calavi
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
-                  <span>🎵</span> @enolivraison
+                <span className="text-[10px] text-slate-400 font-medium">
+                  TikTok @enolivraison
                 </span>
               </div>
 
-              {/* Bottom Content */}
-              <div className="relative z-10 space-y-3 text-left">
-                <div className="space-y-1.5">
-                  <h3 className="text-xl font-black text-white leading-tight">
-                    Flotte Officielle & Caissons Isothermes
-                  </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                    Départ en tournée continue chaque matin. Vos colis sont 100% protégés de la pluie, de la poussière et livrés en moins de 2h chrono.
-                  </p>
-                </div>
-
-                {/* Real Highlights & Stats from TikTok */}
-                <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">📍 Cotonou & Calavi</span>
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">⚡ &lt; 2h Chrono</span>
-                  </div>
-
+              {/* Bottom Info */}
+              <div className="relative z-10 space-y-2">
+                <h3 className="text-lg font-bold text-white leading-snug">
+                  Motos & Caissons Isothermes
+                </h3>
+                <p className="text-xs text-slate-300 font-normal">
+                  Colis protégés de la poussière et livrés en moins de 2h.
+                </p>
+                <div className="pt-2">
                   <a
                     href={enoSocials.tiktok.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#22c55e] hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22c55e] hover:text-white transition-colors"
                   >
                     <span>Voir sur TikTok</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -688,50 +678,40 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 2: Remise de Colis & Confiance Lokossa */}
-            <div className="group relative rounded-3xl overflow-hidden border border-emerald-800/50 hover:border-[#22c55e] bg-slate-950 h-[460px] shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-6 reveal-up delay-250">
+            {/* Carte 2: Remise Lokossa */}
+            <div className="group relative rounded-3xl overflow-hidden border border-emerald-900/60 hover:border-emerald-500 bg-[#071710] h-[380px] shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between p-6 reveal-up delay-250">
               <Image
-                src="/images/eno_delivery_handover.png"
-                alt="Remise de colis en main propre à Lokossa par Eno Livraison"
+                src="/images/eno_card_2.png"
+                alt="Remise de colis en main propre à Lokossa"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/60 to-black/30"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/70 to-transparent"></div>
 
-              {/* Top Badges */}
-              <div className="relative z-10 flex items-center justify-between gap-2">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md text-[#86efac] border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
-                  CONFIANCE & COURTOISIE • LOKOSSA
+              {/* Top Tag */}
+              <div className="relative z-10 flex justify-between items-center">
+                <span className="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 text-[10px] font-bold uppercase tracking-wider">
+                  Lokossa & Mono
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
-                  <span>🎵</span> @enolivraison
+                <span className="text-[10px] text-slate-400 font-medium">
+                  TikTok @enolivraison
                 </span>
               </div>
 
-              {/* Bottom Content */}
-              <div className="relative z-10 space-y-3 text-left">
-                <div className="space-y-1.5">
-                  <h3 className="text-xl font-black text-white leading-tight">
-                    Livraison en Main Propre & Cash COD
-                  </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                    Validation du code client sur place, encaissement sécurisé en espèces et reversement Mobile Money le jour même à nos partenaires.
-                  </p>
-                </div>
-
-                {/* Real Highlights & Stats from TikTok */}
-                <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">💵 Cash à la livraison</span>
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">📲 Virement MoMo Daily</span>
-                  </div>
-
+              {/* Bottom Info */}
+              <div className="relative z-10 space-y-2">
+                <h3 className="text-lg font-bold text-white leading-snug">
+                  Remise en Main Propre & COD
+                </h3>
+                <p className="text-xs text-slate-300 font-normal">
+                  Encaissement du cash et reversement Mobile Money le jour même.
+                </p>
+                <div className="pt-2">
                   <a
                     href={enoSocials.tiktok.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#22c55e] hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22c55e] hover:text-white transition-colors"
                   >
                     <span>Voir sur TikTok</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -740,51 +720,42 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 3: 1 An de Présence & Partenaire E-commerce */}
-            <div className="group relative rounded-3xl overflow-hidden border border-emerald-800/50 hover:border-amber-400 bg-slate-950 h-[460px] shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-6 reveal-right delay-350">
+            {/* Carte 3: Réseau & Croissance */}
+            <div className="group relative rounded-3xl overflow-hidden border border-emerald-900/60 hover:border-emerald-500 bg-[#071710] h-[380px] shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between p-6 reveal-right delay-350">
               <Image
-                src="/images/eno_1an_celebration.png"
-                alt="1 An d'anniversaire et de présence d'Eno Livraison au Bénin"
+                src="/images/eno_courier_handover_action.png"
+                alt="Satisfaction client et livraisons Eno"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/60 to-black/30"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/70 to-transparent"></div>
 
-              {/* Top Badges */}
-              <div className="relative z-10 flex items-center justify-between gap-2">
-                <span className="px-3 py-1 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow">
-                  🎉 1 AN D&apos;EXISTENCE • DEPUIS LE 20 AOÛT
+              {/* Top Tag */}
+              <div className="relative z-10 flex justify-between items-center">
+                <span className="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 text-[10px] font-bold uppercase tracking-wider">
+                  Bénin
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
-                  <span>🎵</span> @enolivraison
+                <span className="text-[10px] text-slate-400 font-medium">
+                  TikTok @enolivraison
                 </span>
               </div>
 
-              {/* Bottom Content */}
-              <div className="relative z-10 space-y-3 text-left">
-                <div className="space-y-1.5">
-                  <h3 className="text-xl font-black text-white leading-tight">
-                    Le Partenaire N°1 des Commerçants
-                  </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                    Fêté le 20 août ! Plus de 5 000 colis distribués, 1 150+ abonnés actifs et une livraison offerte pour chaque nouveau commerçant.
-                  </p>
-                </div>
-
-                {/* Real Highlights & Stats from TikTok */}
-                <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-[11px] font-bold text-amber-300">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">❤️ 4 351+ J&apos;aime</span>
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800">🎁 Offre 1 an active</span>
-                  </div>
-
+              {/* Bottom Info */}
+              <div className="relative z-10 space-y-2">
+                <h3 className="text-lg font-bold text-white leading-snug">
+                  1 An d&apos;Existence au Bénin
+                </h3>
+                <p className="text-xs text-slate-300 font-normal">
+                  Plus de 5 000 colis distribués et 4 350+ mentions J&apos;aime.
+                </p>
+                <div className="pt-2">
                   <a
                     href={enoSocials.tiktok.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22c55e] hover:text-white transition-colors"
                   >
-                    <span>Rejoindre TikTok</span>
+                    <span>Voir sur TikTok</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </a>
                 </div>
