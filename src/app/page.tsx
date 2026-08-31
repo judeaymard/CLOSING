@@ -28,8 +28,6 @@ import {
   Activity,
   Headphones,
   TrendingUp,
-  Share2,
-  Heart,
   Flame,
   Award,
 } from "lucide-react";
@@ -90,62 +88,59 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#16a34a] selection:text-white">
-      {/* 🚀 TOP ANNOUNCEMENT BAR WITH REAL AGENCY CONTACTS */}
-      <div className="bg-[#091b14] text-white py-2.5 px-4 text-xs font-medium border-b border-emerald-950/80">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-            <span className="bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] uppercase font-black tracking-wider flex items-center gap-1.5 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-              ENO LIVRAISON EN DIRECT
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#16a34a] selection:text-white overflow-x-hidden">
+      {/* 🚀 TOP ANNOUNCEMENT BAR: FINITION HAUT DE GAMME */}
+      <div className="bg-[#071710] text-emerald-100 border-b border-emerald-950/80 py-2 px-4 text-xs select-none">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Left: Agency Hotlines */}
+          <div className="flex items-center gap-3 overflow-hidden text-[11px]">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold uppercase text-[9px] tracking-wider border border-emerald-500/30 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              En direct
             </span>
-
-            {/* Agence Cotonou */}
-            <a
-              href="tel:+2290164291884"
-              className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <strong className="font-bold text-slate-200">Cotonou / Calavi :</strong>
-              <span className="text-emerald-300 font-mono font-bold">+229 01 64 29 18 84</span>
-            </a>
-
-            <span className="text-emerald-800 hidden md:inline">|</span>
-
-            {/* Agence Lokossa */}
-            <a
-              href="tel:+2290167510082"
-              className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
-              <strong className="font-bold text-slate-200">Lokossa :</strong>
-              <span className="text-emerald-300 font-mono font-bold">+229 01 67 51 00 82</span>
-            </a>
+            <div className="flex items-center gap-2.5 text-slate-300 truncate">
+              <a href="tel:+2290164291884" className="hover:text-white transition-colors flex items-center gap-1">
+                <span className="text-emerald-400 font-semibold">Cotonou :</span>
+                <span className="font-mono font-bold text-white">01 64 29 18 84</span>
+              </a>
+              <span className="text-emerald-800">•</span>
+              <a href="tel:+2290167510082" className="hover:text-white transition-colors flex items-center gap-1">
+                <span className="text-emerald-400 font-semibold">Lokossa :</span>
+                <span className="font-mono font-bold text-white">01 67 51 00 82</span>
+              </a>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Right: Quick Links */}
+          <div className="flex items-center gap-4 text-[11px] font-semibold shrink-0">
             <a
               href={enoSocials.tiktok.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-300 hover:text-white flex items-center gap-1 text-[11px] font-bold transition-colors"
+              className="hidden md:inline-flex items-center gap-1 text-slate-300 hover:text-white transition-colors"
             >
-              <span className="text-rose-400">🎵</span> TikTok : <span className="text-emerald-300">{enoSocials.tiktok.handle}</span>
+              <span className="text-rose-400 text-xs">🎵</span> TikTok : <span className="text-emerald-300">@enolivraison</span>
             </a>
-            <Link href="/partenaire" className="underline text-emerald-400 hover:text-emerald-300 font-bold hidden lg:inline-flex items-center gap-1">
-              Espace Partenaire <ChevronRight className="w-3 h-3" />
-            </Link>
+            <a
+              href={enoSocials.whatsappCotonou}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[#25d366] hover:text-emerald-300 transition-colors"
+            >
+              <MessageSquare className="w-3.5 h-3.5 fill-current" />
+              <span className="hidden sm:inline">WhatsApp Support</span>
+            </a>
           </div>
         </div>
       </div>
 
-      {/* 💎 NAVIGATION BAR */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
+      {/* 💎 NAVIGATION BAR: DESIGN ÉPURÉ SANS DÉBORDEMENT */}
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-18">
             {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform bg-white">
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
+              <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-emerald-500 shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform bg-white shrink-0">
                 <Image
                   src="/images/eno_livraison_logo.png"
                   alt="Logo ENO LIVRAISON"
@@ -155,28 +150,28 @@ export default function LandingPage() {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-slate-900">
+                <span className="text-xl font-black tracking-tight text-slate-900 leading-none">
                   ENO <span className="text-[#16a34a]">LIVRAISON</span>
                 </span>
-                <span className="text-[10px] tracking-widest uppercase font-black text-emerald-600">
+                <span className="text-[9px] tracking-widest uppercase font-black text-emerald-600 mt-1">
                   VOS COLIS, NOTRE PRIORITÉ
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-800">
+            <div className="hidden lg:flex items-center gap-6 text-xs xl:text-sm font-semibold text-slate-700">
               <a href="#services" className="hover:text-[#16a34a] transition-colors">
-                Nos Services
+                Services
               </a>
               <a href="#agences" className="hover:text-[#16a34a] transition-colors flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-[#16a34a]" /> Agences (Cotonou & Lokossa)
+                <MapPin className="w-3 h-3 text-[#16a34a]" /> Agences
               </a>
               <a href="#closing" className="hover:text-[#16a34a] transition-colors">
-                Closing Téléphonique
+                Closing 15 min
               </a>
               <a href="#communaute" className="hover:text-[#16a34a] transition-colors flex items-center gap-1 text-emerald-700">
-                <Flame className="w-3.5 h-3.5 text-rose-500" /> Réseaux Sociaux
+                <Flame className="w-3 h-3 text-rose-500" /> Communauté
               </a>
               <a href="#pourquoi" className="hover:text-[#16a34a] transition-colors">
                 Pourquoi ENO
@@ -186,37 +181,39 @@ export default function LandingPage() {
               </a>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Action Buttons */}
+            <div className="hidden sm:flex items-center gap-3 shrink-0">
               <a
                 href={enoSocials.whatsappCotonou}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25d366] hover:bg-emerald-600 text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#16a34a] border border-emerald-200 text-xs font-bold transition-all active:scale-95"
               >
-                <MessageSquare className="w-4 h-4 fill-white" />
-                WhatsApp Agence
+                <MessageSquare className="w-3.5 h-3.5 text-[#25d366] fill-[#25d366]" />
+                <span>WhatsApp</span>
               </a>
               <Link
                 href="/partenaire"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#091b14] hover:bg-[#16a34a] text-white text-xs font-bold shadow-md shadow-emerald-950/20 transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95"
               >
-                <Users className="w-4 h-4 text-[#86efac]" />
-                Espace Partenaire
+                <Users className="w-3.5 h-3.5 text-emerald-100" />
+                <span>Espace Partenaire</span>
+                <ChevronRight className="w-3 h-3 text-emerald-200" />
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Toggle Button */}
             <div className="flex items-center gap-2 lg:hidden">
               <Link
                 href="/partenaire"
-                className="px-3.5 py-2 rounded-full bg-[#16a34a] text-white text-xs font-bold"
+                className="px-3.5 py-2 rounded-full bg-[#16a34a] text-white text-xs font-bold sm:hidden"
               >
                 Connexion
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-slate-900 hover:bg-slate-100"
+                className="p-2 rounded-xl text-slate-900 hover:bg-slate-100 transition-colors"
+                aria-label="Menu mobile"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -224,14 +221,14 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-b border-slate-200 bg-white px-6 py-6 space-y-4 shadow-xl">
+          <div className="lg:hidden border-b border-slate-200 bg-white px-6 py-6 space-y-4 shadow-xl animate-fade-in-up">
             <a href="#services" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               Nos Services
             </a>
             <a href="#agences" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-[#16a34a]">
-              Nos Agences (Cotonou & Lokossa)
+              Nos 2 Agences (Cotonou & Lokossa)
             </a>
             <a href="#closing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               Closing Téléphonique
@@ -245,35 +242,35 @@ export default function LandingPage() {
             <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-bold text-slate-900">
               FAQ
             </a>
-            <Link href="/partenaire" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-black text-[#16a34a]">
-              Espace Partenaire / Connexion
+            <Link href="/partenaire" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-black text-[#16a34a] pt-2 border-t border-slate-100">
+              Accès Espace Partenaire →
             </Link>
-            <div className="pt-2 flex flex-col gap-2.5">
+            <div className="pt-2 flex flex-col gap-2">
               <a
                 href={enoSocials.whatsappCotonou}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-[#25d366] text-white font-bold text-xs shadow-md"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-[#25d366] text-white font-bold text-xs shadow-md"
               >
-                <MessageSquare className="w-4 h-4" /> WhatsApp Cotonou : 01 64 29 18 84
+                <MessageSquare className="w-4 h-4 fill-white" /> WhatsApp Cotonou : 01 64 29 18 84
               </a>
               <a
                 href={enoSocials.whatsappLokossa}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-[#16a34a] text-white font-bold text-xs shadow-md"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-[#16a34a] text-white font-bold text-xs shadow-md"
               >
-                <MessageSquare className="w-4 h-4" /> WhatsApp Lokossa : 01 67 51 00 82
+                <MessageSquare className="w-4 h-4 fill-white" /> WhatsApp Lokossa : 01 67 51 00 82
               </a>
             </div>
           </div>
         )}
       </nav>
 
-      {/* 🌟 HERO SECTION WITH REAL FIELD PHOTOS & AUTHENTIC ASSETS */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/50 via-white to-white py-12 lg:py-20 border-b border-slate-100">
+      {/* 🌟 HERO SECTION WITH FLUID 3D ROTATING PHOTO CARDS */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/40 via-white to-white py-12 lg:py-20 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Copy (6 cols) */}
             <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 text-[#15803d] text-xs font-bold border border-emerald-300 shadow-sm">
-                <Sparkles className="w-4 h-4 animate-pulse text-[#16a34a]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 text-[#15803d] text-xs font-bold border border-emerald-300 shadow-2xs">
+                <Sparkles className="w-4 h-4 text-[#16a34a]" />
                 RAPIDE • FIABLE • SÉCURISÉE AU BÉNIN
               </div>
 
@@ -281,17 +278,17 @@ export default function LandingPage() {
                 Vos colis, notre priorité avec <span className="text-[#16a34a]">ENO LIVRAISON</span>
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
                 <strong>ENO LIVRAISON</strong> s&apos;occupe de toutes vos livraisons de colis à <strong>Cotonou, Abomey-Calavi, Porto-Novo et Lokossa</strong>. Nous combinons un <strong>closing téléphonique en 15 min</strong> pour confirmer vos commandes, le <strong>stockage 100% offert</strong> et l&apos;encaissement Cash On Delivery avec reversement immédiat par Mobile Money.
               </p>
 
               {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-1">
                 <Link
                   href="/partenaire"
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white font-black text-sm shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 active:scale-95"
+                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white font-black text-sm shadow-xl shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-95"
                 >
-                  <Users className="w-5 h-5 text-emerald-100" />
+                  <Users className="w-4 h-4 text-emerald-100" />
                   Rejoindre l&apos;Espace Partenaire
                 </Link>
 
@@ -301,30 +298,32 @@ export default function LandingPage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#25d366] hover:bg-emerald-600 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
                 >
-                  <MessageSquare className="w-5 h-5 fill-white" />
+                  <MessageSquare className="w-4 h-4 fill-white" />
                   WhatsApp Agence
                 </a>
               </div>
 
-              {/* Trust badges */}
-              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-slate-200 max-w-lg mx-auto lg:mx-0 text-left">
-                <div>
-                  <p className="text-2xl font-black text-slate-900">94%+</p>
-                  <p className="text-xs text-slate-500 font-semibold">Taux de livraison réussi</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-black text-[#16a34a]">2 Agences</p>
-                  <p className="text-xs text-slate-500 font-semibold">Cotonou & Lokossa</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-black text-emerald-700">100%</p>
-                  <p className="text-xs text-slate-500 font-semibold">Reversement MoMo Daily</p>
+              {/* Trust Metrics Pill Box */}
+              <div className="pt-4 max-w-lg mx-auto lg:mx-0">
+                <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/80 text-left">
+                  <div>
+                    <p className="text-xl sm:text-2xl font-black text-slate-900">94%+</p>
+                    <p className="text-[11px] text-slate-500 font-semibold">Taux de réussite</p>
+                  </div>
+                  <div>
+                    <p className="text-xl sm:text-2xl font-black text-[#16a34a]">2 Agences</p>
+                    <p className="text-[11px] text-slate-500 font-semibold">Cotonou & Lokossa</p>
+                  </div>
+                  <div>
+                    <p className="text-xl sm:text-2xl font-black text-emerald-700">100%</p>
+                    <p className="text-[11px] text-slate-500 font-semibold">Reversement Daily</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Side: 3D ROTATING PHOTO CARD STACK (L'animation rotative 3D) */}
-            <div className="lg:col-span-6 relative py-6">
+            {/* Right Side: 3D ROTATING PHOTO CARD CAROUSEL */}
+            <div className="lg:col-span-6 relative py-4 flex flex-col items-center">
               <div className="wrap_3d_card">
                 {/* 3D Card 1: Vraie photo du livreur à moto avec caisson vert ENO */}
                 <div className="rotating_card group">
@@ -332,9 +331,8 @@ export default function LandingPage() {
                     <Image
                       src="/images/eno_courier_bike.png"
                       alt="Livreur ENO LIVRAISON à moto avec caisson vert officiel"
-                      width={300}
-                      height={400}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
@@ -354,13 +352,12 @@ export default function LandingPage() {
                     <Image
                       src="/images/eno_delivery_handover.png"
                       alt="Remise de colis en main propre par un coursier ENO"
-                      width={300}
-                      height={400}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
-                    <div className="absolute top-3 left-3 bg-[#091b14] text-[#86efac] border border-emerald-500 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
+                    <div className="absolute top-3 left-3 bg-[#071710] text-[#86efac] border border-emerald-500 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shadow">
                       SATISFACTION CLIENT
                     </div>
                     <div className="absolute bottom-4 left-3 right-3 text-white">
@@ -376,9 +373,8 @@ export default function LandingPage() {
                     <Image
                       src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
                       alt="Closeuse professionnelle ENO LIVRAISON"
-                      width={300}
-                      height={400}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
@@ -398,9 +394,8 @@ export default function LandingPage() {
                     <Image
                       src="/images/gros-plan-livreur-colis_23-2149095905.avif"
                       alt="Paiement cash COD et remise colis"
-                      width={300}
-                      height={400}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
@@ -416,12 +411,12 @@ export default function LandingPage() {
               </div>
 
               {/* Floating Trust Badge */}
-              <div className="mt-8 mx-auto max-w-sm bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center justify-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#16a34a] flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5" />
+              <div className="mt-6 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full shadow-md border border-emerald-100 flex items-center justify-center gap-3">
+                <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-[#16a34a] flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
-                <div>
-                  <p className="text-xs font-black text-slate-900">1 An de Confiance au Bénin</p>
+                <div className="text-left">
+                  <p className="text-xs font-black text-slate-900">Plus de 1 An de Confiance au Bénin</p>
                   <p className="text-[10px] text-emerald-700 font-bold">Des milliers de colis livrés avec succès</p>
                 </div>
               </div>
@@ -431,7 +426,7 @@ export default function LandingPage() {
       </section>
 
       {/* 📍 SECTION NOS AGENCES PHYSIQUES AU BÉNIN (COTONOU & LOKOSSA) */}
-      <section id="agences" className="py-20 bg-[#091b14] text-white relative overflow-hidden border-b border-emerald-950">
+      <section id="agences" className="py-20 bg-[#071710] text-white relative overflow-hidden border-b border-emerald-950">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -451,7 +446,7 @@ export default function LandingPage() {
             {enoAgencies.map((agency) => (
               <div
                 key={agency.id}
-                className="bg-[#0d261c] border border-emerald-900/80 rounded-3xl p-7 space-y-6 shadow-2xl hover:border-emerald-500/60 transition-all duration-300 group flex flex-col justify-between"
+                className="bg-gradient-to-br from-[#0c2419] to-[#081b13] border border-emerald-800/50 rounded-3xl p-7 space-y-6 shadow-2xl hover:border-emerald-500/50 transition-all duration-300 group flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   {/* Agency Header */}
@@ -467,7 +462,7 @@ export default function LandingPage() {
                         {agency.title}
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 text-[#22c55e] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 text-[#22c55e] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                       <MapPin className="w-6 h-6" />
                     </div>
                   </div>
@@ -503,7 +498,7 @@ export default function LandingPage() {
                 <div className="grid grid-cols-2 gap-3 pt-4 border-t border-emerald-900/60">
                   <a
                     href={`tel:${agency.primaryPhone.replace(/\s+/g, '')}`}
-                    className="px-4 py-3 rounded-2xl bg-emerald-950 hover:bg-emerald-900 text-white text-xs font-bold border border-emerald-800 flex items-center justify-center gap-2 transition-all"
+                    className="px-4 py-3 rounded-2xl bg-emerald-950/80 hover:bg-emerald-900 text-white text-xs font-bold border border-emerald-800 flex items-center justify-center gap-2 transition-all active:scale-95"
                   >
                     <PhoneCall className="w-4 h-4 text-[#22c55e]" /> Appeler
                   </a>
@@ -511,7 +506,7 @@ export default function LandingPage() {
                     href={`https://wa.me/${agency.whatsapp}?text=Bonjour%20ENO%20LIVRAISON%20${agency.city}%2C%20je%20souhaite%20confier%20des%20colis`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-3 rounded-2xl bg-[#25d366] hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-950/40"
+                    className="px-4 py-3 rounded-2xl bg-[#25d366] hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-950/40 active:scale-95"
                   >
                     <MessageSquare className="w-4 h-4 fill-white" /> WhatsApp
                   </a>
@@ -537,27 +532,27 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* 4-Step Process Grid with Arrows */}
+          {/* 4-Step Process Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative max-w-6xl mx-auto">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
               return (
                 <div key={index} className="flex flex-col items-center text-center relative group">
                   <div className="relative mb-6">
-                    <div className={`w-24 h-24 rounded-3xl ${step.color} text-white flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-300`}>
-                      <StepIcon className="w-10 h-10 stroke-[2]" />
+                    <div className={`w-22 h-22 rounded-3xl ${step.color} text-white flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-300`}>
+                      <StepIcon className="w-9 h-9 stroke-[2]" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#091b14] text-white font-black text-xs flex items-center justify-center border-2 border-white shadow">
+                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#071710] text-white font-black text-xs flex items-center justify-center border-2 border-white shadow">
                       {step.number}
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-black text-slate-900 mb-2">{step.title}</h3>
+                  <h3 className="text-base font-black text-slate-900 mb-1.5">{step.title}</h3>
                   <p className="text-xs text-slate-500 leading-relaxed font-normal max-w-xs">{step.desc}</p>
 
                   {index < steps.length - 1 && (
-                    <div className="hidden md:flex absolute top-10 -right-6 text-emerald-300 z-10">
-                      <ArrowRight className="w-6 h-6 stroke-[2]" />
+                    <div className="hidden md:flex absolute top-9 -right-5 text-emerald-300 z-10">
+                      <ArrowRight className="w-5 h-5 stroke-[2]" />
                     </div>
                   )}
                 </div>
@@ -568,10 +563,10 @@ export default function LandingPage() {
       </section>
 
       {/* 📱 SECTION COMMUNAUTÉ TIKTOK & RÉSEAUX SOCIAUX */}
-      <section id="communaute" className="py-20 bg-gradient-to-b from-white via-emerald-50/30 to-white border-b border-slate-200 overflow-hidden">
+      <section id="communaute" className="py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white border-b border-slate-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#091b14] rounded-3xl p-8 sm:p-12 text-white border border-emerald-900 shadow-2xl relative overflow-hidden">
-            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#16a34a]/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-gradient-to-br from-[#0a2016] to-[#06170f] rounded-3xl p-8 sm:p-12 text-white border border-emerald-800/50 shadow-2xl relative overflow-hidden">
+            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#16a34a]/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
               {/* Left text */}
@@ -590,28 +585,28 @@ export default function LandingPage() {
                 </p>
 
                 {/* Live TikTok KPIs */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 pt-1">
+                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60">
                     <p className="text-2xl font-black text-white">{enoSocials.tiktok.followers}</p>
                     <p className="text-[11px] text-emerald-300/80 font-medium">Abonnés TikTok</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800">
+                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60">
                     <p className="text-2xl font-black text-[#22c55e]">{enoSocials.tiktok.likes}</p>
                     <p className="text-[11px] text-emerald-300/80 font-medium">J&apos;aime & Réactions</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800 col-span-2 sm:col-span-1">
+                  <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-800/60 col-span-2 sm:col-span-1">
                     <p className="text-2xl font-black text-amber-400">1 An</p>
                     <p className="text-[11px] text-emerald-300/80 font-medium">D&apos;existence fêté</p>
                   </div>
                 </div>
 
                 {/* Social links buttons */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-3">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
                   <a
                     href={enoSocials.tiktok.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/25 transition-all flex items-center gap-2 active:scale-95"
+                    className="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/25 transition-all flex items-center gap-2 active:scale-95"
                   >
                     <span>🎵 Suivre sur TikTok ({enoSocials.tiktok.handle})</span>
                     <ArrowUpRight className="w-4 h-4" />
@@ -621,7 +616,7 @@ export default function LandingPage() {
                     href={enoSocials.facebook.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3.5 rounded-2xl bg-[#1877f2] hover:bg-blue-600 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
+                    className="px-5 py-3 rounded-2xl bg-[#1877f2] hover:bg-blue-600 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
                   >
                     <span>Facebook</span>
                     <ArrowUpRight className="w-4 h-4" />
@@ -631,7 +626,7 @@ export default function LandingPage() {
                     href={enoSocials.instagram.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
+                    className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95"
                   >
                     <span>Instagram</span>
                     <ArrowUpRight className="w-4 h-4" />
@@ -641,7 +636,7 @@ export default function LandingPage() {
 
               {/* Right image: TikTok Community Screen */}
               <div className="lg:col-span-5 relative flex justify-center">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-900 bg-slate-950 w-full max-w-sm">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-900/80 bg-slate-950 w-full max-w-sm">
                   <div className="relative h-72 w-full">
                     <Image
                       src="/images/eno_tiktok_community.png"
@@ -675,15 +670,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Photo */}
-            <div className="lg:col-span-5 relative py-6">
+            <div className="lg:col-span-5 relative py-4">
               <div className="bg-white border-4 border-white rounded-3xl overflow-hidden shadow-2xl group">
                 <div className="relative rounded-2xl overflow-hidden h-[380px]">
                   <Image
                     src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
                     alt="Opératrice téléconseillère ENO LIVRAISON au centre d'appel"
-                    width={600}
-                    height={450}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
@@ -700,14 +694,11 @@ export default function LandingPage() {
             </div>
 
             {/* Right Explanation */}
-            <div className="lg:col-span-7 space-y-6 py-4">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#091b14] text-white text-xs font-bold shadow-md">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <div className="lg:col-span-7 space-y-6 py-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#071710] text-white text-xs font-bold shadow-md">
+                <span className="w-2 rounded-full h-2 bg-emerald-400 animate-ping"></span>
                 <Headphones className="w-3.5 h-3.5 text-[#86efac]" />
                 <span>POURQUOI LE CLOSING CHANGE TOUT</span>
-                <span className="bg-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full text-[9px] font-black uppercase">
-                  CENTRE ACTIF
-                </span>
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight text-slate-900">
@@ -718,8 +709,8 @@ export default function LandingPage() {
                 En Afrique, l&apos;achat en ligne repose d&apos;abord sur la confiance humaine. Chez <strong>ENO LIVRAISON</strong>, nos opératrices téléphoniques appellent vos prospects sous 15 minutes pour valider leur commande, préciser l&apos;adresse exacte et convenir du créneau de livraison.
               </p>
 
-              {/* 2 Pro Interactive Feature Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              {/* 2 Pro Feature Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div className="p-4 rounded-2xl bg-white border border-emerald-100 shadow-sm space-y-2">
                   <div className="flex justify-between items-center">
                     <CheckCircle2 className="w-5 h-5 text-[#16a34a]" />
@@ -748,7 +739,7 @@ export default function LandingPage() {
               </div>
 
               {/* Live Stat Footer Banner */}
-              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#091b14] text-white text-xs border border-emerald-900 shadow-lg">
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#071710] text-white text-xs border border-emerald-900 shadow-lg">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-400" />
                   <div>
@@ -784,14 +775,13 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Closing Téléphonique Pro */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
                   alt="Opératrice Téléphonique Closeuse"
-                  width={400}
-                  height={250}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                 <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
@@ -818,17 +808,16 @@ export default function LandingPage() {
             </div>
 
             {/* Card 2: Stockage & Entrepôt Cotonou & Lokossa */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/eno_courier_bike.png"
                   alt="Stockage entrepôt et préparation colis ENO"
-                  width={400}
-                  height={250}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div className="absolute top-3 left-3 bg-[#091b14] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+                <div className="absolute top-3 left-3 bg-[#071710] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
                   2. Stockage Gratuit
                 </div>
                 <div className="absolute bottom-3 left-3 right-3 text-white text-xs font-bold">
@@ -852,14 +841,13 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3: Livraison Express COD */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/eno_delivery_handover.png"
                   alt="Remise colis client ENO LIVRAISON"
-                  width={400}
-                  height={250}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                 <div className="absolute top-3 left-3 bg-[#16a34a] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
@@ -886,19 +874,18 @@ export default function LandingPage() {
             </div>
 
             {/* Card 4: Dashboard & Synchro E-commerce */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-md flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
               <div className="relative h-52 w-full overflow-hidden bg-slate-100">
                 <Image
                   src="/images/istockphoto-1481860080-612x612.jpg"
                   alt="Gestion tableau de bord et synchro Shopify"
-                  width={400}
-                  height={250}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-all duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#091b14] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+                <div className="absolute top-3 left-3 bg-[#071710] text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
                   4. Suivi Dashboard
                 </div>
-                <div className="absolute bottom-3 left-3 right-3 text-slate-900 font-extrabold text-xs bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm border border-slate-200">
+                <div className="absolute bottom-3 left-3 right-3 text-slate-900 font-extrabold text-xs bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-xs border border-slate-200">
                   Synchro Shopify & Suivi Réel
                 </div>
               </div>
@@ -922,7 +909,7 @@ export default function LandingPage() {
       </section>
 
       {/* 🚀 COMPARATIF VS BATTLE CARDS */}
-      <section id="pourquoi" className="py-20 bg-[#091b14] text-white relative overflow-hidden border-b border-emerald-950">
+      <section id="pourquoi" className="py-20 bg-[#071710] text-white relative overflow-hidden border-b border-emerald-950">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -983,13 +970,13 @@ export default function LandingPage() {
 
             {/* Center VS Emblem */}
             <div className="lg:col-span-2 flex justify-center py-2">
-              <div className="w-14 h-14 rounded-full bg-[#16a34a] text-white font-black text-lg flex items-center justify-center shadow-[0_0_25px_rgba(22,163,74,0.6)] border-4 border-[#091b14] animate-pulse">
+              <div className="w-14 h-14 rounded-full bg-[#16a34a] text-white font-black text-lg flex items-center justify-center shadow-[0_0_25px_rgba(22,163,74,0.6)] border-4 border-[#071710] animate-pulse">
                 VS
               </div>
             </div>
 
             {/* Right Card: ENO LIVRAISON */}
-            <div className="lg:col-span-5 bg-[#0d261c] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_30px_rgba(22,163,74,0.3)] relative group">
+            <div className="lg:col-span-5 bg-gradient-to-br from-[#0c2419] to-[#071710] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_30px_rgba(22,163,74,0.3)] relative group">
               <div className="absolute -top-3.5 right-6 bg-[#16a34a] text-white font-black text-[10px] uppercase tracking-widest px-3.5 py-1 rounded-full shadow-lg">
                 Recommandé E-commerce
               </div>
@@ -1052,7 +1039,7 @@ export default function LandingPage() {
 
           <div className="space-y-3">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div key={index} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                 <button
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                   className="w-full p-5 text-left font-bold text-xs sm:text-sm text-slate-900 flex justify-between items-center gap-4 hover:text-[#16a34a] transition-colors"
@@ -1078,7 +1065,7 @@ export default function LandingPage() {
       {/* 👑 CTA BANNER */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#091b14] rounded-3xl p-8 sm:p-14 text-white text-center space-y-6 shadow-2xl relative overflow-hidden border border-emerald-900">
+          <div className="bg-gradient-to-br from-[#0c2419] to-[#071710] rounded-3xl p-8 sm:p-14 text-white text-center space-y-6 shadow-2xl relative overflow-hidden border border-emerald-900">
             <div className="max-w-xl mx-auto space-y-3 relative z-10">
               <span className="px-3.5 py-1 rounded-full bg-[#16a34a] text-white text-[10px] font-black uppercase tracking-wider">
                 Rejoignez ENO LIVRAISON
@@ -1113,8 +1100,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 👑 FOOTER WITH OFFICIAL REAL DATA, AGENCES & SOCIAL NETWORKS */}
-      <footer className="bg-[#091b14] text-slate-400 border-t border-emerald-950 pt-12 pb-8 text-[11px] antialiased">
+      {/* 👑 FOOTER AVEC CONTACTS EXACTS ET RÉSEAUX SOCIAUX */}
+      <footer className="bg-[#071710] text-slate-400 border-t border-emerald-950 pt-12 pb-8 text-[11px] antialiased">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 pb-10 border-b border-emerald-900/60">
             {/* Col 1: Brand & Bio */}
@@ -1202,7 +1189,7 @@ export default function LandingPage() {
                     className="flex items-center gap-2 text-emerald-300 hover:text-white transition-colors"
                   >
                     <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                    <span>TikTok : <strong>{enoSocials.tiktok.handle}</strong> ({enoSocials.tiktok.followers})</span>
+                    <span>TikTok : <strong>{enoSocials.tiktok.handle}</strong></span>
                   </a>
                 </li>
                 <li>
