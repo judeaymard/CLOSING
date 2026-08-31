@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Package,
@@ -70,7 +71,7 @@ function AuthForm() {
 
     setTimeout(() => {
       setLoading(false);
-      setSuccessMsg("Compte créé avec succès ! Redirection en cours...");
+      setSuccessMsg("Compte créé avec succès ! Bienvenue chez ENO LIVRAISON.");
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
@@ -79,18 +80,40 @@ function AuthForm() {
 
   return (
     <div className="max-w-[420px] w-full mx-auto space-y-6">
-      {/* Mobile Back Link */}
+      {/* Mobile Header with Logo */}
+      <div className="lg:hidden flex flex-col items-center text-center space-y-3 pb-2">
+        <Link href="/" className="inline-flex items-center gap-2">
+          <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
+            <Image
+              src="/images/eno_livraison_logo.png"
+              alt="Logo ENO LIVRAISON"
+              fill
+              className="object-contain p-0.5"
+              priority
+            />
+          </div>
+        </Link>
+        <div>
+          <span className="text-xl font-black text-slate-900 block">
+            ENO <span className="text-[#16a34a]">LIVRAISON</span>
+          </span>
+          <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">
+            VOS COLIS, NOTRE PRIORITÉ
+          </span>
+        </div>
+      </div>
+
       <div className="lg:hidden">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-[#06b6d4] hover:underline"
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#16a34a] hover:underline"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Retour à l&apos;accueil
         </Link>
       </div>
 
-      {/* 🔘 TOP ROLE SWITCHER (STYLE ÉPURÉ DE L'IMAGE 1 + COULEURS SCMSLIVRAISON) */}
-      <div className="bg-[#eef2f6] p-1.5 rounded-2xl flex items-center gap-1">
+      {/* 🔘 TOP ROLE SWITCHER */}
+      <div className="bg-[#f0fdf4] p-1.5 rounded-2xl flex items-center gap-1 border border-emerald-100">
         <button
           type="button"
           onClick={() => {
@@ -99,8 +122,8 @@ function AuthForm() {
           }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-bold transition-all ${
             role === "partenaire"
-              ? "bg-white text-[#06b6d4] shadow-sm font-extrabold"
-              : "text-slate-500 hover:text-slate-800 font-semibold"
+              ? "bg-[#16a34a] text-white shadow-md shadow-emerald-600/20 font-black"
+              : "text-slate-600 hover:text-slate-900 font-semibold"
           }`}
         >
           <Truck className="w-4 h-4" /> Partenaire
@@ -115,11 +138,11 @@ function AuthForm() {
           }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-bold transition-all ${
             role === "agence"
-              ? "bg-[#090e22] text-white shadow-sm font-extrabold"
-              : "text-slate-500 hover:text-slate-800 font-semibold"
+              ? "bg-[#0f291e] text-white shadow-md font-black"
+              : "text-slate-600 hover:text-slate-900 font-semibold"
           }`}
         >
-          <Shield className="w-4 h-4" /> Agence
+          <Shield className="w-4 h-4" /> Agence ENO
         </button>
       </div>
 
@@ -133,27 +156,27 @@ function AuthForm() {
 
       {/* FORM TITLE & SUBTITLE */}
       <div className="space-y-1.5 pt-2">
-        <h2 className="text-3xl font-black text-[#090e22] tracking-tight">
+        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
           {isRegister ? "Créer un compte" : "Bon retour !"}
         </h2>
         <p className="text-sm text-slate-500 font-medium">
           {isRegister
-            ? "Inscrivez-vous à votre espace partenaire"
+            ? "Inscrivez votre boutique chez ENO LIVRAISON"
             : role === "partenaire"
-            ? "Connectez-vous à votre espace partenaire"
-            : "Connectez-vous à votre espace agence"}
+            ? "Connectez-vous à votre espace e-commerçant"
+            : "Connexion sécurisée pour l'équipe agence"}
         </p>
       </div>
 
       {/* ══════════════════════════════════════════════════════ */}
-      {/* 📝 FORMULAIRE D'INSCRIPTION (CRÉER UN COMPTE) */}
+      {/* 📝 FORMULAIRE D'INSCRIPTION */}
       {/* ══════════════════════════════════════════════════════ */}
       {isRegister ? (
         <form onSubmit={handleSignup} className="space-y-3.5">
           {/* Nom complet */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <User className="w-4 h-4 text-[#06b6d4]" />
+              <User className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type="text"
@@ -161,14 +184,14 @@ function AuthForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Nom et prénom du gérant"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
           {/* Nom de la boutique */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Store className="w-4 h-4 text-[#06b6d4]" />
+              <Store className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type="text"
@@ -176,7 +199,7 @@ function AuthForm() {
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
               placeholder="Nom de votre boutique e-commerce"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
@@ -191,19 +214,19 @@ function AuthForm() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Numéro WhatsApp (+229...)"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
           {/* Ville */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <MapPin className="w-4 h-4 text-[#06b6d4]" />
+              <MapPin className="w-4 h-4 text-[#16a34a]" />
             </div>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:bg-white transition-all"
             >
               <option value="Cotonou">Cotonou</option>
               <option value="Abomey-Calavi">Abomey-Calavi</option>
@@ -216,7 +239,7 @@ function AuthForm() {
           {/* Email */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Mail className="w-4 h-4 text-[#06b6d4]" />
+              <Mail className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type="email"
@@ -224,14 +247,14 @@ function AuthForm() {
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
               placeholder="Adresse email"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
           {/* Mot de passe */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Lock className="w-4 h-4 text-[#06b6d4]" />
+              <Lock className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
@@ -239,7 +262,7 @@ function AuthForm() {
               value={signupPassword}
               onChange={(e) => setSignupPassword(e.target.value)}
               placeholder="Mot de passe"
-              className="w-full pl-11 pr-11 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-11 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
             <button
               type="button"
@@ -250,16 +273,16 @@ function AuthForm() {
             </button>
           </div>
 
-          {/* Bouton de soumission Cyan */}
+          {/* Bouton de soumission Vert ENO */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-[#06b6d4] hover:bg-cyan-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 mt-3"
+            className="w-full py-4 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 mt-3"
           >
             {loading ? (
               <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
-              "Créer un compte"
+              "Créer un compte partenaire"
             )}
           </button>
 
@@ -269,7 +292,7 @@ function AuthForm() {
             <button
               type="button"
               onClick={() => setIsRegister(false)}
-              className="font-bold text-[#06b6d4] hover:underline"
+              className="font-bold text-[#16a34a] hover:underline"
             >
               Se connecter
             </button>
@@ -277,13 +300,13 @@ function AuthForm() {
         </form>
       ) : (
         /* ══════════════════════════════════════════════════════ */
-        /* 🔐 FORMULAIRE DE CONNEXION (FORME IMAGE 1 + CYAN SCMS) */
+        /* 🔐 FORMULAIRE DE CONNEXION */
         /* ══════════════════════════════════════════════════════ */
         <form onSubmit={handleLogin} className="space-y-4">
           {/* Champ Email */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Mail className="w-4 h-4 text-[#06b6d4]" />
+              <Mail className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type="email"
@@ -291,14 +314,14 @@ function AuthForm() {
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               placeholder="Adresse email"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
           {/* Champ Mot de passe */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Lock className="w-4 h-4 text-[#06b6d4]" />
+              <Lock className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
@@ -306,7 +329,7 @@ function AuthForm() {
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
               placeholder="Mot de passe"
-              className="w-full pl-11 pr-11 py-3.5 bg-[#eef4fc] border border-transparent hover:border-slate-200 focus:border-[#06b6d4]/40 rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-11 pr-11 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
             <button
               type="button"
@@ -321,22 +344,22 @@ function AuthForm() {
           <div className="flex items-center justify-end">
             <button
               type="button"
-              className="text-xs font-medium text-slate-500 hover:text-[#06b6d4] transition-colors"
+              className="text-xs font-medium text-slate-500 hover:text-[#16a34a] transition-colors"
             >
               Mot de passe oublié ?
             </button>
           </div>
 
-          {/* Bouton Se connecter Cyan scmslivraison */}
+          {/* Bouton Se connecter Vert ENO */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-[#06b6d4] hover:bg-cyan-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70"
+            className="w-full py-4 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70"
           >
             {loading ? (
               <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
-              "Se connecter"
+              "Se connecter à ENO LIVRAISON"
             )}
           </button>
 
@@ -378,13 +401,13 @@ function AuthForm() {
             Continuer avec Google
           </button>
 
-          {/* Lien bas de page : Pas encore de compte ? Créer un compte */}
+          {/* Lien bas de page */}
           <p className="text-center text-xs text-slate-500 font-medium pt-3">
             Pas encore de compte ?{" "}
             <button
               type="button"
               onClick={() => setIsRegister(true)}
-              className="font-bold text-[#06b6d4] hover:underline"
+              className="font-bold text-[#16a34a] hover:underline"
             >
               Créer un compte
             </button>
@@ -397,32 +420,38 @@ function AuthForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-white selection:bg-[#06b6d4] selection:text-white font-sans">
-      {/* LEFT COLUMN (Dark Feature Showcase) */}
-      <div className="relative hidden lg:flex flex-col justify-between p-12 bg-[#090e22] text-white overflow-hidden border-r border-slate-800">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-white selection:bg-[#16a34a] selection:text-white font-sans">
+      {/* LEFT COLUMN (Green Brand Showcase) */}
+      <div className="relative hidden lg:flex flex-col justify-between p-12 bg-[#0f291e] text-white overflow-hidden border-r border-emerald-950">
         {/* Glow ambient */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#06b6d4]/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-[#16a34a]/15 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Header */}
         <div className="relative z-10 space-y-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#06b6d4] hover:underline transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 hover:underline transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Retour à l&apos;accueil
           </Link>
 
           <div className="flex items-center gap-3 pt-2">
-            <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-[#06b6d4] shadow-lg shadow-cyan-500/10">
-              <Truck className="w-7 h-7" />
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shadow-lg shadow-emerald-500/20">
+              <Image
+                src="/images/eno_livraison_logo.png"
+                alt="Logo ENO LIVRAISON"
+                fill
+                className="object-contain p-0.5"
+                priority
+              />
             </div>
             <div>
               <span className="text-2xl font-black text-white block tracking-tight">
-                scms<span className="text-[#06b6d4]">livraison</span>
+                ENO <span className="text-[#22c55e]">LIVRAISON</span>
               </span>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
-                ESPACE PARTENAIRES & LOGISTIQUE BÉNIN
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+                VOS COLIS, NOTRE PRIORITÉ
               </span>
             </div>
           </div>
@@ -433,59 +462,59 @@ export default function LoginPage() {
           <div>
             <h1 className="text-4xl font-black text-white tracking-tight leading-tight">
               Gérez votre activité <br />
-              <span className="text-[#06b6d4]">en toute simplicité</span>
+              <span className="text-[#22c55e]">en toute sérénité</span>
             </h1>
-            <p className="text-slate-400 text-sm mt-3 leading-relaxed font-normal">
-              Rejoignez le réseau scmslivraison et accédez à des outils puissants pour développer et automatiser votre commerce en ligne au Bénin.
+            <p className="text-emerald-100/70 text-sm mt-3 leading-relaxed font-normal">
+              Rejoignez le réseau ENO LIVRAISON et accédez à des outils puissants pour automatiser votre closing, stockage et vos livraisons express au Bénin.
             </p>
           </div>
 
           {/* 4 Feature Cards */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-[#06b6d4]/20 text-[#06b6d4] flex items-center justify-center shrink-0">
+            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-10 h-10 rounded-xl bg-[#16a34a]/20 text-[#86efac] flex items-center justify-center shrink-0">
                 <Package className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-white">Gestion des commandes</h4>
-                <p className="text-xs text-slate-400 mt-0.5 font-normal">
+                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
                   Suivez toutes vos commandes en temps réel depuis votre espace dédié.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
+            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-white">Statistiques détaillées</h4>
-                <p className="text-xs text-slate-400 mt-0.5 font-normal">
-                  Taux de livraison, chiffre d&apos;affaires, performances journalières.
+                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+                  Taux de livraison, chiffre d&apos;affaires et performances journalières.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur">
+            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                 <Truck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-white">Suivi des livraisons</h4>
-                <p className="text-xs text-slate-400 mt-0.5 font-normal">
-                  scmslivraison gère la logistique et le closing, vous gérez votre business.
+                <h4 className="text-sm font-extrabold text-white">Closing & Suivi express</h4>
+                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+                  ENO LIVRAISON gère vos appels sous 15 min et la logistique de terrain.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur">
+            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
               <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
                 <Star className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-white">Commissions transparentes</h4>
-                <p className="text-xs text-slate-400 mt-0.5 font-normal">
-                  Reversements Mobile Money instantanés et bilans clairs.
+                <h4 className="text-sm font-extrabold text-white">Reversements quotidiens</h4>
+                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+                  Reversements Mobile Money (MTN / Moov) transparents et immédiats.
                 </p>
               </div>
             </div>
@@ -493,23 +522,23 @@ export default function LoginPage() {
         </div>
 
         {/* Social Proof */}
-        <div className="relative z-10 flex items-center gap-3 pt-4 border-t border-slate-800">
+        <div className="relative z-10 flex items-center gap-3 pt-4 border-t border-emerald-900/60">
           <div className="flex -space-x-2">
-            <div className="w-8 h-8 rounded-full bg-[#06b6d4] text-white text-xs font-black flex items-center justify-center border-2 border-[#090e22]">
-              F
+            <div className="w-8 h-8 rounded-full bg-[#16a34a] text-white text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
+              E
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#090e22] text-[#06b6d4] text-xs font-black flex items-center justify-center border-2 border-white">
-              M
+            <div className="w-8 h-8 rounded-full bg-[#0f291e] text-[#86efac] text-xs font-black flex items-center justify-center border-2 border-emerald-500">
+              N
             </div>
-            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center border-2 border-[#090e22]">
-              A
+            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
+              O
             </div>
-            <div className="w-8 h-8 rounded-full bg-slate-800 text-cyan-300 text-xs font-black flex items-center justify-center border-2 border-[#090e22]">
-              S
+            <div className="w-8 h-8 rounded-full bg-slate-800 text-emerald-300 text-xs font-black flex items-center justify-center border-2 border-[#0f291e]">
+              +
             </div>
           </div>
-          <p className="text-xs font-semibold text-slate-400">
-            <span className="text-white font-bold">+200 e-commerçants béninois</span> nous font déjà confiance
+          <p className="text-xs font-semibold text-emerald-200/80">
+            <span className="text-white font-bold">+200 e-commerçants béninois</span> font confiance à ENO LIVRAISON
           </p>
         </div>
       </div>

@@ -136,21 +136,21 @@ export default function DedicatedPartnerPage() {
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* 🔙 TOP BREADCRUMB & SWITCHER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-emerald-900/60">
         <Link
           href="/admin/partenaires"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-[#06b6d4] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300/80 hover:text-emerald-300 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Retour à la liste de toutes les boutiques
         </Link>
 
         {/* Quick Boutique Switcher */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-semibold">Changer de boutique :</span>
+          <span className="text-xs text-emerald-300/70 font-semibold">Changer de boutique :</span>
           <select
             value={partner.id}
             onChange={(e) => router.push(`/admin/partenaires/${e.target.value}`)}
-            className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-[#06b6d4]"
+            className="px-3 py-1.5 bg-emerald-950 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-[#16a34a]"
           >
             {partnersList
               .filter((p) => p.isApproved)
@@ -164,13 +164,13 @@ export default function DedicatedPartnerPage() {
       </div>
 
       {/* 🏪 DEDICATED STORE HERO HEADER */}
-      <div className="bg-gradient-to-r from-[#090e22] via-[#0f1b3d] to-[#090e22] border-2 border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-[#06b6d4]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-[#091b14] via-[#0d261c] to-[#091b14] border-2 border-emerald-900/60 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           {/* Store Info */}
           <div className="flex items-start sm:items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#06b6d4] flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-cyan-500/20 shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-[#16a34a] flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-emerald-600/20 shrink-0">
               {partner.companyName.charAt(0)}
             </div>
 
@@ -184,24 +184,24 @@ export default function DedicatedPartnerPage() {
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 font-medium">
+              <p className="text-xs text-emerald-200/80 font-medium">
                 Gérant : <span className="text-white font-bold">{partner.fullName}</span> • Inscrit depuis le{" "}
                 {partner.createdAt}
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-300/70 pt-1">
                 <a
                   href={`tel:${partner.phone}`}
-                  className="flex items-center gap-1.5 text-slate-300 hover:text-[#06b6d4] font-semibold"
+                  className="flex items-center gap-1.5 text-emerald-200 hover:text-emerald-300 font-semibold"
                 >
                   <Phone className="w-3.5 h-3.5 text-[#25d366]" />
                   <span>{partner.phone}</span>
                 </a>
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Mail className="w-3.5 h-3.5 text-[#06b6d4]" />
+                <span className="flex items-center gap-1.5 text-emerald-200">
+                  <Mail className="w-3.5 h-3.5 text-[#22c55e]" />
                   <span>{partner.email}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-slate-300">
+                <span className="flex items-center gap-1.5 text-emerald-200">
                   <MapPin className="w-3.5 h-3.5 text-amber-400" />
                   <span>{partner.address}</span>
                 </span>
@@ -213,7 +213,7 @@ export default function DedicatedPartnerPage() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowAddProductModal(true)}
-              className="px-5 py-3 rounded-2xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2"
+              className="px-5 py-3 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Nouveau Produit</span>
@@ -235,29 +235,29 @@ export default function DedicatedPartnerPage() {
       {/* 📊 4 KPI CARDS DEDICATED TO THIS PARTNER */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Commandes */}
-        <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
+        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-5 shadow-xl space-y-2">
+          <div className="flex items-center justify-between text-emerald-200/70">
             <span className="text-[11px] font-bold uppercase tracking-wider">Commandes Totales</span>
             <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
               <Package className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl font-black text-white">{partnerOrders.length}</p>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-emerald-300/60">
             {pendingOrders.length} en cours / closing
           </p>
         </div>
 
         {/* Livrées avec succès */}
-        <div className="bg-[#090e22] border border-emerald-900/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
+        <div className="bg-[#091b14] border border-emerald-800/40 rounded-3xl p-5 shadow-xl space-y-2">
+          <div className="flex items-center justify-between text-emerald-200/70">
             <span className="text-[11px] font-bold uppercase tracking-wider">Livrées & Encaissées</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
               <CheckCircle className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl font-black text-emerald-400">{deliveredOrders.length}</p>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-emerald-300/60">
             Taux de succès :{" "}
             {partnerOrders.length > 0
               ? Math.round((deliveredOrders.length / partnerOrders.length) * 100)
@@ -266,21 +266,21 @@ export default function DedicatedPartnerPage() {
           </p>
         </div>
 
-        {/* Commissions Agence SCMS */}
-        <div className="bg-[#090e22] border border-cyan-900/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
+        {/* Commissions Agence ENO */}
+        <div className="bg-[#091b14] border border-emerald-700/40 rounded-3xl p-5 shadow-xl space-y-2">
+          <div className="flex items-center justify-between text-emerald-200/70">
             <span className="text-[11px] font-bold uppercase tracking-wider">Commissions Agence</span>
-            <div className="w-8 h-8 rounded-xl bg-[#06b6d4]/20 text-[#06b6d4] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center">
               <BadgeDollarSign className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-[#06b6d4]">{formatCFA(totalCommissions)}</p>
-          <p className="text-[10px] text-slate-400">2 800 F / colis livré</p>
+          <p className="text-2xl font-black text-[#22c55e]">{formatCFA(totalCommissions)}</p>
+          <p className="text-[10px] text-emerald-300/60">2 800 F / colis livré</p>
         </div>
 
         {/* Solde Net à Reverser */}
-        <div className="bg-[#090e22] border border-amber-900/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
+        <div className="bg-[#091b14] border border-amber-900/40 rounded-3xl p-5 shadow-xl space-y-2">
+          <div className="flex items-center justify-between text-emerald-200/70">
             <span className="text-[11px] font-bold uppercase tracking-wider">Solde Net Partenaire</span>
             <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -293,21 +293,21 @@ export default function DedicatedPartnerPage() {
               setShowPayoutModal(true);
               setPayoutSuccess(false);
             }}
-            className="text-[10px] font-extrabold text-[#06b6d4] hover:underline"
+            className="text-[10px] font-extrabold text-emerald-400 hover:underline"
           >
             Effectuer un reversement MoMo →
           </button>
         </div>
       </div>
 
-      {/* 🧭 NAVIGATION TABS (DÉDIÉS EXCLUSIVEMENT À CET E-COMMERÇANT) */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
+      {/* 🧭 NAVIGATION TABS */}
+      <div className="flex items-center gap-2 border-b border-emerald-900/60 pb-3 overflow-x-auto">
         <button
           onClick={() => setActiveTab("commandes")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "commandes"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <PhoneCall className="w-4 h-4" />
@@ -318,8 +318,8 @@ export default function DedicatedPartnerPage() {
           onClick={() => setActiveTab("stocks")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "stocks"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <Boxes className="w-4 h-4" />
@@ -330,8 +330,8 @@ export default function DedicatedPartnerPage() {
           onClick={() => setActiveTab("finances")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "finances"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <BadgeDollarSign className="w-4 h-4" />
@@ -342,8 +342,8 @@ export default function DedicatedPartnerPage() {
           onClick={() => setActiveTab("profil")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "profil"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <UserCheck className="w-4 h-4" />
@@ -355,14 +355,14 @@ export default function DedicatedPartnerPage() {
       {/* TAB 1: COMMANDES & CLOSING DE CETTE BOUTIQUE */}
       {/* ══════════════════════════════════════════════════════ */}
       {activeTab === "commandes" && (
-        <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-black text-white">
                 Commandes de {partner.companyName}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Traitement des appels de confirmation et suivi de livraison en direct.
+              <p className="text-xs text-emerald-300/70 mt-0.5">
+                Traitement des appels de confirmation et suivi de livraison en direct par ENO LIVRAISON.
               </p>
             </div>
 
@@ -374,8 +374,8 @@ export default function DedicatedPartnerPage() {
                   onClick={() => setOrderStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold uppercase transition-all ${
                     orderStatusFilter === st
-                      ? "bg-[#06b6d4] text-white"
-                      : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                      ? "bg-[#16a34a] text-white"
+                      : "bg-emerald-950/60 text-emerald-300/70 hover:text-white"
                   }`}
                 >
                   {st === "ALL" ? "Toutes" : st.replace("_", " ")}
@@ -386,26 +386,26 @@ export default function DedicatedPartnerPage() {
 
           {/* Search bar */}
           <div className="relative max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/60" />
             <input
               type="text"
               placeholder="Rechercher par client, téléphone ou N°..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#06b6d4]"
+              className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/50 border border-emerald-900 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a]"
             />
           </div>
 
           {/* Orders Table */}
           {filteredOrders.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 text-xs">
+            <div className="py-12 text-center text-emerald-300/60 text-xs">
               Aucune commande trouvée pour cette sélection.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+                  <tr className="border-b border-emerald-900/60 text-emerald-300/70 uppercase text-[10px] tracking-wider">
                     <th className="py-3 px-4 font-bold">N° Commande</th>
                     <th className="py-3 px-4 font-bold">Client</th>
                     <th className="py-3 px-4 font-bold">Téléphone</th>
@@ -416,24 +416,24 @@ export default function DedicatedPartnerPage() {
                     <th className="py-3 px-4 font-bold text-right">Action Closing</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-emerald-900/40 font-medium">
                   {filteredOrders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-slate-900/50 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#06b6d4]">
+                    <tr key={ord.id} className="hover:bg-emerald-950/30 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#22c55e]">
                         {ord.orderNumber}
                       </td>
                       <td className="py-3.5 px-4 text-white font-bold">{ord.clientName}</td>
-                      <td className="py-3.5 px-4 text-slate-300 font-mono">{ord.clientPhone}</td>
-                      <td className="py-3.5 px-4 text-slate-400">{ord.address}</td>
-                      <td className="py-3.5 px-4 text-slate-300">{ord.products}</td>
+                      <td className="py-3.5 px-4 text-emerald-200 font-mono">{ord.clientPhone}</td>
+                      <td className="py-3.5 px-4 text-emerald-300/70">{ord.address}</td>
+                      <td className="py-3.5 px-4 text-emerald-200">{ord.products}</td>
                       <td className="py-3.5 px-4 text-white font-bold">
                         {ord.totalPrice.toLocaleString("fr-FR")} F
                       </td>
                       <td className="py-3.5 px-4">
                         <span
                           className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            ORDER_STATUS_CONFIG[ord.status]?.bg || "bg-slate-800"
-                          } ${ORDER_STATUS_CONFIG[ord.status]?.color || "text-slate-300"}`}
+                            ORDER_STATUS_CONFIG[ord.status]?.bg || "bg-emerald-950"
+                          } ${ORDER_STATUS_CONFIG[ord.status]?.color || "text-emerald-300"}`}
                         >
                           {ORDER_STATUS_CONFIG[ord.status]?.label || ord.status}
                         </span>
@@ -452,7 +452,7 @@ export default function DedicatedPartnerPage() {
                             onChange={(e) =>
                               updateOrderStatus(ord.id, e.target.value as OrderStatus)
                             }
-                            className="px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-[11px] text-white focus:outline-none focus:border-[#06b6d4]"
+                            className="px-2 py-1 bg-emerald-950 border border-emerald-800 rounded-lg text-[11px] text-white focus:outline-none focus:border-[#16a34a]"
                           >
                             <option value="A_RAPPELER">A Rappeler</option>
                             <option value="CONFIRMEE">Confirmée</option>
@@ -477,19 +477,19 @@ export default function DedicatedPartnerPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {activeTab === "stocks" && (
         <div className="space-y-6">
-          <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-black text-white">
                 Catalogue & Entrepôt de {partner.companyName}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-emerald-300/70 mt-0.5">
                 Produits confiés, niveau des stocks et réapprovisionnements en temps réel.
               </p>
             </div>
 
             <button
               onClick={() => setShowAddProductModal(true)}
-              className="px-5 py-2.5 rounded-2xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 self-start sm:self-auto"
+              className="px-5 py-2.5 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 self-start sm:self-auto"
             >
               <Plus className="w-4 h-4" />
               <span>Ajouter un autre produit pour cette boutique</span>
@@ -501,50 +501,50 @@ export default function DedicatedPartnerPage() {
             {partnerProducts.map((prod) => (
               <div
                 key={prod.id}
-                className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4 flex flex-col justify-between hover:border-slate-700 transition-all"
+                className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-4 flex flex-col justify-between hover:border-emerald-700 transition-all"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-bold text-[#06b6d4] uppercase">
+                      <span className="text-[10px] font-bold text-[#22c55e] uppercase">
                         Produit e-commerce
                       </span>
                       <h4 className="text-base font-black text-white">{prod.name}</h4>
                     </div>
-                    <span className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-white font-bold text-xs">
+                    <span className="px-3 py-1 rounded-xl bg-emerald-950 border border-emerald-800 text-white font-bold text-xs">
                       {formatCFA(prod.price)}
                     </span>
                   </div>
 
                   {/* Stock Levels */}
-                  <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
+                  <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-emerald-950/50 border border-emerald-900/60 text-center">
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Initial</p>
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Initial</p>
                       <p className="text-sm font-black text-white mt-0.5">{prod.initialStock}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Restant</p>
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Restant</p>
                       <p className="text-sm font-black text-emerald-400 mt-0.5">
                         {prod.remainingStock}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Livrés</p>
-                      <p className="text-sm font-black text-[#06b6d4] mt-0.5">{prod.deliveredCount}</p>
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Livrés</p>
+                      <p className="text-sm font-black text-[#22c55e] mt-0.5">{prod.deliveredCount}</p>
                     </div>
                   </div>
 
                   {/* Stock Progress bar */}
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
+                    <div className="flex justify-between text-[10px] text-emerald-300/70 font-semibold">
                       <span>Stock disponible</span>
                       <span>
                         {Math.round((prod.remainingStock / prod.initialStock) * 100)}%
                       </span>
                     </div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-emerald-950">
                       <div
-                        className="bg-[#06b6d4] h-full rounded-full"
+                        className="bg-[#16a34a] h-full rounded-full"
                         style={{
                           width: `${Math.min(
                             100,
@@ -556,16 +556,16 @@ export default function DedicatedPartnerPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500 font-mono">ID: {prod.id}</span>
+                <div className="pt-3 border-t border-emerald-900/60 flex items-center justify-between">
+                  <span className="text-[11px] text-emerald-400/60 font-mono">ID: {prod.id}</span>
                   <button
                     onClick={() => {
                       setShowRestockModal(prod);
                       setRestockQty("");
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-emerald-200 text-xs font-bold flex items-center gap-1.5 border border-emerald-900/60"
                   >
-                    <Plus className="w-3.5 h-3.5 text-[#06b6d4]" />
+                    <Plus className="w-3.5 h-3.5 text-[#22c55e]" />
                     <span>Réapprovisionner</span>
                   </button>
                 </div>
@@ -582,23 +582,23 @@ export default function DedicatedPartnerPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* CA Total */}
-            <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-2">
-              <p className="text-xs font-bold text-slate-400 uppercase">Chiffre d&apos;Affaires Brut (COD)</p>
+            <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-2">
+              <p className="text-xs font-bold text-emerald-300/70 uppercase">Chiffre d&apos;Affaires Brut (COD)</p>
               <p className="text-3xl font-black text-white">{formatCFA(totalRevenue)}</p>
-              <p className="text-[11px] text-slate-500">Total encaissé lors des livraisons</p>
+              <p className="text-[11px] text-emerald-300/60">Total encaissé lors des livraisons</p>
             </div>
 
-            {/* Commissions SCMS */}
-            <div className="bg-[#090e22] border border-cyan-900/40 rounded-3xl p-6 shadow-xl space-y-2">
-              <p className="text-xs font-bold text-[#06b6d4] uppercase">Commissions Retenues SCMS</p>
-              <p className="text-3xl font-black text-[#06b6d4]">{formatCFA(totalCommissions)}</p>
-              <p className="text-[11px] text-slate-400">
+            {/* Commissions ENO */}
+            <div className="bg-[#091b14] border border-emerald-700/40 rounded-3xl p-6 shadow-xl space-y-2">
+              <p className="text-xs font-bold text-[#22c55e] uppercase">Commissions Retenues ENO</p>
+              <p className="text-3xl font-black text-[#22c55e]">{formatCFA(totalCommissions)}</p>
+              <p className="text-[11px] text-emerald-300/60">
                 800 F (Closing) + 2 000 F (Livraison) = 2 800 F / colis
               </p>
             </div>
 
             {/* Net Partenaire */}
-            <div className="bg-[#090e22] border border-emerald-900/40 rounded-3xl p-6 shadow-xl space-y-2 flex flex-col justify-between">
+            <div className="bg-[#091b14] border border-emerald-600/40 rounded-3xl p-6 shadow-xl space-y-2 flex flex-col justify-between">
               <div>
                 <p className="text-xs font-bold text-emerald-400 uppercase">Net Reversible au Partenaire</p>
                 <p className="text-3xl font-black text-emerald-400">{formatCFA(netPayable)}</p>
@@ -618,12 +618,12 @@ export default function DedicatedPartnerPage() {
           </div>
 
           {/* Breakdown Table */}
-          <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+          <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-4">
             <h4 className="text-sm font-black text-white">Détail des commissions par commande livrée</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+                  <tr className="border-b border-emerald-900/60 text-emerald-300/70 uppercase text-[10px]">
                     <th className="py-3 px-4">Commande</th>
                     <th className="py-3 px-4">Client</th>
                     <th className="py-3 px-4">Montant Encaissé</th>
@@ -632,18 +632,18 @@ export default function DedicatedPartnerPage() {
                     <th className="py-3 px-4 text-right">Net Reversé Partenaire</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-emerald-900/40 font-medium">
                   {deliveredOrders.map((ord) => {
                     const net = ord.totalPrice - 2800;
                     return (
-                      <tr key={ord.id} className="hover:bg-slate-900/50">
-                        <td className="py-3 px-4 font-mono text-[#06b6d4] font-bold">
+                      <tr key={ord.id} className="hover:bg-emerald-950/30">
+                        <td className="py-3 px-4 font-mono text-[#22c55e] font-bold">
                           {ord.orderNumber}
                         </td>
                         <td className="py-3 px-4 text-white font-bold">{ord.clientName}</td>
                         <td className="py-3 px-4 text-white">{formatCFA(ord.totalPrice)}</td>
-                        <td className="py-3 px-4 text-slate-400">800 F CFA</td>
-                        <td className="py-3 px-4 text-slate-400">2 000 F CFA</td>
+                        <td className="py-3 px-4 text-emerald-300/70">800 F CFA</td>
+                        <td className="py-3 px-4 text-emerald-300/70">2 000 F CFA</td>
                         <td className="py-3 px-4 text-right font-black text-emerald-400">
                           {formatCFA(net)}
                         </td>
@@ -661,41 +661,41 @@ export default function DedicatedPartnerPage() {
       {/* TAB 4: PROFIL & PARAMÈTRES DE CETTE BOUTIQUE */}
       {/* ══════════════════════════════════════════════════════ */}
       {activeTab === "profil" && (
-        <div className="bg-[#090e22] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl max-w-2xl space-y-6">
+        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 sm:p-8 shadow-xl max-w-2xl space-y-6">
           <h3 className="text-base font-black text-white">Coordonnées de l&apos;e-commerçant</h3>
 
           <div className="space-y-4 text-xs font-medium">
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400">Nom de la boutique</span>
+            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
+              <span className="text-emerald-300/70">Nom de la boutique</span>
               <span className="font-bold text-white text-sm">{partner.companyName}</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400">Nom du gérant</span>
+            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
+              <span className="text-emerald-300/70">Nom du gérant</span>
               <span className="font-bold text-white text-sm">{partner.fullName}</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400">WhatsApp / Téléphone</span>
+            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
+              <span className="text-emerald-300/70">WhatsApp / Téléphone</span>
               <span className="font-bold text-[#25d366] text-sm">{partner.phone}</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400">Adresse email</span>
-              <span className="font-bold text-[#06b6d4] text-sm">{partner.email}</span>
+            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
+              <span className="text-emerald-300/70">Adresse email</span>
+              <span className="font-bold text-[#22c55e] text-sm">{partner.email}</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400">Ville / Zone de stockage</span>
+            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
+              <span className="text-emerald-300/70">Ville / Zone de stockage</span>
               <span className="font-bold text-white text-sm">{partner.address}</span>
             </div>
 
             {partner.notes && (
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                <span className="text-slate-400 text-[11px] font-bold uppercase">
+              <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 space-y-1">
+                <span className="text-emerald-300/70 text-[11px] font-bold uppercase">
                   Notes & Accords de partenariat
                 </span>
-                <p className="text-slate-200 text-xs">{partner.notes}</p>
+                <p className="text-emerald-100 text-xs">{partner.notes}</p>
               </div>
             )}
           </div>
@@ -707,20 +707,20 @@ export default function DedicatedPartnerPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {showAddProductModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#090e22] border border-slate-800 w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl relative">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl relative">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-900/60">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#06b6d4]/20 text-[#06b6d4] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center font-bold">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black text-white">Nouveau Produit Déposé</h3>
-                  <p className="text-[11px] text-slate-400">Pour {partner.companyName}</p>
+                  <p className="text-[11px] text-emerald-300/70">Pour {partner.companyName}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAddProductModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-emerald-300/70 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -728,7 +728,7 @@ export default function DedicatedPartnerPage() {
 
             <form onSubmit={handleAddProduct} className="space-y-4 text-xs font-medium">
               <div className="space-y-1.5">
-                <label className="text-slate-300 font-bold uppercase text-[10px]">
+                <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
                   Nom du produit
                 </label>
                 <input
@@ -737,13 +737,13 @@ export default function DedicatedPartnerPage() {
                   placeholder="Ex: SERUM ANTI-TACHES 50ML"
                   value={newProductName}
                   onChange={(e) => setNewProductName(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                  className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-slate-300 font-bold uppercase text-[10px]">
+                  <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
                     Prix de vente (F CFA)
                   </label>
                   <input
@@ -752,12 +752,12 @@ export default function DedicatedPartnerPage() {
                     placeholder="Ex: 8500"
                     value={newProductPrice}
                     onChange={(e) => setNewProductPrice(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-300 font-bold uppercase text-[10px]">
+                  <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
                     Quantité déposée
                   </label>
                   <input
@@ -766,7 +766,7 @@ export default function DedicatedPartnerPage() {
                     placeholder="Ex: 50"
                     value={newProductStock}
                     onChange={(e) => setNewProductStock(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                   />
                 </div>
               </div>
@@ -775,13 +775,13 @@ export default function DedicatedPartnerPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddProductModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold"
+                  className="px-4 py-2.5 rounded-xl bg-emerald-950 text-emerald-200 font-bold"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#06b6d4] hover:bg-cyan-600 text-white font-bold shadow-md"
+                  className="px-5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold shadow-md"
                 >
                   Enregistrer le produit
                 </button>
@@ -796,17 +796,17 @@ export default function DedicatedPartnerPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {showRestockModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#090e22] border border-slate-800 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 className="text-sm font-black text-white">
               Réapprovisionner {showRestockModal.name}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-emerald-300/70">
               Stock actuel en rayon : <span className="text-white font-bold">{showRestockModal.remainingStock} pcs</span>
             </p>
 
             <form onSubmit={handleRestock} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-300 uppercase">
+                <label className="text-[10px] font-bold text-emerald-200/80 uppercase">
                   Quantité d&apos;unités ajoutées
                 </label>
                 <input
@@ -816,7 +816,7 @@ export default function DedicatedPartnerPage() {
                   placeholder="Ex: 50"
                   value={restockQty}
                   onChange={(e) => setRestockQty(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-[#06b6d4]"
+                  className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white text-sm focus:outline-none focus:border-[#16a34a]"
                 />
               </div>
 
@@ -824,13 +824,13 @@ export default function DedicatedPartnerPage() {
                 <button
                   type="button"
                   onClick={() => setShowRestockModal(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#06b6d4] text-white text-xs font-bold"
+                  className="px-5 py-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold"
                 >
                   Ajouter au stock
                 </button>
@@ -845,7 +845,7 @@ export default function DedicatedPartnerPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {showPayoutModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#090e22] border border-slate-800 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
+          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 className="text-sm font-black text-white">
               Virement Mobile Money pour {partner.companyName}
             </h3>
@@ -865,19 +865,19 @@ export default function DedicatedPartnerPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-xs text-slate-300">
+                <p className="text-xs text-emerald-200/80">
                   Numéro bénéficiaire : <span className="font-bold text-white">{partner.phone}</span> ({partner.fullName})
                 </p>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">
+                  <label className="text-[10px] font-bold text-emerald-300/70 uppercase">
                     Montant à transférer (F CFA)
                   </label>
                   <input
                     type="number"
                     value={payoutAmount}
                     onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white font-mono font-bold text-sm focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -885,7 +885,7 @@ export default function DedicatedPartnerPage() {
                   <button
                     type="button"
                     onClick={() => setShowPayoutModal(false)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                    className="px-4 py-2 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
                   >
                     Annuler
                   </button>

@@ -159,32 +159,32 @@ export default function AdminPartenairesPage() {
           <h2 className="text-2xl font-black text-white tracking-tight">
             Gestion des Boutiques E-commerce Partenaires
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-emerald-300/70 mt-1">
             Gérez chaque boutique indépendamment : validation des inscriptions, dépôts de produits et suivi des commandes.
           </p>
         </div>
 
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/60" />
           <input
             type="text"
             placeholder="Rechercher une boutique, nom..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#06b6d4]"
+            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/50 border border-emerald-900 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a]"
           />
         </div>
       </div>
 
-      {/* 🧭 NAVIGATION TABS (ACTIFS VS EN ATTENTE) */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+      {/* 🧭 NAVIGATION TABS */}
+      <div className="flex items-center gap-2 border-b border-emerald-900/60 pb-3">
         <button
           onClick={() => setActiveTab("actifs")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === "actifs"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <Store className="w-4 h-4" />
@@ -195,8 +195,8 @@ export default function AdminPartenairesPage() {
           onClick={() => setActiveTab("attente")}
           className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 relative ${
             activeTab === "attente"
-              ? "bg-[#06b6d4] text-white shadow-lg shadow-cyan-500/20"
-              : "bg-slate-900 text-slate-400 hover:text-white"
+              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
+              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
           }`}
         >
           <Clock className="w-4 h-4 text-amber-400" />
@@ -216,7 +216,7 @@ export default function AdminPartenairesPage() {
             <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-amber-200">
-                Processus de validation d&apos;inscription scmslivraison
+                Processus de validation d&apos;inscription ENO LIVRAISON
               </p>
               <p className="text-[11px] text-amber-300/80 mt-0.5">
                 Dès qu&apos;un e-commerçant s&apos;inscrit sur le site, son compte est mis en attente. Contactez-le, enregistrez le ou les produits qu&apos;il dépose dans l&apos;entrepôt avec leurs quantités, puis validez son compte.
@@ -225,7 +225,7 @@ export default function AdminPartenairesPage() {
           </div>
 
           {displayedPartners.length === 0 ? (
-            <div className="py-16 text-center text-slate-500 text-xs bg-[#090e22] border border-slate-800 rounded-3xl">
+            <div className="py-16 text-center text-emerald-300/60 text-xs bg-[#091b14] border border-emerald-900/60 rounded-3xl">
               Aucun profil en attente de validation pour le moment.
             </div>
           ) : (
@@ -233,7 +233,7 @@ export default function AdminPartenairesPage() {
               {displayedPartners.map((ptn) => (
                 <div
                   key={ptn.id}
-                  className="bg-[#090e22] border-2 border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-6 shadow-xl space-y-5 flex flex-col justify-between transition-all"
+                  className="bg-[#091b14] border-2 border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-6 shadow-xl space-y-5 flex flex-col justify-between transition-all"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
@@ -243,7 +243,7 @@ export default function AdminPartenairesPage() {
                         </div>
                         <div>
                           <h3 className="text-base font-black text-white">{ptn.companyName}</h3>
-                          <p className="text-xs text-slate-300 font-semibold">{ptn.fullName}</p>
+                          <p className="text-xs text-emerald-200/80 font-semibold">{ptn.fullName}</p>
                         </div>
                       </div>
 
@@ -252,13 +252,13 @@ export default function AdminPartenairesPage() {
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                    <div className="space-y-2 text-xs text-emerald-200/80 pt-2 border-t border-emerald-900/60">
                       <p className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5 text-[#25d366]" />
                         <span className="font-bold text-white">{ptn.phone}</span>
                       </p>
                       <p className="flex items-center gap-2">
-                        <Mail className="w-3.5 h-3.5 text-[#06b6d4]" />
+                        <Mail className="w-3.5 h-3.5 text-[#22c55e]" />
                         <span>{ptn.email}</span>
                       </p>
                       <p className="flex items-center gap-2">
@@ -268,17 +268,17 @@ export default function AdminPartenairesPage() {
                     </div>
 
                     {ptn.notes && (
-                      <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 space-y-0.5">
-                        <span className="text-[#06b6d4] font-bold">Demande du commerçant :</span>
+                      <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-900/60 text-[11px] text-emerald-300/80 space-y-0.5">
+                        <span className="text-[#22c55e] font-bold">Demande du commerçant :</span>
                         <p>{ptn.notes}</p>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-2.5">
+                  <div className="pt-4 border-t border-emerald-900/60 flex flex-col sm:flex-row gap-2.5">
                     <a
                       href={`tel:${ptn.phone}`}
-                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+                      className="px-4 py-2.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white text-xs font-bold flex items-center justify-center gap-1.5"
                     >
                       <PhoneCall className="w-3.5 h-3.5 text-[#25d366]" /> Appeler
                     </a>
@@ -288,7 +288,7 @@ export default function AdminPartenairesPage() {
                         setPartnerToApprove(ptn);
                         setProductRows([{ name: "", price: "", quantity: "" }]);
                       }}
-                      className="flex-1 py-2.5 px-4 rounded-xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-black shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-black shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>Valider & Enregistrer les produits</span>
@@ -315,20 +315,20 @@ export default function AdminPartenairesPage() {
               <div
                 key={ptn.id}
                 onClick={() => router.push(`/admin/partenaires/${ptn.id}`)}
-                className="bg-[#090e22] border-2 border-slate-800 hover:border-[#06b6d4] rounded-3xl p-6 shadow-xl space-y-6 flex flex-col justify-between transition-all cursor-pointer group"
+                className="bg-[#091b14] border-2 border-emerald-900/60 hover:border-emerald-500 rounded-3xl p-6 shadow-xl space-y-6 flex flex-col justify-between transition-all cursor-pointer group"
               >
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-[#06b6d4] text-white flex items-center justify-center font-black text-lg shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+                      <div className="w-12 h-12 rounded-2xl bg-[#16a34a] text-white flex items-center justify-center font-black text-lg shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
                         {ptn.companyName.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="text-lg font-black text-white group-hover:text-[#06b6d4] transition-colors">
+                        <h3 className="text-lg font-black text-white group-hover:text-emerald-400 transition-colors">
                           {ptn.companyName}
                         </h3>
-                        <p className="text-xs text-slate-400 font-semibold">{ptn.fullName}</p>
+                        <p className="text-xs text-emerald-300/70 font-semibold">{ptn.fullName}</p>
                       </div>
                     </div>
 
@@ -344,13 +344,13 @@ export default function AdminPartenairesPage() {
                   </div>
 
                   {/* Details */}
-                  <div className="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                  <div className="space-y-2 text-xs text-emerald-200/80 pt-2 border-t border-emerald-900/60">
                     <p className="flex items-center gap-2">
                       <Phone className="w-3.5 h-3.5 text-[#25d366]" />
                       <span>{ptn.phone}</span>
                     </p>
                     <p className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-[#06b6d4]" />
+                      <Mail className="w-3.5 h-3.5 text-[#22c55e]" />
                       <span>{ptn.email}</span>
                     </p>
                     <p className="flex items-center gap-2">
@@ -361,20 +361,20 @@ export default function AdminPartenairesPage() {
 
                   {/* 3 Stats Boxes */}
                   <div className="grid grid-cols-3 gap-2.5 pt-2 text-center">
-                    <div className="bg-slate-900/90 p-3 rounded-2xl border border-slate-800">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Produits</p>
-                      <p className="text-base font-black text-[#06b6d4] mt-0.5">
+                    <div className="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/60">
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Produits</p>
+                      <p className="text-base font-black text-[#22c55e] mt-0.5">
                         {ptnProducts.length}
                       </p>
                     </div>
 
-                    <div className="bg-slate-900/90 p-3 rounded-2xl border border-slate-800">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Commandes</p>
+                    <div className="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/60">
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Commandes</p>
                       <p className="text-base font-black text-white mt-0.5">{ptnOrders.length}</p>
                     </div>
 
-                    <div className="bg-slate-900/90 p-3 rounded-2xl border border-slate-800">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Livrées</p>
+                    <div className="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/60">
+                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Livrées</p>
                       <p className="text-base font-black text-emerald-400 mt-0.5">
                         {ptnDelivered.length}
                       </p>
@@ -382,16 +382,16 @@ export default function AdminPartenairesPage() {
                   </div>
                 </div>
 
-                {/* Card Footer with Direct Action Buttons */}
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-2">
+                {/* Card Footer */}
+                <div className="pt-4 border-t border-emerald-900/60 flex items-center justify-between gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setPartnerForNewProduct(ptn);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-white border border-slate-800 flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-xs font-bold text-emerald-200 hover:text-white border border-emerald-900/60 flex items-center gap-1.5"
                   >
-                    <Plus className="w-3.5 h-3.5 text-[#06b6d4]" />
+                    <Plus className="w-3.5 h-3.5 text-[#22c55e]" />
                     <span>Nouveau produit</span>
                   </button>
 
@@ -410,7 +410,7 @@ export default function AdminPartenairesPage() {
 
                     <Link
                       href={`/admin/partenaires/${ptn.id}`}
-                      className="px-4 py-2 rounded-xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
+                      className="px-4 py-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
                     >
                       <span>Espace Dédié</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -428,17 +428,17 @@ export default function AdminPartenairesPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {partnerToApprove && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#090e22] border border-slate-800 w-full max-w-xl rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-xl rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-emerald-900/60">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#06b6d4] text-white flex items-center justify-center font-black text-lg">
+                <div className="w-10 h-10 rounded-2xl bg-[#16a34a] text-white flex items-center justify-center font-black text-lg">
                   {partnerToApprove.companyName.charAt(0)}
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">
                     Valider le partenariat de {partnerToApprove.companyName}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-emerald-300/70">
                     Gérant : {partnerToApprove.fullName} ({partnerToApprove.phone})
                   </p>
                 </div>
@@ -446,7 +446,7 @@ export default function AdminPartenairesPage() {
 
               <button
                 onClick={() => setPartnerToApprove(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-emerald-300/70 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -454,11 +454,11 @@ export default function AdminPartenairesPage() {
 
             <form onSubmit={handleConfirmValidation} className="space-y-5">
               <div className="space-y-1">
-                <h4 className="text-xs font-black text-[#06b6d4] uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-xs font-black text-[#22c55e] uppercase tracking-wider flex items-center gap-1.5">
                   <Package className="w-4 h-4" /> Produits confiés par le commerçant
                 </h4>
-                <p className="text-[11px] text-slate-400">
-                  Renseignez le(s) produit(s) physique(s) et la quantité initiale déposée dans l&apos;entrepôt. Vous pourrez en ajouter d&apos;autres à tout moment.
+                <p className="text-[11px] text-emerald-200/70">
+                  Renseignez le(s) produit(s) physique(s) et la quantité initiale déposée dans l&apos;entrepôt ENO LIVRAISON. Vous pourrez en ajouter d&apos;autres à tout moment.
                 </p>
               </div>
 
@@ -467,9 +467,9 @@ export default function AdminPartenairesPage() {
                 {productRows.map((row, index) => (
                   <div
                     key={index}
-                    className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2.5 relative"
+                    className="p-3.5 rounded-2xl bg-emerald-950/50 border border-emerald-900/60 space-y-2.5 relative"
                   >
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-300/70">
                       <span>Produit #{index + 1}</span>
                       {productRows.length > 1 && (
                         <button
@@ -484,7 +484,7 @@ export default function AdminPartenairesPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                       <div className="sm:col-span-1">
-                        <label className="text-[10px] text-slate-400 font-bold uppercase">
+                        <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                           Nom du produit
                         </label>
                         <input
@@ -495,12 +495,12 @@ export default function AdminPartenairesPage() {
                           onChange={(e) =>
                             handleUpdateProductRow(index, "name", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#06b6d4]"
+                          className="w-full px-3 py-2 bg-slate-950 border border-emerald-900 rounded-xl text-xs text-white focus:outline-none focus:border-[#16a34a]"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-400 font-bold uppercase">
+                        <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                           Prix de vente (F CFA)
                         </label>
                         <input
@@ -511,12 +511,12 @@ export default function AdminPartenairesPage() {
                           onChange={(e) =>
                             handleUpdateProductRow(index, "price", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#06b6d4]"
+                          className="w-full px-3 py-2 bg-slate-950 border border-emerald-900 rounded-xl text-xs text-white focus:outline-none focus:border-[#16a34a]"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-400 font-bold uppercase">
+                        <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                           Quantité déposée
                         </label>
                         <input
@@ -527,7 +527,7 @@ export default function AdminPartenairesPage() {
                           onChange={(e) =>
                             handleUpdateProductRow(index, "quantity", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#06b6d4]"
+                          className="w-full px-3 py-2 bg-slate-950 border border-emerald-900 rounded-xl text-xs text-white focus:outline-none focus:border-[#16a34a]"
                         />
                       </div>
                     </div>
@@ -537,7 +537,7 @@ export default function AdminPartenairesPage() {
                 <button
                   type="button"
                   onClick={handleAddProductRow}
-                  className="w-full py-2.5 rounded-xl border border-dashed border-slate-700 hover:border-[#06b6d4] text-[#06b6d4] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2.5 rounded-xl border border-dashed border-emerald-700/60 hover:border-emerald-500 text-emerald-400 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ Ajouter un autre produit pour cette boutique</span>
@@ -545,18 +545,18 @@ export default function AdminPartenairesPage() {
               </div>
 
               {/* Action buttons */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-emerald-900/60 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setPartnerToApprove(null)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
                 >
                   Annuler
                 </button>
 
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-black shadow-lg shadow-cyan-500/25 flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-black shadow-lg shadow-emerald-600/25 flex items-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />
                   <span>Valider l&apos;inscription & Ouvrir la boutique</span>
@@ -572,14 +572,14 @@ export default function AdminPartenairesPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {partnerForNewProduct && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#090e22] border border-slate-800 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
+          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 className="text-sm font-black text-white">
               Nouveau produit pour {partnerForNewProduct.companyName}
             </h3>
 
             <form onSubmit={handleAddNewProductToExisting} className="space-y-3.5 text-xs font-medium">
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-400 font-bold uppercase">
+                <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                   Nom du nouveau produit
                 </label>
                 <input
@@ -588,13 +588,13 @@ export default function AdminPartenairesPage() {
                   placeholder="Ex: ÉCOUTEURS SANS FIL V2"
                   value={newProdName}
                   onChange={(e) => setNewProdName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                  className="w-full px-3.5 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase">
+                  <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                     Prix de vente (F CFA)
                   </label>
                   <input
@@ -603,12 +603,12 @@ export default function AdminPartenairesPage() {
                     placeholder="Ex: 12000"
                     value={newProdPrice}
                     onChange={(e) => setNewProdPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                    className="w-full px-3.5 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase">
+                  <label className="text-[10px] text-emerald-200/70 font-bold uppercase">
                     Quantité déposée
                   </label>
                   <input
@@ -617,7 +617,7 @@ export default function AdminPartenairesPage() {
                     placeholder="Ex: 50"
                     value={newProdStock}
                     onChange={(e) => setNewProdStock(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#06b6d4]"
+                    className="w-full px-3.5 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
                   />
                 </div>
               </div>
@@ -626,13 +626,13 @@ export default function AdminPartenairesPage() {
                 <button
                   type="button"
                   onClick={() => setPartnerForNewProduct(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#06b6d4] text-white text-xs font-bold shadow-md"
+                  className="px-5 py-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md"
                 >
                   Enregistrer le produit
                 </button>

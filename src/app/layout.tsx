@@ -9,19 +9,24 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "scmslivraison — Logistique E-commerce, Closing & Livraison au Bénin",
+  title: "ENO LIVRAISON — Vos colis, notre priorité | Closing, Stockage & Livraison au Bénin",
   description:
-    "Votre partenaire logistique de confiance au Bénin : closing téléphonique, stockage sécurisé à Cotonou et livraison express Cash On Delivery.",
-  keywords: "scmslivraison, logistique e-commerce Bénin, livraison Cotonou, transport colis Bénin, closing e-commerce",
+    "ENO LIVRAISON : Votre partenaire logistique de confiance au Bénin. Closing téléphonique sous 15 min, stockage offert à Cotonou & Calavi, et livraison express Cash On Delivery.",
+  keywords:
+    "ENO LIVRAISON, Vos colis notre priorité, livraison Bénin, logistique e-commerce Cotonou, closing Bénin, transport colis Calavi, Cash on delivery Bénin",
+  icons: {
+    icon: "/images/eno_livraison_logo.png",
+    apple: "/images/eno_livraison_logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${jakarta.variable} h-full antialiased scroll-smooth`}>
       <head>
-        <meta name="theme-color" content="#090e22" />
+        <meta name="theme-color" content="#16a34a" />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-white text-[#090e22] selection:bg-[#06b6d4] selection:text-white">
+      <body className="min-h-full flex flex-col font-sans bg-white text-slate-900 selection:bg-[#16a34a] selection:text-white">
         {children}
       </body>
     </html>

@@ -60,7 +60,7 @@ export default function CommandesPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `commandes-scmslivraison-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `commandes-eno-livraison-${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -73,12 +73,12 @@ export default function CommandesPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-2xl lg:text-3xl font-black text-white tracking-tight">Mes Commandes</h2>
-            <span className="px-3 py-1 rounded-full bg-[#06b6d4]/20 border border-[#06b6d4]/30 text-[#06b6d4] text-xs font-extrabold">
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold">
               {filteredOrders.length} enregistrée(s)
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Gérez vos demandes de closing, livraisons et historiques clients au Bénin.
+          <p className="text-xs text-emerald-300/70 mt-1">
+            Gérez vos demandes de closing, livraisons et historiques clients au Bénin avec ENO LIVRAISON.
           </p>
         </div>
 
@@ -86,15 +86,15 @@ export default function CommandesPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+            className="px-4 py-2.5 rounded-2xl bg-[#091b14] border border-emerald-900/60 hover:bg-emerald-950 text-emerald-200 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
           >
-            <Download className="w-4 h-4 text-[#06b6d4]" />
+            <Download className="w-4 h-4 text-[#22c55e]" />
             <span>Exporter CSV</span>
           </button>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-5 py-2.5 rounded-2xl bg-[#06b6d4] hover:bg-cyan-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 active:scale-95"
+            className="px-5 py-2.5 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Nouvelle Commande</span>
@@ -109,13 +109,13 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("ALL")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "ALL"
-              ? "bg-[#06b6d4]/15 border-[#06b6d4] shadow-lg shadow-cyan-500/10"
-              : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+              ? "bg-emerald-500/20 border-emerald-500 shadow-lg shadow-emerald-500/10"
+              : "bg-[#091b14] border-emerald-900/60 hover:border-emerald-700"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
+          <div className="flex items-center justify-between text-xs text-emerald-300/70 font-bold mb-1">
             <span>Toutes</span>
-            <Sparkles className="w-3.5 h-3.5 text-[#06b6d4]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" />
           </div>
           <p className="text-2xl font-black text-white">{totalCount}</p>
         </button>
@@ -126,7 +126,7 @@ export default function CommandesPage() {
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "LIVREE"
               ? "bg-emerald-500/20 border-emerald-500 shadow-lg shadow-emerald-500/10"
-              : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+              : "bg-[#091b14] border-emerald-900/60 hover:border-emerald-700"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-emerald-400 font-bold mb-1">
@@ -142,7 +142,7 @@ export default function CommandesPage() {
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "A_RAPPELER"
               ? "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/10"
-              : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+              : "bg-[#091b14] border-emerald-900/60 hover:border-emerald-700"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-amber-400 font-bold mb-1">
@@ -158,7 +158,7 @@ export default function CommandesPage() {
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "EN_COURS"
               ? "bg-blue-500/20 border-blue-500 shadow-lg shadow-blue-500/10"
-              : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+              : "bg-[#091b14] border-emerald-900/60 hover:border-emerald-700"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-blue-400 font-bold mb-1">
@@ -174,7 +174,7 @@ export default function CommandesPage() {
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "REFUSEE"
               ? "bg-rose-500/20 border-rose-500 shadow-lg shadow-rose-500/10"
-              : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+              : "bg-[#091b14] border-emerald-900/60 hover:border-emerald-700"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-rose-400 font-bold mb-1">
@@ -186,29 +186,29 @@ export default function CommandesPage() {
       </div>
 
       {/* FILTER BAR */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#090e22] border border-slate-800 p-4 rounded-3xl shadow-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#091b14] border border-emerald-900/60 p-4 rounded-3xl shadow-xl">
         {/* Date Filter */}
         <div className="sm:col-span-3 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Calendar className="w-4 h-4 text-[#06b6d4]" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
+            <Calendar className="w-4 h-4 text-[#22c55e]" />
           </div>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#06b6d4] transition-colors"
+            className="w-full pl-10 pr-3 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
           />
         </div>
 
         {/* Status Dropdown */}
         <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Filter className="w-4 h-4 text-[#06b6d4]" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
+            <Filter className="w-4 h-4 text-[#22c55e]" />
           </div>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-[#06b6d4] transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white focus:outline-none focus:border-[#16a34a] transition-colors"
           >
             <option value="ALL">Tous les statuts de commande</option>
             <option value="LIVREE">Livrée (COD Encaissé)</option>
@@ -224,24 +224,24 @@ export default function CommandesPage() {
 
         {/* Search Input */}
         <div className="sm:col-span-5 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-4 h-4 text-[#06b6d4]" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400/60">
+            <Search className="w-4 h-4 text-emerald-400/60" />
           </div>
           <input
             type="text"
             placeholder="Rechercher par nom client, téléphone, N° commande ou ville..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#06b6d4] transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
           />
         </div>
       </div>
 
       {/* ORDERS DATA TABLE */}
-      <div className="bg-[#090e22] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl shadow-2xl overflow-hidden">
         <div className="overflow-x-auto dark-scrollbar">
           <table className="w-full text-left text-xs whitespace-nowrap">
-            <thead className="bg-slate-900/90 border-b border-slate-800 text-slate-400 font-extrabold uppercase tracking-wider text-[10px]">
+            <thead className="bg-emerald-950/60 border-b border-emerald-900/60 text-emerald-300/70 font-extrabold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-4 px-4">Date</th>
                 <th className="py-4 px-4">N° Commande</th>
@@ -255,10 +255,10 @@ export default function CommandesPage() {
                 <th className="py-4 px-4">Note Closeuse</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-medium">
+            <tbody className="divide-y divide-emerald-900/40 font-medium">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-16 text-center text-slate-500 text-sm">
+                  <td colSpan={10} className="py-16 text-center text-emerald-300/60 text-sm">
                     Aucune commande ne correspond à vos critères de recherche.
                   </td>
                 </tr>
@@ -266,16 +266,16 @@ export default function CommandesPage() {
                 filteredOrders.map((ord) => {
                   const statusCfg = ORDER_STATUS_CONFIG[ord.status] || {
                     label: ord.status,
-                    bg: "bg-slate-800",
-                    color: "text-slate-300",
+                    bg: "bg-emerald-950",
+                    color: "text-emerald-300",
                   };
                   const isDelivered = ord.status === "LIVREE";
                   const isRecall = ord.status === "A_RAPPELER";
 
                   return (
-                    <tr key={ord.id} className="hover:bg-slate-900/60 transition-colors group">
+                    <tr key={ord.id} className="hover:bg-emerald-950/40 transition-colors group">
                       {/* Date */}
-                      <td className="py-4 px-4 font-bold text-slate-300">
+                      <td className="py-4 px-4 font-bold text-emerald-200">
                         {new Intl.DateTimeFormat("fr-FR", {
                           day: "2-digit",
                           month: "2-digit",
@@ -286,21 +286,21 @@ export default function CommandesPage() {
                       </td>
 
                       {/* Order Number */}
-                      <td className="py-4 px-4 font-mono text-[#06b6d4] font-extrabold">{ord.orderNumber}</td>
+                      <td className="py-4 px-4 font-mono text-[#22c55e] font-extrabold">{ord.orderNumber}</td>
 
                       {/* Client */}
                       <td className="py-4 px-4">
                         <p className="font-extrabold text-white">{ord.clientName}</p>
-                        <p className="text-[11px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3 text-[#06b6d4]" />
+                        <p className="text-[11px] text-emerald-300/70 font-semibold flex items-center gap-1 mt-0.5">
+                          <Phone className="w-3 h-3 text-[#22c55e]" />
                           {ord.clientPhone}
                         </p>
                       </td>
 
                       {/* Address */}
-                      <td className="py-4 px-4 text-slate-300 font-medium">
+                      <td className="py-4 px-4 text-emerald-200/80 font-medium">
                         <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#06b6d4] shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 text-[#22c55e] shrink-0" />
                           <span>{ord.address}</span>
                         </div>
                       </td>
@@ -309,7 +309,7 @@ export default function CommandesPage() {
                       <td className="py-4 px-4 text-white uppercase font-bold">{ord.products}</td>
 
                       {/* Quantity */}
-                      <td className="py-4 px-3 text-center font-black text-[#06b6d4]">{ord.quantity}</td>
+                      <td className="py-4 px-3 text-center font-black text-[#22c55e]">{ord.quantity}</td>
 
                       {/* Total Price */}
                       <td className="py-4 px-4 font-black text-emerald-400 text-sm">
@@ -318,8 +318,8 @@ export default function CommandesPage() {
 
                       {/* Fees */}
                       <td className="py-4 px-4 text-[11px]">
-                        <p className="text-slate-300 font-bold">Liv: {ord.deliveryFee} F</p>
-                        <p className="text-slate-400">Serv: {ord.serviceFee} F</p>
+                        <p className="text-emerald-200 font-bold">Liv: {ord.deliveryFee} F</p>
+                        <p className="text-emerald-300/60">Serv: {ord.serviceFee} F</p>
                       </td>
 
                       {/* Status Badge */}
@@ -343,10 +343,10 @@ export default function CommandesPage() {
                       </td>
 
                       {/* Comment */}
-                      <td className="py-4 px-4 text-slate-400 text-xs italic">
+                      <td className="py-4 px-4 text-emerald-300/70 text-xs italic">
                         {ord.comment ? (
-                          <span className="flex items-center gap-1.5 font-semibold text-slate-300 not-italic">
-                            <MessageSquare className="w-3.5 h-3.5 text-[#06b6d4]" />
+                          <span className="flex items-center gap-1.5 font-semibold text-emerald-200 not-italic">
+                            <MessageSquare className="w-3.5 h-3.5 text-[#22c55e]" />
                             {ord.comment}
                           </span>
                         ) : (

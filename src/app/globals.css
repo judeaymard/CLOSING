@@ -8,10 +8,13 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #090e22;
-  --laly-navy: #090e22;
-  --laly-cyan: #06b6d4;
-  --laly-orange: #f95700;
+  --foreground: #0f172a;
+  --eno-green: #16a34a;
+  --eno-green-dark: #15803d;
+  --eno-green-light: #22c55e;
+  --eno-lime: #84cc16;
+  --eno-forest: #064e3b;
+  --eno-surface: #f0fdf4;
 }
 
 body {
@@ -22,21 +25,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Laly-inspired card style */
-.laly-card {
+/* ENO-inspired card style */
+.eno-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 1.5rem;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.laly-card:hover {
-  border-color: #06b6d4;
-  box-shadow: 0 15px 30px -10px rgba(6, 182, 212, 0.15);
+.eno-card:hover {
+  border-color: #16a34a;
+  box-shadow: 0 15px 30px -10px rgba(22, 163, 74, 0.18);
   transform: translateY(-2px);
 }
 
-/* 🚀 3D ROTATING PHOTO CAROUSEL (Uiverse.io inspired) */
+/* 🚀 3D ROTATING PHOTO CAROUSEL */
 .wrap_3d_card {
   position: relative;
   overflow: visible;
@@ -52,15 +55,15 @@ body {
 .rotating_card {
   display: flex;
   flex-direction: column;
-  justify-between: space-between;
+  justify-content: space-between;
   position: absolute;
   overflow: hidden;
   border-radius: 1.5rem;
-  box-shadow: 0 20px 40px -15px rgba(9, 14, 34, 0.35);
+  box-shadow: 0 20px 40px -15px rgba(22, 163, 74, 0.35);
   border: 3px solid #ffffff;
   width: 240px;
   height: 320px;
-  background: #090e22;
+  background: #064e3b;
 }
 
 /* 4-Card 3D Infinite Cycle */
@@ -105,7 +108,7 @@ body {
   75%      { z-index: 4; transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
 }
 
-/* 🔮 3D HOLOGRAPHIC WOBBLE ANIMATION (Uiverse.io by Thomas-Cabrit) */
+/* 🔮 3D HOLOGRAPHIC WOBBLE ANIMATION */
 .holo_wobble_container {
   perspective: 1000px;
 }
@@ -114,7 +117,7 @@ body {
   position: relative;
   transform-style: preserve-3d;
   animation: holoWobble 6.2s ease-in-out infinite;
-  box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(22, 163, 74, 0.25);
   border-radius: 2rem;
 }
 
@@ -137,8 +140,8 @@ body {
   border-radius: 2.5rem;
   background: radial-gradient(
     circle at 50% 50%,
-    rgba(6, 182, 212, 0.3),
-    rgba(9, 14, 34, 0) 70%
+    rgba(34, 197, 94, 0.35),
+    rgba(6, 78, 59, 0) 70%
   );
   filter: blur(15px);
   z-index: -1;
@@ -159,7 +162,7 @@ body {
   }
 }
 
-/* ⚔️ DUAL LEVITATING VS BATTLE CARDS (FLOTTEMENT DES DEUX CÔTÉS) */
+/* ⚔️ DUAL LEVITATING VS BATTLE CARDS */
 .vs_float_left {
   animation: vsFloatLeft 4.8s ease-in-out infinite;
 }
@@ -207,13 +210,13 @@ body {
   50% { transform: translateY(-6px); }
 }
 
-/* Shimmering Text Gradient */
+/* Shimmering Text Gradient (Vert Émeraude & Vert Forêt) */
 .text_gradient_shimmer {
   background: linear-gradient(
     90deg,
-    #090e22 0%,
-    #06b6d4 45%,
-    #090e22 90%
+    #15803d 0%,
+    #22c55e 45%,
+    #15803d 90%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -239,11 +242,11 @@ body {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #06b6d4;
+  background: #16a34a;
 }
 
 /* Selection */
 ::selection {
-  background: #06b6d4;
+  background: #16a34a;
   color: #ffffff;
 }
