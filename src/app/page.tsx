@@ -40,23 +40,30 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [riderModalOpen, setRiderModalOpen] = useState(false);
-  const [liveToastIndex, setLiveToastIndex] = useState(0);
-  const [showLiveToast, setShowLiveToast] = useState(true);
 
-  const liveActivities = [
-    { location: "Cotonou (Cadjehoun)", action: "Colis remis en main propre", amount: "18 500 F CFA", time: "il y a 2 min", status: "Livré" },
-    { location: "Lokossa (Centre)", action: "Livraison express effectuée", amount: "24 000 F CFA", time: "il y a 4 min", status: "Reversé" },
-    { location: "Abomey-Calavi", action: "Commande validée par closing", amount: "14 000 F CFA", time: "il y a 6 min", status: "Confirmé" },
-    { location: "Porto-Novo", action: "Paiement Cash COD encaissé", amount: "32 500 F CFA", time: "il y a 9 min", status: "Livré" },
-    { location: "Cotonou (Haie-Vive)", action: "Client closé sous 11 minutes", amount: "21 000 F CFA", time: "il y a 12 min", status: "En route" },
-  ];
-
+  // 🌟 ANIMATION FLUIDE AU DÉFILEMENT (Slide Gauche/Droite, Fondu, Échelle)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveToastIndex((prev) => (prev + 1) % liveActivities.length);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [liveActivities.length]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-visible");
+          }
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -30px 0px",
+      }
+    );
+
+    const elements = document.querySelectorAll(
+      ".reveal-left, .reveal-right, .reveal-up, .reveal-scale"
+    );
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
 
   const steps = [
     {
@@ -254,7 +261,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Copy (6 cols) */}
-            <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
+            <div className="lg:col-span-6 space-y-6 text-center lg:text-left reveal-left">
               <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black text-slate-900 leading-tight tracking-tight">
                 Vos colis, notre priorité avec <span className="text-[#16a34a]">ENO LIVRAISON</span>
               </h1>
@@ -304,7 +311,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right Side: 3D ROTATING PHOTO CARD CAROUSEL */}
-            <div className="lg:col-span-6 relative py-4 flex flex-col items-center">
+            <div className="lg:col-span-6 relative py-4 flex flex-col items-center reveal-right delay-150">
               <div className="wrap_3d_card">
                 {/* 3D Card 1: Vraie photo du livreur à moto avec caisson vert ENO */}
                 <div className="rotating_card group">
@@ -391,17 +398,6 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Floating Live Animated Badges around 3D Carousel */}
-              <div className="absolute -top-3 -left-2 z-20 float_badge_1 hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-xl border border-emerald-200 text-xs font-bold text-slate-800">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] radar_pulse"></span>
-                <span>Flotte en tournée active</span>
-              </div>
-
-              <div className="absolute bottom-16 -right-3 z-20 float_badge_2 hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#071710]/95 backdrop-blur-md shadow-xl border border-emerald-800 text-xs font-bold text-white">
-                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-bounce" />
-                <span>Closing moyen : 12 min</span>
-              </div>
-
               {/* Floating Trust Badge */}
               <div className="mt-6 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full shadow-md border border-emerald-100 flex items-center justify-center gap-3">
                 <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-[#16a34a] flex items-center justify-center shrink-0">
@@ -417,42 +413,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 🏎️ BANDEAU DÉFILANT INFINI EN DIRECT (MARQUEE TICKER) */}
-      <div className="bg-[#06170f] py-4 overflow-hidden border-y border-emerald-900/60 select-none relative">
-        <div className="marquee_track flex items-center gap-8 text-xs font-black uppercase tracking-wider text-emerald-200">
-          {[
-            "⚡ CLOSING TÉLÉPHONIQUE EN 15 MIN CHRONO",
-            "🛵 LIVRAISONS EXPRESS < 2H À DOMICILE",
-            "📍 DEUX AGENCES PHYSIQUES : COTONOU & LOKOSSA",
-            "📦 STOCKAGE EN ENTREPÔT 100% OFFERT",
-            "💰 REVERSEMENT CASH ON DELIVERY QUOTIDIEN (MTN & MOOV)",
-            "⭐ +200 E-COMMERÇANTS BÉNINOIS ACTIFS",
-            "🔒 CAISSONS ISOTHERMES FLOQUÉS ENO LIVRAISON",
-            "📱 SUIVEZ-NOUS SUR TIKTOK @ENOLIVRAISON",
-            "⚡ CLOSING TÉLÉPHONIQUE EN 15 MIN CHRONO",
-            "🛵 LIVRAISONS EXPRESS < 2H À DOMICILE",
-            "📍 DEUX AGENCES PHYSIQUES : COTONOU & LOKOSSA",
-            "📦 STOCKAGE EN ENTREPÔT 100% OFFERT",
-            "💰 REVERSEMENT CASH ON DELIVERY QUOTIDIEN (MTN & MOOV)",
-            "⭐ +200 E-COMMERÇANTS BÉNINOIS ACTIFS",
-            "🔒 CAISSONS ISOTHERMES FLOQUÉS ENO LIVRAISON",
-            "📱 SUIVEZ-NOUS SUR TIKTOK @ENOLIVRAISON",
-          ].map((text, idx) => (
-            <div key={idx} className="flex items-center gap-3 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
-              <span>{text}</span>
-              <span className="text-emerald-800">•</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 📍 SECTION NOS AGENCES PHYSIQUES AU BÉNIN (COTONOU & LOKOSSA) */}
       <section id="agences" className="py-20 bg-[#071710] text-white relative overflow-hidden border-b border-emerald-950">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3 reveal-up">
             <span className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-widest border border-emerald-500/30 inline-flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[#22c55e]" /> DEUX AGENCES PHYSIQUES À VOTRE SERVICE
             </span>
@@ -465,10 +431,12 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {enoAgencies.map((agency) => (
+            {enoAgencies.map((agency, index) => (
               <div
                 key={agency.id}
-                className="bg-gradient-to-br from-[#0c2419] to-[#081b13] border border-emerald-800/50 rounded-3xl p-7 space-y-6 shadow-2xl hover:border-emerald-500/50 transition-all duration-300 group flex flex-col justify-between"
+                className={`bg-gradient-to-br from-[#0c2419] to-[#081b13] border border-emerald-800/50 rounded-3xl p-7 space-y-6 shadow-2xl hover:border-emerald-500/50 transition-all duration-300 group flex flex-col justify-between ${
+                  index === 0 ? "reveal-left delay-100" : "reveal-right delay-200"
+                }`}
               >
                 <div className="space-y-4">
                   {/* Agency Header */}
@@ -542,7 +510,7 @@ export default function LandingPage() {
       {/* 🚀 COMMENT ÇA MARCHE */}
       <section id="comment-ca-marche" className="py-20 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3 reveal-up">
             <span className="px-4 py-1.5 rounded-full bg-emerald-100 text-[#15803d] text-xs font-bold border border-emerald-300">
               Comment ça marche
             </span>
@@ -558,8 +526,10 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative max-w-6xl mx-auto">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
+              const delayClass =
+                index === 0 ? "delay-100" : index === 1 ? "delay-200" : index === 2 ? "delay-300" : "delay-400";
               return (
-                <div key={index} className="flex flex-col items-center text-center relative group">
+                <div key={index} className={`flex flex-col items-center text-center relative group reveal-up ${delayClass}`}>
                   <div className="relative mb-6">
                     <div className={`w-22 h-22 rounded-3xl ${step.color} text-white flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-300`}>
                       <StepIcon className="w-9 h-9 stroke-[2]" />
@@ -592,7 +562,7 @@ export default function LandingPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
           {/* Section Header */}
-          <div className="text-center max-w-2xl mx-auto space-y-3">
+          <div className="text-center max-w-2xl mx-auto space-y-3 reveal-up">
             <span className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-widest border border-emerald-500/30 inline-flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-rose-400" /> COULISSES & IMMERSION TERRAIN
             </span>
@@ -604,9 +574,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* 🌟 CREATOR PROFILE BAR (Style Carte Créateur TikTok Officiel) */}
           {/* 🌟 CREATOR PROFILE BAR (Style Carte Créateur TikTok Officiel — Preuves sur une seule ligne) */}
-          <div className="max-w-5xl mx-auto p-4 sm:p-5 rounded-3xl bg-emerald-950/40 border border-emerald-800/40 backdrop-blur-md flex flex-col xl:flex-row items-center justify-between gap-5 shadow-xl">
+          <div className="max-w-5xl mx-auto p-4 sm:p-5 rounded-3xl bg-emerald-950/40 border border-emerald-800/40 backdrop-blur-md flex flex-col xl:flex-row items-center justify-between gap-5 shadow-xl reveal-scale delay-100">
             {/* Left: Avatar & Identity */}
             <div className="flex items-center gap-3.5 text-center sm:text-left shrink-0">
               <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-[#22c55e] shadow-lg bg-white shrink-0">
@@ -672,7 +641,7 @@ export default function LandingPage() {
               href={enoSocials.tiktok.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4 reveal-left delay-150"
             >
               <Image
                 src="/images/eno_courier_bike.png"
@@ -739,7 +708,7 @@ export default function LandingPage() {
               href={enoSocials.tiktok.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4 reveal-up delay-250"
             >
               <Image
                 src="/images/eno_delivery_handover.png"
@@ -806,7 +775,7 @@ export default function LandingPage() {
               href={enoSocials.tiktok.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4"
+              className="group relative rounded-3xl overflow-hidden border-2 border-emerald-900/80 bg-slate-950 aspect-[9/15] shadow-2xl hover:border-emerald-500 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between p-4 reveal-right delay-350"
             >
               <Image
                 src="/images/eno_tiktok_community.png"
@@ -870,7 +839,7 @@ export default function LandingPage() {
           </div>
 
           {/* 🔗 UNIFIED SOCIAL CHANNELS BAR */}
-          <div className="max-w-4xl mx-auto pt-4">
+          <div className="max-w-4xl mx-auto pt-4 reveal-up delay-200">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {/* TikTok */}
               <a
@@ -938,7 +907,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Photo */}
-            <div className="lg:col-span-5 relative py-4">
+            <div className="lg:col-span-5 relative py-4 reveal-left">
               <div className="bg-white border-4 border-white rounded-3xl overflow-hidden shadow-2xl group">
                 <div className="relative rounded-2xl overflow-hidden h-[380px]">
                   <Image
@@ -962,7 +931,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right Explanation */}
-            <div className="lg:col-span-7 space-y-6 py-2">
+            <div className="lg:col-span-7 space-y-6 py-2 reveal-right delay-150">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#071710] text-white text-xs font-bold shadow-md">
                 <span className="w-2 rounded-full h-2 bg-emerald-400 animate-ping"></span>
                 <Headphones className="w-3.5 h-3.5 text-[#86efac]" />
@@ -1032,7 +1001,7 @@ export default function LandingPage() {
       {/* 🚀 NOS SERVICES */}
       <section id="services" className="py-20 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3 reveal-up">
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               Des solutions de closing & logistique adaptées aux e-commerçants
             </h2>
@@ -1043,7 +1012,7 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Closing Téléphonique Pro */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300 reveal-up delay-100">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
@@ -1076,7 +1045,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 2: Stockage & Entrepôt Cotonou & Lokossa */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300 reveal-up delay-200">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/eno_courier_bike.png"
@@ -1109,7 +1078,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3: Livraison Express COD */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300 reveal-up delay-300">
               <div className="relative h-52 w-full overflow-hidden">
                 <Image
                   src="/images/eno_delivery_handover.png"
@@ -1142,7 +1111,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 4: Dashboard & Synchro E-commerce */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between group transition-all hover:shadow-xl hover:border-emerald-300 reveal-up delay-400">
               <div className="relative h-52 w-full overflow-hidden bg-slate-100">
                 <Image
                   src="/images/istockphoto-1481860080-612x612.jpg"
@@ -1181,7 +1150,7 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3 reveal-up">
             <span className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-widest border border-emerald-500/30 inline-flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> PERFORMANCE LOGISTIQUE AU BÉNIN
             </span>
@@ -1195,7 +1164,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto mb-16">
             {/* Left Card: COURSIERS CLASSIQUES */}
-            <div className="lg:col-span-5 bg-slate-950/80 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative group">
+            <div className="lg:col-span-5 bg-slate-950/80 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative group reveal-left delay-100">
               <div className="flex justify-between items-center border-b border-slate-800 pb-4">
                 <div>
                   <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
@@ -1237,14 +1206,14 @@ export default function LandingPage() {
             </div>
 
             {/* Center VS Emblem */}
-            <div className="lg:col-span-2 flex justify-center py-2">
+            <div className="lg:col-span-2 flex justify-center py-2 reveal-scale delay-200">
               <div className="w-14 h-14 rounded-full bg-[#16a34a] text-white font-black text-lg flex items-center justify-center shadow-[0_0_25px_rgba(22,163,74,0.6)] border-4 border-[#071710] animate-pulse">
                 VS
               </div>
             </div>
 
             {/* Right Card: ENO LIVRAISON */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-[#0c2419] to-[#071710] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_30px_rgba(22,163,74,0.3)] relative group">
+            <div className="lg:col-span-5 bg-gradient-to-br from-[#0c2419] to-[#071710] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_30px_rgba(22,163,74,0.3)] relative group reveal-right delay-100">
               <div className="absolute -top-3.5 right-6 bg-[#16a34a] text-white font-black text-[10px] uppercase tracking-widest px-3.5 py-1 rounded-full shadow-lg">
                 Recommandé E-commerce
               </div>
@@ -1295,7 +1264,7 @@ export default function LandingPage() {
       {/* ❓ QUESTIONS FRÉQUENTES (FAQ) */}
       <section id="faq" className="py-20 bg-slate-50 border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 space-y-2">
+          <div className="text-center mb-12 space-y-2 reveal-up">
             <span className="text-xs font-extrabold uppercase tracking-widest text-[#16a34a]">
               TRANSPARENCE TOTALE
             </span>
@@ -1305,7 +1274,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 reveal-up delay-100">
             {faqs.map((faq, index) => (
               <div key={index} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                 <button
@@ -1333,7 +1302,7 @@ export default function LandingPage() {
       {/* 👑 CTA BANNER */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-[#0c2419] to-[#071710] rounded-3xl p-8 sm:p-14 text-white text-center space-y-6 shadow-2xl relative overflow-hidden border border-emerald-900">
+          <div className="bg-gradient-to-br from-[#0c2419] to-[#071710] rounded-3xl p-8 sm:p-14 text-white text-center space-y-6 shadow-2xl relative overflow-hidden border border-emerald-900 reveal-scale">
             <div className="max-w-xl mx-auto space-y-3 relative z-10">
               <span className="px-3.5 py-1 rounded-full bg-[#16a34a] text-white text-[10px] font-black uppercase tracking-wider">
                 Rejoignez ENO LIVRAISON
@@ -1647,41 +1616,6 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* 🔔 NOTIFICATION FLOTTANTE EN DIRECT (LIVE ACTIVITY TOAST) */}
-      {showLiveToast && (
-        <div className="fixed bottom-5 left-5 z-40 max-w-xs sm:max-w-sm bg-[#071710]/95 backdrop-blur-md border border-emerald-800/80 rounded-2xl p-3.5 shadow-2xl text-white flex items-center justify-between gap-3 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center shrink-0 radar_pulse">
-              <Truck className="w-4 h-4" />
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-[#22c55e] bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
-                  {liveActivities[liveToastIndex].status}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {liveActivities[liveToastIndex].time}
-                </span>
-              </div>
-              <p className="text-xs font-bold text-white mt-0.5">
-                {liveActivities[liveToastIndex].location}
-              </p>
-              <p className="text-[11px] text-emerald-300">
-                {liveActivities[liveToastIndex].action} • <strong className="text-white">{liveActivities[liveToastIndex].amount}</strong>
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowLiveToast(false)}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors shrink-0"
-            title="Masquer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
         </div>
       )}
     </div>
