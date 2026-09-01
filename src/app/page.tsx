@@ -40,6 +40,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [riderModalOpen, setRiderModalOpen] = useState(false);
+  const [isClosingCardFlipped, setIsClosingCardFlipped] = useState(false);
 
   // 🌟 ANIMATION FLUIDE AU DÉFILEMENT (Slide Gauche/Droite, Fondu, Échelle)
   useEffect(() => {
@@ -831,25 +832,98 @@ export default function LandingPage() {
       <section id="closing" className="py-20 bg-emerald-50/40 border-b border-slate-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
-            {/* Left Photo */}
+            {/* Left Photo - 3D Flip Card */}
             <div className="lg:col-span-5 relative py-4 reveal-left">
-              <div className="bg-white border-4 border-white rounded-3xl overflow-hidden shadow-2xl group">
-                <div className="relative rounded-2xl overflow-hidden h-[380px]">
-                  <Image
-                    src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
-                    alt="Opératrice téléconseillère ENO LIVRAISON au centre d'appel"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="px-3 py-1 rounded-full bg-[#16a34a] text-white text-[10px] font-black uppercase tracking-wider shadow">
-                      Centre Closing ENO Cotonou
-                    </span>
-                    <p className="text-xs font-bold text-slate-100 mt-1">
-                      Une équipe locale dédiée à la confirmation de vos commandes en 15 minutes.
-                    </p>
+              <div
+                className={`flip-card h-[400px] w-full cursor-pointer group select-none ${
+                  isClosingCardFlipped ? "is-flipped" : ""
+                }`}
+                onClick={() => setIsClosingCardFlipped(!isClosingCardFlipped)}
+                title="Cliquez ou survolez pour retourner la carte"
+              >
+                <div className="flip-card-inner">
+                  {/* RECTO: L'opératrice au centre d'appel */}
+                  <div className="flip-card-front bg-slate-950 border-4 border-white shadow-2xl overflow-hidden flex flex-col justify-between p-5">
+                    <Image
+                      src="/images/femme-afro-americaine-travaille-dans-operateur-centre-appels-agent-du-service-client-portant-casques-microphone-travaillant-ordinateur-portable_627829-586.avif"
+                      alt="Opératrice téléconseillère ENO LIVRAISON au centre d'appel"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-black/30 to-black/20"></div>
+
+                    {/* Top Tag & Hint */}
+                    <div className="relative z-10 flex justify-between items-center">
+                      <span className="px-3 py-1 rounded-full bg-[#16a34a] text-white text-[10px] font-black uppercase tracking-wider shadow">
+                        Centre Closing ENO Cotonou
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-emerald-300 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                        Retourner ↻
+                      </span>
+                    </div>
+
+                    {/* Bottom Info */}
+                    <div className="relative z-10 text-left text-white">
+                      <p className="text-xs font-bold text-slate-100">
+                        Une équipe locale dédiée à la confirmation de vos commandes en 15 minutes.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* VERSO: Confirmation 3D & Résultat Vente Validée */}
+                  <div className="flip-card-back bg-[#071710] border-4 border-emerald-500/80 shadow-2xl overflow-hidden flex flex-col justify-between p-6 text-left">
+                    <Image
+                      src="/images/closing_phone_3d.jpg"
+                      alt="Confirmation de commande e-commerce ENO"
+                      fill
+                      className="object-cover opacity-35"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071710] via-[#071710]/85 to-[#071710]/70"></div>
+
+                    {/* Top Status */}
+                    <div className="relative z-10 flex justify-between items-center">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-[#86efac] border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse"></span>
+                        COMMANDE VALIDÉE
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+                        Recto ↻
+                      </span>
+                    </div>
+
+                    {/* Center Stat Highlights */}
+                    <div className="relative z-10 space-y-3 my-auto">
+                      <div className="space-y-1">
+                        <h4 className="text-xl font-black text-white leading-tight">
+                          Vos Ventes Sécurisées Avant Expédition
+                        </h4>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Validation du numéro, adresse exacte vérifiée et créneau horaire fixé directement avec l&apos;acheteur.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="p-2.5 rounded-xl bg-black/40 border border-emerald-500/20">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Délai d&apos;Appel</p>
+                          <p className="text-sm font-black text-emerald-400">&lt; 15 min</p>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-black/40 border border-emerald-500/20">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Succès Closing</p>
+                          <p className="text-sm font-black text-white">+35% Ventes</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Note */}
+                    <div className="relative z-10 pt-2 border-t border-emerald-900/60 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-300">
+                        Transmis immédiatement au livreur
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        Français • Fon • Mina
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
