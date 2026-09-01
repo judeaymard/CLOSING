@@ -341,4 +341,39 @@ body {
   transform: rotateY(180deg);
 }
 
+/* 🌊 FLOATING LEVITATION FOR VS CARDS */
+@keyframes float-card-left {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes float-card-right {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.animate-float-left {
+  animation: float-card-left 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-right {
+  animation: float-card-right 5.5s ease-in-out infinite 0.8s;
+  will-change: transform;
+}
+
+.animate-float-left:hover,
+.animate-float-right:hover {
+  animation-play-state: paused;
+}
+
+
 

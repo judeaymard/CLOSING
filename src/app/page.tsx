@@ -1163,43 +1163,45 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto mb-16">
             {/* Left Card: COURSIERS CLASSIQUES */}
-            <div className="lg:col-span-5 bg-slate-950/80 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative group reveal-left delay-100">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-                <div>
-                  <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                    Méthode Classique
-                  </span>
-                  <h3 className="text-lg font-black text-white mt-1">Coursiers Indépendants</h3>
+            <div className="lg:col-span-5 reveal-left delay-100">
+              <div className="animate-float-left bg-slate-950/80 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative group transition-all duration-300">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+                  <div>
+                    <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      Méthode Classique
+                    </span>
+                    <h3 className="text-lg font-black text-white mt-1">Coursiers Indépendants</h3>
+                  </div>
+                  <XCircle className="w-7 h-7 text-rose-500 stroke-[2]" />
                 </div>
-                <XCircle className="w-7 h-7 text-rose-500 stroke-[2]" />
-              </div>
 
-              <div className="space-y-3 text-xs font-medium">
-                <div className="flex items-start gap-2.5 text-slate-300">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Aucun rappel prospect (jusqu&apos;à 40% de commandes perdues)</span>
+                <div className="space-y-3 text-xs font-medium">
+                  <div className="flex items-start gap-2.5 text-slate-300">
+                    <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <span>Aucun rappel prospect (jusqu&apos;à 40% de commandes perdues)</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-300">
+                    <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <span>Stockage non sécurisé ou à la charge de l&apos;e-commerçant</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-300">
+                    <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <span>Reversement des fonds très lent (7 à 14 jours d&apos;attente)</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-300">
+                    <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <span>Aucun tableau de bord ni suivi d&apos;avancement en temps réel</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-2.5 text-slate-300">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Stockage non sécurisé ou à la charge de l&apos;e-commerçant</span>
-                </div>
-                <div className="flex items-start gap-2.5 text-slate-300">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Reversement des fonds très lent (7 à 14 jours d&apos;attente)</span>
-                </div>
-                <div className="flex items-start gap-2.5 text-slate-300">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Aucun tableau de bord ni suivi d&apos;avancement en temps réel</span>
-                </div>
-              </div>
 
-              <div className="pt-4 border-t border-slate-800 space-y-1.5">
-                <div className="flex justify-between text-xs font-extrabold">
-                  <span className="text-slate-400">Taux de livraison réussi</span>
-                  <span className="text-rose-400">55%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-rose-500 h-full w-[55%] rounded-full"></div>
+                <div className="pt-4 border-t border-slate-800 space-y-1.5">
+                  <div className="flex justify-between text-xs font-extrabold">
+                    <span className="text-slate-400">Taux de livraison réussi</span>
+                    <span className="text-rose-400">55%</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                    <div className="bg-rose-500 h-full w-[55%] rounded-full"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1212,47 +1214,49 @@ export default function LandingPage() {
             </div>
 
             {/* Right Card: ENO LIVRAISON */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-[#0c2419] to-[#071710] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_30px_rgba(22,163,74,0.3)] relative group reveal-right delay-100">
-              <div className="absolute -top-3.5 right-6 bg-[#16a34a] text-white font-black text-[10px] uppercase tracking-widest px-3.5 py-1 rounded-full shadow-lg">
-                Recommandé E-commerce
-              </div>
+            <div className="lg:col-span-5 reveal-right delay-100">
+              <div className="animate-float-right bg-gradient-to-br from-[#0c2419] to-[#071710] border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_35px_rgba(22,163,74,0.35)] relative group transition-all duration-300">
+                <div className="absolute -top-3.5 right-6 bg-[#16a34a] text-white font-black text-[10px] uppercase tracking-widest px-3.5 py-1 rounded-full shadow-lg">
+                  Recommandé E-commerce
+                </div>
 
-              <div className="flex justify-between items-center border-b border-emerald-900 pb-4">
-                <div>
-                  <span className="text-[10px] font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">
-                    Solution Complète
-                  </span>
-                  <h3 className="text-xl font-black text-white mt-1">ENO LIVRAISON</h3>
+                <div className="flex justify-between items-center border-b border-emerald-900 pb-4">
+                  <div>
+                    <span className="text-[10px] font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">
+                      Solution Complète
+                    </span>
+                    <h3 className="text-xl font-black text-white mt-1">ENO LIVRAISON</h3>
+                  </div>
+                  <CheckCircle2 className="w-7 h-7 text-[#22c55e] stroke-[2]" />
                 </div>
-                <CheckCircle2 className="w-7 h-7 text-[#22c55e] stroke-[2]" />
-              </div>
 
-              <div className="space-y-3 text-xs font-semibold">
-                <div className="flex items-start gap-2.5 text-white">
-                  <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
-                  <span>Closing téléphonique pro sous 15 min (Français + Fon/Mina)</span>
+                <div className="space-y-3 text-xs font-semibold">
+                  <div className="flex items-start gap-2.5 text-white">
+                    <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                    <span>Closing téléphonique pro sous 15 min (Français + Fon/Mina)</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-white">
+                    <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                    <span>Stockage 100% OFFERT dans nos entrepôts Cotonou & Lokossa</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-white">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Reversement Cash COD quotidien par MTN MoMo / Moov</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-white">
+                    <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                    <span>Flotte moto dédiée & contact direct agences Cotonou / Lokossa</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-2.5 text-white">
-                  <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
-                  <span>Stockage 100% OFFERT dans nos entrepôts Cotonou & Lokossa</span>
-                </div>
-                <div className="flex items-start gap-2.5 text-white">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Reversement Cash COD quotidien par MTN MoMo / Moov</span>
-                </div>
-                <div className="flex items-start gap-2.5 text-white">
-                  <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
-                  <span>Flotte moto dédiée & contact direct agences Cotonou / Lokossa</span>
-                </div>
-              </div>
 
-              <div className="pt-4 border-t border-emerald-900 space-y-1.5">
-                <div className="flex justify-between text-xs font-extrabold">
-                  <span className="text-emerald-200">Taux de livraison réussi</span>
-                  <span className="text-emerald-400 font-black">94% +</span>
-                </div>
-                <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-[#16a34a] h-full w-[94%] rounded-full shadow-[0_0_10px_#16a34a]"></div>
+                <div className="pt-4 border-t border-emerald-900 space-y-1.5">
+                  <div className="flex justify-between text-xs font-extrabold">
+                    <span className="text-emerald-200">Taux de livraison réussi</span>
+                    <span className="text-emerald-400 font-black">94% +</span>
+                  </div>
+                  <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                    <div className="bg-[#16a34a] h-full w-[94%] rounded-full shadow-[0_0_10px_#16a34a]"></div>
+                  </div>
                 </div>
               </div>
             </div>
