@@ -421,15 +421,15 @@ function AuthForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen h-screen lg:overflow-hidden grid lg:grid-cols-2 bg-white selection:bg-[#16a34a] selection:text-white font-sans">
-      {/* LEFT COLUMN (Fixed, 100% single page viewport, no scrolling) */}
-      <div className="relative hidden lg:flex flex-col justify-between p-8 xl:p-10 bg-[#0f291e] text-white border-r border-emerald-950 h-screen max-h-screen overflow-hidden select-none">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden grid lg:grid-cols-2 bg-white selection:bg-[#16a34a] selection:text-white font-sans">
+      {/* LEFT COLUMN (Fixed, 100% visible on a single page, no scroll needed) */}
+      <div className="relative hidden lg:flex flex-col justify-between p-6 xl:p-10 bg-[#0f291e] text-white border-r border-emerald-950 h-screen max-h-screen overflow-y-auto scrollbar-none select-none">
         {/* Glow ambient */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-[#16a34a]/15 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Header */}
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-3">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 hover:underline transition-colors"
@@ -438,7 +438,7 @@ export default function LoginPage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shadow-lg shadow-emerald-500/20 shrink-0">
+            <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shadow-lg shadow-emerald-500/20 shrink-0">
               <Image
                 src="/images/eno_livraison_logo.png"
                 alt="Logo ENO LIVRAISON"
@@ -448,87 +448,71 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <span className="text-xl font-black text-white block tracking-tight leading-none">
+              <span className="text-lg font-black text-white block tracking-tight leading-none">
                 ENO <span className="text-[#22c55e]">LIVRAISON</span>
               </span>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+              <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400">
                 VOS COLIS, NOTRE PRIORITÉ
               </span>
             </div>
           </div>
         </div>
 
-        {/* Main Pitch */}
-        <div className="relative z-10 my-auto py-2 space-y-4 max-w-lg">
+        {/* Main Pitch & 2x2 Micro-Grid */}
+        <div className="relative z-10 my-auto py-3 space-y-3.5 max-w-lg">
           <div>
             <h1 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight">
               Gérez votre activité <br />
               <span className="text-[#22c55e]">en toute sérénité</span>
             </h1>
-            <p className="text-emerald-100/70 text-xs xl:text-sm mt-2 leading-relaxed font-normal">
+            <p className="text-emerald-100/70 text-xs mt-1.5 leading-relaxed font-normal">
               Rejoignez le réseau ENO LIVRAISON et accédez à des outils puissants pour automatiser votre closing, stockage et vos livraisons express au Bénin.
             </p>
           </div>
 
-          {/* 4 Feature Cards (Streamlined & compact to fit on one screen) */}
-          <div className="space-y-2.5 pt-1">
-            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-9 h-9 rounded-xl bg-[#16a34a]/20 text-[#86efac] flex items-center justify-center shrink-0">
+          {/* 4 Feature Cards in a Compact 2x2 Grid */}
+          <div className="grid grid-cols-2 gap-2.5 pt-1">
+            <div className="p-3 rounded-2xl bg-emerald-950/70 border border-emerald-900/70 backdrop-blur space-y-1">
+              <div className="w-8 h-8 rounded-xl bg-[#16a34a]/20 text-[#86efac] flex items-center justify-center">
                 <Package className="w-4 h-4" />
               </div>
-              <div className="min-w-0">
-                <h4 className="text-xs font-extrabold text-white">Gestion des commandes</h4>
-                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
-                  Suivez toutes vos commandes en temps réel depuis votre espace dédié.
-                </p>
-              </div>
+              <h4 className="text-xs font-bold text-white leading-tight">Commandes</h4>
+              <p className="text-[10px] text-emerald-200/70 leading-snug">Suivi en temps réel</p>
             </div>
 
-            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+            <div className="p-3 rounded-2xl bg-emerald-950/70 border border-emerald-900/70 backdrop-blur space-y-1">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                 <BarChart3 className="w-4 h-4" />
               </div>
-              <div className="min-w-0">
-                <h4 className="text-xs font-extrabold text-white">Statistiques détaillées</h4>
-                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
-                  Taux de livraison, chiffre d&apos;affaires et performances journalières.
-                </p>
-              </div>
+              <h4 className="text-xs font-bold text-white leading-tight">Statistiques</h4>
+              <p className="text-[10px] text-emerald-200/70 leading-snug">Rapports & finances</p>
             </div>
 
-            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="p-3 rounded-2xl bg-emerald-950/70 border border-emerald-900/70 backdrop-blur space-y-1">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                 <Truck className="w-4 h-4" />
               </div>
-              <div className="min-w-0">
-                <h4 className="text-xs font-extrabold text-white">Closing & Suivi express</h4>
-                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
-                  ENO LIVRAISON gère vos appels sous 15 min et la logistique de terrain.
-                </p>
-              </div>
+              <h4 className="text-xs font-bold text-white leading-tight">Closing 15 min</h4>
+              <p className="text-[10px] text-emerald-200/70 leading-snug">Confirmation & appels</p>
             </div>
 
-            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+            <div className="p-3 rounded-2xl bg-emerald-950/70 border border-emerald-900/70 backdrop-blur space-y-1">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
                 <Star className="w-4 h-4" />
               </div>
-              <div className="min-w-0">
-                <h4 className="text-xs font-extrabold text-white">Reversements quotidiens</h4>
-                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
-                  Reversements Mobile Money (MTN / Moov) transparents et immédiats.
-                </p>
-              </div>
+              <h4 className="text-xs font-bold text-white leading-tight">Reversements</h4>
+              <p className="text-[10px] text-emerald-200/70 leading-snug">Cash MoMo quotidien</p>
             </div>
           </div>
         </div>
 
-        {/* Social Proof & Real Agencies */}
+        {/* Social Proof & Real Agencies Footer */}
         <div className="relative z-10 pt-3 border-t border-emerald-900/60">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-emerald-700 shrink-0">
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-emerald-700 shrink-0">
               <Image
                 src="/images/eno_card_1.png"
-                alt="Livreur ENO LIVRAISON"
+                alt="Flotte ENO LIVRAISON"
                 fill
                 className="object-cover"
               />
@@ -545,11 +529,15 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (Auth Form - Independently scrollable if needed) */}
-      <div className="h-screen max-h-screen overflow-y-auto flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-8">
-        <Suspense fallback={<div className="text-center text-slate-400 text-xs">Chargement...</div>}>
-          <AuthForm />
-        </Suspense>
+      {/* RIGHT COLUMN (Auth Form - Smooth independent scrolling) */}
+      <div className="h-full lg:h-screen overflow-y-auto bg-white">
+        <div className="min-h-full flex flex-col justify-center py-8 px-6 sm:px-12 lg:px-16">
+          <div className="max-w-[420px] w-full mx-auto my-auto">
+            <Suspense fallback={<div className="text-center text-slate-400 text-xs py-10">Chargement...</div>}>
+              <AuthForm />
+            </Suspense>
+          </div>
+        </div>
       </div>
     </div>
   );
