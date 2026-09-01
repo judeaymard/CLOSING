@@ -375,5 +375,72 @@ body {
   animation-play-state: paused;
 }
 
+/* ⚡ CLOSING SECTION MICRO-ANIMATIONS ("FAIS BOUGER SA FAÇON") */
+@keyframes float-gentle-1 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-gentle-2 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(22, 163, 74, 0.15);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.35);
+  }
+}
+
+@keyframes icon-heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.2);
+  }
+  35% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-float-closing-1 {
+  animation: float-gentle-1 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-closing-2 {
+  animation: float-gentle-2 5s ease-in-out infinite 0.8s;
+  will-change: transform;
+}
+
+.animate-float-closing-1:hover,
+.animate-float-closing-2:hover {
+  animation-play-state: paused;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3.5s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: icon-heartbeat 2.5s ease-in-out infinite;
+}
+
+
 
 

@@ -945,50 +945,63 @@ export default function LandingPage() {
                 En Afrique, l&apos;achat en ligne repose d&apos;abord sur la confiance humaine. Chez <strong>ENO LIVRAISON</strong>, nos opératrices téléphoniques appellent vos prospects sous 15 minutes pour valider leur commande, préciser l&apos;adresse exacte et convenir du créneau de livraison.
               </p>
 
-              {/* 2 Pro Feature Cards */}
+              {/* 2 Pro Feature Cards with Float Animation */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div className="p-4 rounded-2xl bg-white border border-emerald-100 shadow-sm space-y-2">
+                <div className="animate-float-closing-1 p-4 rounded-2xl bg-white border border-emerald-200/80 shadow-md hover:shadow-xl hover:border-emerald-400 hover:-translate-y-1 transition-all duration-300 space-y-2 group cursor-default">
                   <div className="flex justify-between items-center">
-                    <CheckCircle2 className="w-5 h-5 text-[#16a34a]" />
-                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <CheckCircle2 className="w-5 h-5 text-[#16a34a] group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       98% de Réponse
                     </span>
                   </div>
-                  <h4 className="text-xs font-extrabold text-slate-900">Appels en Français & Langues Locales</h4>
+                  <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    Appels en Français & Langues Locales
+                  </h4>
                   <p className="text-[11px] text-slate-500 font-normal leading-relaxed">
                     Échanges courtois et rassurants adaptés aux clients de Cotonou, Calavi, Porto-Novo et Lokossa.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-emerald-100 shadow-sm space-y-2">
+                <div className="animate-float-closing-2 p-4 rounded-2xl bg-white border border-emerald-200/80 shadow-md hover:shadow-xl hover:border-emerald-400 hover:-translate-y-1 transition-all duration-300 space-y-2 group cursor-default">
                   <div className="flex justify-between items-center">
-                    <Activity className="w-5 h-5 text-[#16a34a]" />
-                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <Activity className="w-5 h-5 text-[#16a34a] animate-heartbeat" />
+                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       Synchro Dashboard
                     </span>
                   </div>
-                  <h4 className="text-xs font-extrabold text-slate-900">Suivi en Direct & Notes Closeuses</h4>
+                  <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    Suivi en Direct & Notes Closeuses
+                  </h4>
                   <p className="text-[11px] text-slate-500 font-normal leading-relaxed">
                     Chaque appel est consigné avec l&apos;adresse validée et le statut de livraison réactualisé.
                   </p>
                 </div>
               </div>
 
-              {/* Live Stat Footer Banner */}
-              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#071710] text-white text-xs border border-emerald-900 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+              {/* Live Stat Footer Banner with Radar Pulse */}
+              <div className="animate-pulse-glow flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#071710] text-white text-xs border border-emerald-500/40 hover:border-emerald-400 shadow-xl transition-all duration-300">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">Taux de Conversion Moyen</p>
-                    <p className="font-black text-emerald-400">92.4% d&apos;achats confirmés</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      Taux de Conversion Moyen
+                    </p>
+                    <p className="font-black text-emerald-400 text-sm">92.4% d&apos;achats confirmés</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-emerald-300" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-300">
+                    <Clock className="w-4 h-4" />
+                  </div>
                   <div>
                     <p className="text-[10px] text-slate-400 font-bold uppercase">Délai moyen d&apos;appel</p>
-                    <p className="font-black text-white">&lt; 15 minutes chrono</p>
+                    <p className="font-black text-white text-sm">&lt; 15 minutes chrono</p>
                   </div>
                 </div>
               </div>
