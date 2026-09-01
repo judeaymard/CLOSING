@@ -421,15 +421,15 @@ function AuthForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-white selection:bg-[#16a34a] selection:text-white font-sans">
-      {/* LEFT COLUMN (Green Brand Showcase) */}
-      <div className="relative hidden lg:flex flex-col justify-between p-12 bg-[#0f291e] text-white overflow-hidden border-r border-emerald-950">
+    <div className="min-h-screen h-screen lg:overflow-hidden grid lg:grid-cols-2 bg-white selection:bg-[#16a34a] selection:text-white font-sans">
+      {/* LEFT COLUMN (Fixed, 100% single page viewport, no scrolling) */}
+      <div className="relative hidden lg:flex flex-col justify-between p-8 xl:p-10 bg-[#0f291e] text-white border-r border-emerald-950 h-screen max-h-screen overflow-hidden select-none">
         {/* Glow ambient */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-[#16a34a]/15 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Header */}
-        <div className="relative z-10 space-y-6">
+        <div className="relative z-10 space-y-4">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 hover:underline transition-colors"
@@ -437,8 +437,8 @@ export default function LoginPage() {
             <ArrowLeft className="w-4 h-4" /> Retour à l&apos;accueil
           </Link>
 
-          <div className="flex items-center gap-3 pt-2">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shadow-lg shadow-emerald-500/20">
+          <div className="flex items-center gap-3">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shadow-lg shadow-emerald-500/20 shrink-0">
               <Image
                 src="/images/eno_livraison_logo.png"
                 alt="Logo ENO LIVRAISON"
@@ -448,7 +448,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <span className="text-2xl font-black text-white block tracking-tight">
+              <span className="text-xl font-black text-white block tracking-tight leading-none">
                 ENO <span className="text-[#22c55e]">LIVRAISON</span>
               </span>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
@@ -459,62 +459,62 @@ export default function LoginPage() {
         </div>
 
         {/* Main Pitch */}
-        <div className="relative z-10 my-8 space-y-6 max-w-lg">
+        <div className="relative z-10 my-auto py-2 space-y-4 max-w-lg">
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight">
               Gérez votre activité <br />
               <span className="text-[#22c55e]">en toute sérénité</span>
             </h1>
-            <p className="text-emerald-100/70 text-sm mt-3 leading-relaxed font-normal">
+            <p className="text-emerald-100/70 text-xs xl:text-sm mt-2 leading-relaxed font-normal">
               Rejoignez le réseau ENO LIVRAISON et accédez à des outils puissants pour automatiser votre closing, stockage et vos livraisons express au Bénin.
             </p>
           </div>
 
-          {/* 4 Feature Cards */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-[#16a34a]/20 text-[#86efac] flex items-center justify-center shrink-0">
-                <Package className="w-5 h-5" />
+          {/* 4 Feature Cards (Streamlined & compact to fit on one screen) */}
+          <div className="space-y-2.5 pt-1">
+            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-9 h-9 rounded-xl bg-[#16a34a]/20 text-[#86efac] flex items-center justify-center shrink-0">
+                <Package className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Gestion des commandes</h4>
-                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-white">Gestion des commandes</h4>
+                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
                   Suivez toutes vos commandes en temps réel depuis votre espace dédié.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                <BarChart3 className="w-5 h-5" />
+            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                <BarChart3 className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Statistiques détaillées</h4>
-                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-white">Statistiques détaillées</h4>
+                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
                   Taux de livraison, chiffre d&apos;affaires et performances journalières.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                <Truck className="w-5 h-5" />
+            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Truck className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Closing & Suivi express</h4>
-                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-white">Closing & Suivi express</h4>
+                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
                   ENO LIVRAISON gère vos appels sous 15 min et la logistique de terrain.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                <Star className="w-5 h-5" />
+            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900/60 backdrop-blur">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <Star className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Reversements quotidiens</h4>
-                <p className="text-xs text-emerald-200/70 mt-0.5 font-normal">
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-white">Reversements quotidiens</h4>
+                <p className="text-[11px] text-emerald-200/70 font-normal truncate">
                   Reversements Mobile Money (MTN / Moov) transparents et immédiats.
                 </p>
               </div>
@@ -523,21 +523,21 @@ export default function LoginPage() {
         </div>
 
         {/* Social Proof & Real Agencies */}
-        <div className="relative z-10 space-y-3 pt-4 border-t border-emerald-900/60">
+        <div className="relative z-10 pt-3 border-t border-emerald-900/60">
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-emerald-700 shrink-0">
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-emerald-700 shrink-0">
               <Image
-                src="/images/eno_delivery_handover.png"
-                alt="Livreur ENO LIVRAISON remettant un colis"
+                src="/images/eno_card_1.png"
+                alt="Livreur ENO LIVRAISON"
                 fill
                 className="object-cover"
               />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate">
                 Plus de 1 An d&apos;expertise terrain au Bénin
               </p>
-              <p className="text-[11px] text-emerald-300/80">
+              <p className="text-[10px] text-emerald-300/80 truncate">
                 Cotonou : <strong className="text-white">01 64 29 18 84</strong> • Lokossa : <strong className="text-white">01 67 51 00 82</strong>
               </p>
             </div>
@@ -545,8 +545,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (Auth Form) */}
-      <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-10 overflow-y-auto">
+      {/* RIGHT COLUMN (Auth Form - Independently scrollable if needed) */}
+      <div className="h-screen max-h-screen overflow-y-auto flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-8">
         <Suspense fallback={<div className="text-center text-slate-400 text-xs">Chargement...</div>}>
           <AuthForm />
         </Suspense>
