@@ -9,11 +9,6 @@ import {
   Phone,
   Plus,
   Download,
-  CheckCircle2,
-  Clock,
-  Truck,
-  XCircle,
-  Sparkles,
   MapPin,
 } from "lucide-react";
 import { orders, currentPartner } from "@/lib/mock-data";
@@ -60,25 +55,27 @@ export default function CommandesPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `commandes-eno-livraison-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `expeditions-eno-livraison-${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-fade-in-up">
+      {/* 🏛️ HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Mes Commandes</h2>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-              {filteredOrders.length} enregistrée(s)
-            </span>
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+            <span>Journal Logistique</span>
+            <span>•</span>
+            <span className="text-[#0D5940]">{filteredOrders.length} expéditions enregistrées</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Gérez vos demandes de closing, livraisons et historiques clients au Bénin avec ENO LIVRAISON.
+          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+            Livre des Expéditions
+          </h2>
+          <p className="text-xs text-[#787163] mt-1">
+            Suivi complet de vos clôtures d&apos;appels, livraisons physiques et encaissements Cash On Delivery.
           </p>
         </div>
 
@@ -86,18 +83,18 @@ export default function CommandesPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-2 shadow-xs"
+            className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#141A17] text-xs font-bold transition-all flex items-center gap-2 shadow-2xs"
           >
-            <Download className="w-4 h-4 text-[#16a34a]" />
+            <Download className="w-3.5 h-3.5 text-[#0D5940]" />
             <span>Exporter CSV</span>
           </button>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 active:scale-95"
+            className="px-4 py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 active:scale-95"
           >
-            <Plus className="w-4 h-4" />
-            <span>Nouvelle Commande</span>
+            <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
+            <span>Nouvelle Expédition</span>
           </button>
         </div>
       </div>
@@ -109,15 +106,15 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("ALL")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "ALL"
-              ? "bg-emerald-50/80 border-emerald-500 shadow-xs"
-              : "bg-white border-slate-200 hover:border-slate-300"
+              ? "bg-white border-[#0D5940] shadow-xs"
+              : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-slate-500 font-bold mb-1">
+          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1">
             <span>Toutes</span>
-            <Sparkles className="w-3.5 h-3.5 text-[#16a34a]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17]"></span>
           </div>
-          <p className="text-2xl font-black text-slate-900">{totalCount}</p>
+          <p className="text-2xl font-black text-[#141A17]">{totalCount}</p>
         </button>
 
         {/* Livrées */}
@@ -125,15 +122,15 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("LIVREE")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "LIVREE"
-              ? "bg-emerald-50/80 border-emerald-500 shadow-xs"
-              : "bg-white border-slate-200 hover:border-slate-300"
+              ? "bg-white border-[#0D5940] shadow-xs"
+              : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mb-1">
+          <div className="flex items-center justify-between text-[10px] text-[#0D5940] font-bold uppercase tracking-wider mb-1">
             <span>Livrées</span>
-            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0D5940]"></span>
           </div>
-          <p className="text-2xl font-black text-[#16a34a]">{deliveredCount}</p>
+          <p className="text-2xl font-black text-[#0D5940]">{deliveredCount}</p>
         </button>
 
         {/* A Rappeler */}
@@ -141,15 +138,15 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("A_RAPPELER")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "A_RAPPELER"
-              ? "bg-amber-50/80 border-amber-500 shadow-xs"
-              : "bg-white border-slate-200 hover:border-slate-300"
+              ? "bg-white border-[#0D5940] shadow-xs"
+              : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-amber-700 font-bold mb-1">
+          <div className="flex items-center justify-between text-[10px] text-[#A84232] font-bold uppercase tracking-wider mb-1">
             <span>À rappeler</span>
-            <Clock className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A84232]"></span>
           </div>
-          <p className="text-2xl font-black text-amber-600">{recallCount}</p>
+          <p className="text-2xl font-black text-[#A84232]">{recallCount}</p>
         </button>
 
         {/* En Cours */}
@@ -157,15 +154,15 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("EN_COURS")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "EN_COURS"
-              ? "bg-blue-50/80 border-blue-500 shadow-xs"
-              : "bg-white border-slate-200 hover:border-slate-300"
+              ? "bg-white border-[#0D5940] shadow-xs"
+              : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-blue-700 font-bold mb-1">
+          <div className="flex items-center justify-between text-[10px] text-[#141A17] font-bold uppercase tracking-wider mb-1">
             <span>En cours</span>
-            <Truck className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17]"></span>
           </div>
-          <p className="text-2xl font-black text-blue-600">{inProgressCount}</p>
+          <p className="text-2xl font-black text-[#141A17]">{inProgressCount}</p>
         </button>
 
         {/* Refusées */}
@@ -173,45 +170,45 @@ export default function CommandesPage() {
           onClick={() => setSelectedStatus("REFUSEE")}
           className={`p-4 rounded-2xl border text-left transition-all ${
             selectedStatus === "REFUSEE"
-              ? "bg-rose-50/80 border-rose-500 shadow-xs"
-              : "bg-white border-slate-200 hover:border-slate-300"
+              ? "bg-white border-[#0D5940] shadow-xs"
+              : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-xs text-rose-700 font-bold mb-1">
+          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1">
             <span>Refusées</span>
-            <XCircle className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#787163]"></span>
           </div>
-          <p className="text-2xl font-black text-rose-600">{refusedCount}</p>
+          <p className="text-2xl font-black text-[#787163]">{refusedCount}</p>
         </button>
       </div>
 
       {/* FILTER BAR */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs">
         {/* Date Filter */}
         <div className="sm:col-span-3 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Calendar className="w-4 h-4 text-[#16a34a]" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
+            <Calendar className="w-3.5 h-3.5 text-[#0D5940]" />
           </div>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
           />
         </div>
 
         {/* Status Dropdown */}
         <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Filter className="w-4 h-4 text-[#16a34a]" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
+            <Filter className="w-3.5 h-3.5 text-[#0D5940]" />
           </div>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
           >
-            <option value="ALL">Tous les statuts de commande</option>
-            <option value="LIVREE">Livrée (COD Encaissé)</option>
+            <option value="ALL">Tous les statuts d&apos;expédition</option>
+            <option value="LIVREE">Livrée (Cash Encaissé)</option>
             <option value="A_RAPPELER">À rappeler (Relance Closeuse)</option>
             <option value="EN_COURS">En cours de livraison</option>
             <option value="CONFIRMEE">Confirmée par Téléphone</option>
@@ -224,59 +221,53 @@ export default function CommandesPage() {
 
         {/* Search Input */}
         <div className="sm:col-span-5 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-4 h-4 text-slate-400" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
+            <Search className="w-3.5 h-3.5 text-[#8C8474]" />
           </div>
           <input
             type="text"
-            placeholder="Rechercher client, téléphone, N° commande, ville..."
+            placeholder="Chercher client, téléphone, N°, quartier..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
           />
         </div>
       </div>
 
       {/* ORDERS DATA TABLE */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs whitespace-nowrap">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+            <thead className="bg-[#FAF9F5] border-b border-[#EAE6DD] text-[#787163] font-bold uppercase tracking-[0.15em] text-[10px]">
               <tr>
-                <th className="py-3.5 px-4">Date</th>
-                <th className="py-3.5 px-4">N° Commande</th>
-                <th className="py-3.5 px-4">Client & Contact</th>
-                <th className="py-3.5 px-4">Adresse & Ville</th>
-                <th className="py-3.5 px-4">Produits</th>
+                <th className="py-3.5 px-5">Date</th>
+                <th className="py-3.5 px-5">N° Commande</th>
+                <th className="py-3.5 px-5">Client & Contact</th>
+                <th className="py-3.5 px-5">Destination</th>
+                <th className="py-3.5 px-5">Articles</th>
                 <th className="py-3.5 px-3 text-center">Qté</th>
-                <th className="py-3.5 px-4">Prix Total</th>
-                <th className="py-3.5 px-4">Frais Liv. / Serv.</th>
-                <th className="py-3.5 px-4">Statut Closing</th>
-                <th className="py-3.5 px-4">Note Closeuse</th>
+                <th className="py-3.5 px-5">Prix Total</th>
+                <th className="py-3.5 px-5">Frais ENO</th>
+                <th className="py-3.5 px-5">Statut</th>
+                <th className="py-3.5 px-5">Note Closeuse</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+            <tbody className="divide-y divide-[#EAE6DD]/60 font-medium text-[#141A17]">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-16 text-center text-slate-400 text-sm">
-                    Aucune commande ne correspond à vos critères de recherche.
+                  <td colSpan={10} className="py-16 text-center text-[#787163] text-xs">
+                    Aucune expédition ne correspond à vos critères de recherche.
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((ord) => {
-                  const statusCfg = ORDER_STATUS_CONFIG[ord.status] || {
-                    label: ord.status,
-                    bg: "bg-slate-100",
-                    color: "text-slate-700",
-                  };
                   const isDelivered = ord.status === "LIVREE";
                   const isRecall = ord.status === "A_RAPPELER";
-                  const isRefused = ord.status === "REFUSEE";
 
                   return (
-                    <tr key={ord.id} className="hover:bg-slate-50 transition-colors group">
+                    <tr key={ord.id} className="hover:bg-[#FAF9F5]/70 transition-colors group">
                       {/* Date */}
-                      <td className="py-3.5 px-4 font-medium text-slate-600">
+                      <td className="py-3.5 px-5 font-medium text-[#5C5649]">
                         {new Intl.DateTimeFormat("fr-FR", {
                           day: "2-digit",
                           month: "2-digit",
@@ -287,75 +278,66 @@ export default function CommandesPage() {
                       </td>
 
                       {/* Order Number */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#16a34a]">{ord.orderNumber}</td>
+                      <td className="py-3.5 px-5 font-mono font-bold text-[#0D5940]">{ord.orderNumber}</td>
 
                       {/* Client */}
-                      <td className="py-3.5 px-4">
-                        <p className="font-bold text-slate-900">{ord.clientName}</p>
-                        <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3 text-[#16a34a]" />
-                          {ord.clientPhone}
-                        </p>
+                      <td className="py-3.5 px-5">
+                        <p className="font-bold text-[#141A17]">{ord.clientName}</p>
+                        <a
+                          href={`https://wa.me/${ord.clientPhone.replace(/\s+/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-[#787163] hover:text-[#0D5940] flex items-center gap-1 mt-0.5 font-semibold"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>{ord.clientPhone}</span>
+                        </a>
                       </td>
 
                       {/* Address */}
-                      <td className="py-3.5 px-4 text-slate-600 font-medium">
+                      <td className="py-3.5 px-5 text-[#5C5649]">
                         <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 text-[#8C8474] shrink-0" />
                           <span>{ord.address}</span>
                         </div>
                       </td>
 
                       {/* Products */}
-                      <td className="py-3.5 px-4 text-slate-900 uppercase font-semibold">{ord.products}</td>
+                      <td className="py-3.5 px-5 text-[#141A17] uppercase font-bold">{ord.products}</td>
 
                       {/* Quantity */}
-                      <td className="py-3.5 px-3 text-center font-bold text-slate-900">{ord.quantity}</td>
+                      <td className="py-3.5 px-3 text-center font-bold text-[#141A17]">{ord.quantity}</td>
 
                       {/* Total Price */}
-                      <td className="py-3.5 px-4 font-black text-slate-900 text-sm">
-                        {ord.totalPrice.toLocaleString()} F CFA
+                      <td className="py-3.5 px-5 font-black text-[#141A17] text-sm">
+                        {ord.totalPrice.toLocaleString("fr-FR")} F CFA
                       </td>
 
                       {/* Fees */}
-                      <td className="py-3.5 px-4 text-[11px]">
-                        <p className="text-slate-800 font-bold">Liv: {ord.deliveryFee} F</p>
-                        <p className="text-slate-500">Serv: {ord.serviceFee} F</p>
+                      <td className="py-3.5 px-5 text-[11px] text-[#5C5649]">
+                        <span className="font-bold text-[#141A17]">2 800 F</span> (Closing + Liv)
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-5">
                         <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 border shadow-2xs ${
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                             isDelivered
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              ? "bg-[#FAF9F5] text-[#0D5940] border-[#0D5940]/30"
                               : isRecall
-                              ? "bg-amber-50 text-amber-700 border-amber-200"
-                              : isRefused
-                              ? "bg-rose-50 text-rose-700 border-rose-200"
-                              : "bg-blue-50 text-blue-700 border-blue-200"
+                              ? "bg-[#FAF9F5] text-[#A84232] border-[#A84232]/30"
+                              : "bg-[#FAF9F5] text-[#141A17] border-[#141A17]/30"
                           }`}
                         >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isDelivered
-                                ? "bg-emerald-500"
-                                : isRecall
-                                ? "bg-amber-500 animate-pulse"
-                                : isRefused
-                                ? "bg-rose-500"
-                                : "bg-blue-500"
-                            }`}
-                          ></span>
-                          {statusCfg.label}
+                          {isDelivered ? "LIVRÉE" : isRecall ? "À RAPPELER" : "EN ROUTE"}
                         </span>
                       </td>
 
                       {/* Comment */}
-                      <td className="py-3.5 px-4 text-slate-500 text-xs">
+                      <td className="py-3.5 px-5 text-[#787163] text-xs">
                         {ord.comment ? (
-                          <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                            <MessageSquare className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+                          <span className="flex items-center gap-1.5 font-medium text-[#5C5649]">
+                            <MessageSquare className="w-3.5 h-3.5 text-[#0D5940] shrink-0" />
                             <span className="truncate max-w-[200px]">{ord.comment}</span>
                           </span>
                         ) : (

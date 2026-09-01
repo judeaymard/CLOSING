@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Plus,
   Search,
+  X,
 } from "lucide-react";
 import { products, currentPartner } from "@/lib/mock-data";
 
@@ -51,116 +52,106 @@ export default function StocksPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-fade-in-up">
+      {/* 🏛️ HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Gestion des Stocks</h2>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Stockage 100% Offert • ENO LIVRAISON
-            </span>
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+            <span>Entrepôts ENO</span>
+            <span>•</span>
+            <span className="text-[#0D5940]">Stockage 100% Offert • Cotonou & Calavi</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Entrepôts sécurisés sous surveillance 24h/24 à Cotonou et Abomey-Calavi.
+          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+            Inventaire & Entrepôts
+          </h2>
+          <p className="text-xs text-[#787163] mt-1">
+            Vos marchandises sont gardées sous scellé et surveillance 24h/24 sans frais de location.
           </p>
         </div>
 
         <button
           onClick={() => setShowRestockModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 active:scale-95 self-start md:self-auto"
+          className="px-4 py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 active:scale-95 self-start md:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
           <span>Déposer du Stock</span>
         </button>
       </div>
 
-      {/* 4 STATS CARDS */}
+      {/* 📊 4 STATS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Stock initial */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex justify-between items-start">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-              <Boxes className="w-4.5 h-4.5" />
-            </div>
-            <span className="text-[10px] font-bold uppercase text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
-              Total Entrepôt
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#787163]">
+              Stock Initial Déposé
             </span>
+            <Boxes className="w-4 h-4 text-[#8C8474]" />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stock initial déposé</p>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              {totalInitial} <span className="text-xs font-medium text-slate-400">unités</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {totalInitial} <span className="text-xs font-semibold text-[#787163]">unités</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Total confié à ENO</p>
         </div>
 
         {/* Stock restant */}
-        <div className="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex justify-between items-start">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#16a34a] flex items-center justify-center border border-emerald-100">
-              <Boxes className="w-4.5 h-4.5" />
-            </div>
-            <span className="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              Disponible
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#0D5940]">
+              Disponible Immédiat
             </span>
+            <Package className="w-4 h-4 text-[#0D5940]" />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stock restant actuel</p>
-            <p className="text-2xl sm:text-3xl font-black text-[#16a34a] mt-1">
-              {totalRemaining} <span className="text-xs font-medium text-emerald-600">unités</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#0D5940] tracking-tight">
+            {totalRemaining} <span className="text-xs font-semibold text-[#787163]">unités</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Prêt pour expédition rapide</p>
         </div>
 
         {/* Produits livrés */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex justify-between items-start">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-              <CheckCircle2 className="w-4.5 h-4.5" />
-            </div>
-            <span className="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              Livrés Clients
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#787163]">
+              Colis Livrés
             </span>
+            <CheckCircle2 className="w-4 h-4 text-[#0D5940]" />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Colis remis au client</p>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              {totalDelivered} <span className="text-xs font-medium text-slate-400">unités</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {totalDelivered} <span className="text-xs font-semibold text-[#787163]">remis</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Encaissés aux acheteurs</p>
         </div>
 
         {/* Taux d'écoulement */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex justify-between items-start">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
-              <TrendingUp className="w-4.5 h-4.5" />
-            </div>
-            <span className="text-[10px] font-bold uppercase text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
-              Performance
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#787163]">
+              Taux d&apos;Écoulement
             </span>
+            <TrendingUp className="w-4 h-4 text-[#C5A059]" />
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Taux d&apos;écoulement</p>
-            <p className="text-2xl sm:text-3xl font-black text-purple-600 mt-1">{flowRate}%</p>
-          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {flowRate}%
+          </p>
+          <p className="text-xs text-[#5C5649]">Vitesse de rotation du stock</p>
         </div>
       </div>
 
       {/* SEARCH BAR */}
-      <div className="flex items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 rounded-2xl shadow-xs">
+      <div className="bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs flex items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-[#8C8474] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher un produit..."
+            placeholder="Rechercher une référence en stock..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white"
+            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white"
           />
         </div>
+        <span className="text-xs text-[#787163] font-medium hidden sm:inline">
+          {filteredProducts.length} référence(s) répertoriée(s)
+        </span>
       </div>
 
       {/* PRODUCTS LIST GRID */}
@@ -172,44 +163,39 @@ export default function StocksPage() {
           return (
             <div
               key={prod.id}
-              className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4 hover:border-emerald-500/50 hover:shadow-md transition-all flex flex-col justify-between"
+              className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-4 hover:border-[#0D5940]/40 transition-all flex flex-col justify-between"
             >
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {/* Product Header */}
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 text-[#16a34a] flex items-center justify-center shrink-0">
-                      <Package className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight">{prod.name}</h3>
-                      <p className="text-xs font-black text-[#16a34a] mt-0.5">
-                        {prod.price.toLocaleString()} F CFA
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="text-sm font-black text-[#141A17] uppercase tracking-tight">{prod.name}</h3>
+                    <p className="text-base font-black text-[#0D5940] mt-0.5">
+                      {prod.price.toLocaleString("fr-FR")} F CFA
+                    </p>
                   </div>
 
                   {isLowStock ? (
-                    <span className="px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-bold uppercase flex items-center gap-1 shrink-0">
+                    <span className="px-2.5 py-1 rounded-full bg-[#FAF9F5] border border-[#A84232]/30 text-[#A84232] text-[10px] font-bold uppercase flex items-center gap-1 shrink-0">
                       <AlertTriangle className="w-3 h-3" /> Stock Faible
                     </span>
                   ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase shrink-0">
-                      Stock Optimal
+                    <span className="px-2.5 py-1 rounded-full bg-[#FAF9F5] border border-[#0D5940]/30 text-[#0D5940] text-[10px] font-bold uppercase shrink-0">
+                      Optimal
                     </span>
                   )}
                 </div>
 
                 {/* Stock Progress Bar */}
                 <div className="space-y-1.5 pt-1">
-                  <div className="flex justify-between items-center text-xs font-semibold">
-                    <span className="text-slate-500">Progression</span>
-                    <span className="text-slate-800">{percentage}% restant</span>
+                  <div className="flex justify-between items-center text-xs font-semibold text-[#5C5649]">
+                    <span>Réserve entrepôt</span>
+                    <span className="font-bold text-[#141A17]">{percentage}% restant</span>
                   </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#FAF9F5] border border-[#EAE6DD] h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        isLowStock ? "bg-rose-500" : "bg-gradient-to-r from-[#16a34a] to-emerald-400"
+                        isLowStock ? "bg-[#A84232]" : "bg-[#0D5940]"
                       }`}
                       style={{ width: `${percentage}%` }}
                     ></div>
@@ -218,18 +204,18 @@ export default function StocksPage() {
               </div>
 
               {/* 3 Metrics Row */}
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 text-center">
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/70">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Initial</p>
-                  <p className="text-sm font-black text-slate-900 mt-0.5">{prod.initialStock}</p>
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#EAE6DD] text-center">
+                <div className="bg-[#FAF9F5] p-2.5 rounded-xl border border-[#EAE6DD]">
+                  <p className="text-[10px] font-bold text-[#787163] uppercase">Déposé</p>
+                  <p className="text-sm font-black text-[#141A17] mt-0.5">{prod.initialStock}</p>
                 </div>
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/70">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Restant</p>
-                  <p className="text-sm font-black text-[#16a34a] mt-0.5">{prod.remainingStock}</p>
+                <div className="bg-[#FAF9F5] p-2.5 rounded-xl border border-[#EAE6DD]">
+                  <p className="text-[10px] font-bold text-[#0D5940] uppercase">Restant</p>
+                  <p className="text-sm font-black text-[#0D5940] mt-0.5">{prod.remainingStock}</p>
                 </div>
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/70">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Livrés</p>
-                  <p className="text-sm font-black text-slate-800 mt-0.5">{prod.deliveredCount}</p>
+                <div className="bg-[#FAF9F5] p-2.5 rounded-xl border border-[#EAE6DD]">
+                  <p className="text-[10px] font-bold text-[#787163] uppercase">Livrés</p>
+                  <p className="text-sm font-black text-[#141A17] mt-0.5">{prod.deliveredCount}</p>
                 </div>
               </div>
             </div>
@@ -239,78 +225,76 @@ export default function StocksPage() {
 
       {/* RESTOCK MODAL */}
       {showRestockModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl relative text-slate-800">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16a34a] border border-emerald-100 flex items-center justify-center">
-                  <Plus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Nouveau Dépôt de Stock</h3>
-                  <p className="text-xs text-slate-500">Ajouter un produit à entreposer chez ENO LIVRAISON</p>
-                </div>
+        <div className="fixed inset-0 z-50 bg-[#141A17]/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
+              <div>
+                <h3 className="text-base font-black text-[#141A17]">Déposer du Stock en Entrepôt</h3>
+                <p className="text-xs text-[#787163] mt-0.5">Dépôt gratuit à Cotonou ou Calavi</p>
               </div>
               <button
                 onClick={() => setShowRestockModal(false)}
-                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[#8C8474] flex items-center justify-center"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleAddProduct} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">Nom du Produit</label>
+                <label className="text-xs font-bold text-[#141A17] uppercase">Nom du Produit</label>
                 <input
                   type="text"
-                  required
-                  placeholder="EX: ROULEAU DE COLORIAGE"
+                  placeholder="Ex: MONTRE LUXE CURREN GOLD"
                   value={newProdName}
                   onChange={(e) => setNewProdName(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white"
+                  className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                  required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase">Prix Vente (FCFA)</label>
+                  <label className="text-xs font-bold text-[#141A17] uppercase">Prix Unitaire (F CFA)</label>
                   <input
                     type="number"
-                    required
-                    placeholder="7800"
+                    placeholder="18000"
                     value={newProdPrice}
                     onChange={(e) => setNewProdPrice(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                    required
                   />
                 </div>
-
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase">Quantité Déposée</label>
+                  <label className="text-xs font-bold text-[#141A17] uppercase">Quantité à Déposer</label>
                   <input
                     type="number"
-                    required
-                    placeholder="100"
+                    placeholder="50"
                     value={newProdStock}
                     onChange={(e) => setNewProdStock(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white"
+                    className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                    required
                   />
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-2.5">
+              <p className="text-[11px] text-[#787163] bg-[#FAF9F5] p-3 rounded-xl border border-[#EAE6DD]">
+                ℹ️ Après validation, notre équipe entrepôt étiquettera vos cartons et mettra à jour votre solde de pièces en temps réel.
+              </p>
+
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowRestockModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20"
+                  className="px-5 py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Enregistrer le dépôt
+                  Confirmer le Dépôt
                 </button>
               </div>
             </form>

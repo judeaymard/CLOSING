@@ -3,17 +3,13 @@
 import React, { useState } from "react";
 import {
   ArrowUpRight,
-  ArrowDownRight,
-  Star,
-  Zap,
-  CreditCard,
   Wallet,
   Smartphone,
   CheckCircle2,
   TrendingUp,
-  Ticket,
-  Truck,
   Download,
+  X,
+  CreditCard,
 } from "lucide-react";
 import { orders } from "@/lib/mock-data";
 
@@ -26,7 +22,7 @@ export default function FinancesPage() {
   const deliveredOrdersCount = 38;
   const totalOrdersCount = 77;
   const caTotal = 358800;
-  const commissions = 106400; // 38 * 2800
+  const commissions = 106400; // 38 * 2800 F
   const revenuNet = 252400; // 358800 - 106400
 
   const handleRequestPayout = (e: React.FormEvent) => {
@@ -37,201 +33,212 @@ export default function FinancesPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-8 animate-fade-in-up">
+      {/* 🏛️ HEADER SECTION */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Finances & Commissions</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Récapitulatif de vos revenus et reversements par ENO LIVRAISON</p>
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+            <span>Livre de Caisse</span>
+            <span>•</span>
+            <span className="text-[#0D5940]">Comptabilité 100% Transparente</span>
+          </div>
+          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+            Coffre & Reversements
+          </h2>
+          <p className="text-xs text-[#787163] mt-1">
+            Suivi des encaissements physiques Cash On Delivery et virement immédiat de vos fonds.
+          </p>
         </div>
 
         {/* Action Button */}
         <button
           onClick={() => setShowPayoutModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 active:scale-95 self-start sm:self-auto"
+          className="px-5 py-3 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 active:scale-95 self-start sm:self-auto"
         >
-          <Smartphone className="w-4 h-4" />
-          <span>Demander un reversement Mobile Money</span>
+          <Smartphone className="w-4 h-4 text-[#C5A059]" />
+          <span>Débloquer vers Mobile Money</span>
+          <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>
 
       {/* Payout Success Toast Notification */}
       {payoutSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#16a34a]" />
-            <span>Demande de virement de {Number(payoutAmount).toLocaleString("fr-FR")} F CFA envoyée vers votre compte {payoutMethod} MoMo !</span>
+        <div className="p-4 rounded-2xl bg-white border border-[#0D5940] text-[#0D5940] text-xs font-bold flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-[#0D5940]" />
+            <span>
+              Demande de virement de {Number(payoutAmount).toLocaleString("fr-FR")} F CFA transmise avec succès vers votre compte {payoutMethod} MoMo !
+            </span>
           </div>
-          <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full uppercase font-bold">Traité sous 30 min</span>
+          <span className="text-[10px] bg-[#FAF9F5] border border-[#EAE6DD] text-[#0D5940] px-2.5 py-0.5 rounded-full uppercase font-bold">
+            Traité sous 30 min
+          </span>
         </div>
       )}
 
-      {/* 4 SUMMARY CARDS */}
+      {/* 💎 4 SUMMARY NOBLE CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Chiffre d'affaires total */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+        {/* Solde Net Disponible */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center">
-              <TrendingUp className="w-4.5 h-4.5" />
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-[#16a34a]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#0D5940]">
+              Net Disponible
+            </span>
+            <Wallet className="w-4 h-4 text-[#0D5940]" />
           </div>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-slate-500">Chiffre d&apos;affaires total</p>
-            <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-              {caTotal.toLocaleString("fr-FR")} <span className="text-xs font-normal text-slate-400">F CFA</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#0D5940] tracking-tight">
+            {revenuNet.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Prêt pour virement immédiat</p>
         </div>
 
-        {/* Commissions prélevées */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+        {/* Chiffre d'affaires brut */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center">
-              <Ticket className="w-4.5 h-4.5" />
-            </div>
-            <ArrowDownRight className="w-4 h-4 text-rose-500" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#787163]">
+              CA Brut Encaissé
+            </span>
+            <TrendingUp className="w-4 h-4 text-[#8C8474]" />
           </div>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-slate-500">Commissions prélevées</p>
-            <p className="text-xl sm:text-2xl font-black text-rose-600 mt-0.5">
-              -{commissions.toLocaleString("fr-FR")} <span className="text-xs font-normal text-rose-400">F CFA</span>
-            </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">2 800 F / produit livré</p>
-          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {caTotal.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Total collecté par les livreurs</p>
         </div>
 
-        {/* Revenu net */}
-        <div className="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+        {/* Frais Logistiques Déduits */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-[#16a34a] flex items-center justify-center">
-              <Wallet className="w-4.5 h-4.5" />
-            </div>
-            <Star className="w-4 h-4 text-[#16a34a]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#A84232]">
+              Frais ENO Déduits
+            </span>
+            <span className="text-[10px] font-bold text-[#A84232] bg-[#FAF9F5] px-2 py-0.5 rounded-md border border-[#EAE6DD]">
+              -2 800 F / colis
+            </span>
           </div>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-slate-500">Revenu net disponible</p>
-            <p className="text-xl sm:text-2xl font-black text-[#16a34a] mt-0.5">
-              {revenuNet.toLocaleString("fr-FR")} <span className="text-xs font-normal text-emerald-600">F CFA</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#A84232] tracking-tight">
+            -{commissions.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">800 F Closing + 2 000 F Livraison</p>
         </div>
 
-        {/* Commandes livrées */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+        {/* Taux de Conversion */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200/60 text-blue-600 flex items-center justify-center">
-              <Truck className="w-4.5 h-4.5" />
-            </div>
-            <Zap className="w-4 h-4 text-blue-500" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#787163]">
+              Colis Encaissés
+            </span>
+            <span className="text-[10px] font-bold text-[#0D5940] bg-[#FAF9F5] px-2 py-0.5 rounded-md border border-[#EAE6DD]">
+              Succès
+            </span>
           </div>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-slate-500">Commandes livrées</p>
-            <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-              {deliveredOrdersCount} <span className="text-sm text-slate-400 font-normal">/ {totalOrdersCount}</span>
-            </p>
-          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {deliveredOrdersCount} <span className="text-xs font-semibold text-[#787163]">/ {totalOrdersCount} commandes</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">Cash collecté sans incident</p>
         </div>
       </div>
 
-      {/* DÉTAIL DES FRAIS PAR LIVRAISON */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
-          <CreditCard className="w-4 h-4 text-[#16a34a]" />
-          <span>Détail des frais par livraison</span>
+      {/* 📜 DÉTAIL DES FRAIS PAR LIVRAISON */}
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 shadow-[0_2px_12px_rgba(20,26,23,0.03)] space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-black text-[#141A17] tracking-tight">
+            Barème Tarifaire Transparent
+          </h3>
+          <span className="text-[10px] font-bold text-[#0D5940] uppercase tracking-wider bg-[#FAF9F5] border border-[#EAE6DD] px-2.5 py-1 rounded-full">
+            Zéro Frais Caché
+          </span>
         </div>
 
-        {/* Top 3 Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-slate-50 border border-slate-200/70 p-4 rounded-xl">
-            <p className="text-[11px] text-slate-500 font-medium">Frais service closing</p>
-            <p className="text-xl font-black text-amber-600 mt-1">800 F</p>
+          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl">
+            <p className="text-[10px] font-bold text-[#787163] uppercase tracking-wider">Service Closing Téléphonique</p>
+            <p className="text-xl font-black text-[#141A17] mt-1">800 F CFA</p>
+            <p className="text-[11px] text-[#5C5649] mt-0.5">Appel sous 15 min & confirmation client</p>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200/70 p-4 rounded-xl">
-            <p className="text-[11px] text-slate-500 font-medium">Frais livraison</p>
-            <p className="text-xl font-black text-blue-600 mt-1">2 000 F</p>
+          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl">
+            <p className="text-[10px] font-bold text-[#787163] uppercase tracking-wider">Livraison Express Urbaine</p>
+            <p className="text-xl font-black text-[#141A17] mt-1">2 000 F CFA</p>
+            <p className="text-[11px] text-[#5C5649] mt-0.5">Déploiement livreur Cotonou & Calavi</p>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200/70 p-4 rounded-xl">
-            <p className="text-[11px] text-slate-500 font-medium">Total déduit / produit</p>
-            <p className="text-xl font-black text-slate-900 mt-1">2 800 F</p>
-          </div>
-        </div>
-
-        {/* Bottom 2 Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div className="bg-slate-50 border border-slate-200/70 p-4 rounded-xl">
-            <p className="text-[11px] text-slate-500 font-medium">Total frais service closing</p>
-            <p className="text-xl font-black text-slate-900 mt-1">30 400 F CFA</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">38 livraisons × 800 F</p>
-          </div>
-
-          <div className="bg-slate-50 border border-slate-200/70 p-4 rounded-xl">
-            <p className="text-[11px] text-slate-500 font-medium">Total frais livraison</p>
-            <p className="text-xl font-black text-slate-900 mt-1">76 000 F CFA</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">38 livraisons × 2 000 F</p>
+          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl">
+            <p className="text-[10px] font-bold text-[#0D5940] uppercase tracking-wider">Total Retenu par Commande Livrée</p>
+            <p className="text-xl font-black text-[#0D5940] mt-1">2 800 F CFA</p>
+            <p className="text-[11px] text-[#5C5649] mt-0.5">Facturé uniquement si le client paie</p>
           </div>
         </div>
       </div>
 
-      {/* HISTORIQUE DES COMMISSIONS TABLE */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200/80 flex items-center justify-between">
+      {/* 📜 HISTORIQUE DU LIVRE FINANCIER */}
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden">
+        <div className="p-6 border-b border-[#EAE6DD] flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Historique des commissions</h3>
-            <p className="text-[11px] text-slate-500 mt-0.5">Par commande livrée</p>
+            <h3 className="text-base font-black text-[#141A17] tracking-tight">
+              Journal des Commissions & Reversements
+            </h3>
+            <p className="text-xs text-[#787163] mt-0.5">
+              Détail ligne par ligne pour chaque commande livrée.
+            </p>
           </div>
-          <button className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 flex items-center gap-1.5 transition-colors">
-            <Download className="w-3.5 h-3.5 text-[#16a34a]" />
-            <span>Relevé</span>
+
+          <button className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF9F5] text-[#141A17] text-xs font-bold border border-[#EAE6DD] flex items-center gap-1.5 transition-all shadow-2xs">
+            <Download className="w-3.5 h-3.5 text-[#0D5940]" />
+            <span>Relevé PDF</span>
           </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs whitespace-nowrap">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+            <thead className="bg-[#FAF9F5] border-b border-[#EAE6DD] text-[#787163] font-bold uppercase tracking-[0.15em] text-[10px]">
               <tr>
-                <th className="py-3 px-4">Commande</th>
-                <th className="py-3 px-4">Client</th>
-                <th className="py-3 px-4">Montant</th>
-                <th className="py-3 px-4 text-center">Produits</th>
-                <th className="py-3 px-4">Commission</th>
-                <th className="py-3 px-4">Net</th>
-                <th className="py-3 px-4">Statut</th>
-                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-5">Réf.</th>
+                <th className="py-3 px-5">Client</th>
+                <th className="py-3 px-5">Encaissé COD</th>
+                <th className="py-3 px-5">Frais ENO</th>
+                <th className="py-3 px-5">Net Marchand</th>
+                <th className="py-3 px-5">Statut</th>
+                <th className="py-3 px-5">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+            <tbody className="divide-y divide-[#EAE6DD]/60 font-medium text-[#141A17]">
               {orders.slice(0, 8).map((ord) => {
                 const isDelivered = ord.status === "LIVREE";
                 return (
-                  <tr key={ord.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#16a34a]">{ord.orderNumber}</td>
-                    <td className="py-3.5 px-4">
-                      <p className="font-bold text-slate-900">{ord.clientName}</p>
-                      <p className="text-[11px] text-slate-500">{ord.clientPhone}</p>
+                  <tr key={ord.id} className="hover:bg-[#FAF9F5]/70 transition-colors">
+                    <td className="py-3.5 px-5 font-mono font-bold text-[#0D5940]">{ord.orderNumber}</td>
+                    <td className="py-3.5 px-5">
+                      <p className="font-bold text-[#141A17]">{ord.clientName}</p>
+                      <p className="text-[11px] text-[#787163]">{ord.clientPhone}</p>
                     </td>
-                    <td className="py-3.5 px-4 font-black text-slate-900">{ord.totalPrice.toLocaleString("fr-FR")} F</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-slate-800">{ord.quantity}</td>
-                    <td className="py-3.5 px-4 font-black">
-                      {isDelivered ? <span className="text-rose-600">-2 800 F</span> : <span className="text-slate-400">—</span>}
+                    <td className="py-3.5 px-5 font-black text-[#141A17]">
+                      {ord.totalPrice.toLocaleString("fr-FR")} F CFA
                     </td>
-                    <td className="py-3.5 px-4 font-black">
-                      {isDelivered ? <span className="text-[#16a34a]">5 000 F</span> : <span className="text-slate-400">—</span>}
+                    <td className="py-3.5 px-5 font-bold">
+                      {isDelivered ? <span className="text-[#A84232]">-2 800 F</span> : <span className="text-[#8C8474]">—</span>}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-5 font-black">
+                      {isDelivered ? (
+                        <span className="text-[#0D5940]">
+                          {(ord.totalPrice - 2800).toLocaleString("fr-FR")} F
+                        </span>
+                      ) : (
+                        <span className="text-[#8C8474]">—</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-5">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                           isDelivered
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : "bg-amber-50 text-amber-700 border-amber-200"
+                            ? "bg-[#FAF9F5] text-[#0D5940] border-[#0D5940]/30"
+                            : "bg-[#FAF9F5] text-[#A84232] border-[#A84232]/30"
                         }`}
                       >
-                        {isDelivered ? "LIVRÉE" : "À RAPPELER"}
+                        {isDelivered ? "ENCAISSÉE" : "À RAPPELER"}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-500">24/08/2026</td>
+                    <td className="py-3.5 px-5 text-[#787163]">24/08/2026</td>
                   </tr>
                 );
               })}
@@ -240,93 +247,85 @@ export default function FinancesPage() {
         </div>
       </div>
 
-      {/* MOBILE MONEY PAYOUT MODAL */}
+      {/* 📱 MOBILE MONEY PAYOUT MODAL */}
       {showPayoutModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl relative text-slate-800">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#16a34a] border border-emerald-100 flex items-center justify-center">
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Reversement Mobile Money</h3>
-                  <p className="text-xs text-slate-500">Transférer votre solde net vers MoMo</p>
-                </div>
+        <div className="fixed inset-0 z-50 bg-[#141A17]/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
+              <div>
+                <h3 className="text-base font-black text-[#141A17]">Virement Mobile Money Immédiat</h3>
+                <p className="text-xs text-[#787163] mt-0.5">Transfert traité sous 30 minutes sans frais</p>
               </div>
               <button
                 onClick={() => setShowPayoutModal(false)}
-                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[#8C8474] flex items-center justify-center"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleRequestPayout} className="space-y-4">
+              {/* Operator selection */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 uppercase">Mode de Réception</label>
+                <label className="text-xs font-bold text-[#141A17] uppercase">Opérateur Mobile</label>
                 <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPayoutMethod("MTN")}
-                    className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                      payoutMethod === "MTN"
-                        ? "bg-amber-50 text-amber-800 border-amber-400 shadow-xs"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    MTN MoMo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutMethod("MOOV")}
-                    className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                      payoutMethod === "MOOV"
-                        ? "bg-blue-50 text-blue-800 border-blue-400 shadow-xs"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    Moov Money
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutMethod("WAVE")}
-                    className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                      payoutMethod === "WAVE"
-                        ? "bg-cyan-50 text-cyan-800 border-cyan-400 shadow-xs"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    Wave
-                  </button>
+                  {(["MTN", "MOOV", "WAVE"] as const).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPayoutMethod(method)}
+                      className={`py-3 rounded-xl border text-xs font-black transition-all ${
+                        payoutMethod === method
+                          ? "bg-white border-[#0D5940] text-[#0D5940] shadow-2xs"
+                          : "bg-[#FAF9F5] border-[#EAE6DD] text-[#787163] hover:text-[#141A17]"
+                      }`}
+                    >
+                      {method} MoMo
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 uppercase">Montant du Virement (FCFA)</label>
+              {/* Number */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#141A17] uppercase">Numéro Destinataire</label>
                 <input
-                  type="number"
+                  type="text"
+                  defaultValue="+229 01 97 36 29 06"
+                  className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
                   required
-                  value={payoutAmount}
-                  onChange={(e) => setPayoutAmount(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white"
                 />
-                <p className="text-[11px] text-slate-500">Compte Mobile Money : <span className="text-slate-900 font-bold">+229 01 97 36 29 06</span></p>
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2.5">
+              {/* Amount */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#141A17] uppercase">Montant à Retirer (F CFA)</label>
+                <input
+                  type="number"
+                  value={payoutAmount}
+                  max="252400"
+                  onChange={(e) => setPayoutAmount(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-base font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                  required
+                />
+                <p className="text-[11px] text-[#787163]">
+                  Solde maximum retirable : <strong className="text-[#141A17]">252 400 F CFA</strong>
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
                   onClick={() => setShowPayoutModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20"
+                  className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Confirmer le virement
+                  Valider le Virement
                 </button>
               </div>
             </form>

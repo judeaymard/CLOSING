@@ -1,498 +1,402 @@
 "use client";
 
-import Image from "next/image";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
-  TrendingUp,
   Wallet,
-  ShoppingCart,
-  Percent,
-  Truck,
-  RotateCcw,
-  Boxes,
-  ArrowRight,
-  Sparkles,
-  Plus,
+  ArrowUpRight,
   Package,
+  Boxes,
+  Truck,
+  Search,
+  Phone,
   MapPin,
+  Plus,
   CheckCircle2,
-  Clock,
-  ShieldCheck,
-  Headphones,
 } from "lucide-react";
-import { currentPartner, orders } from "@/lib/mock-data";
-import { ORDER_STATUS_CONFIG } from "@/lib/types";
+import { currentPartner, orders, products } from "@/lib/mock-data";
+import NewOrderModal from "@/components/dashboard/NewOrderModal";
 
 export default function DashboardOverviewPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"ALL" | "LIVREE" | "EN_COURS" | "A_RAPPELER">("ALL");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payoutRequested, setPayoutRequested] = useState(false);
+
   const partnerOrders = orders.filter((o) => o.partnerId === currentPartner.id);
-  const recentOrders = partnerOrders.slice(0, 5);
+
+  // Financial calculations
+  const totalDeliveredOrders = 38;
+  const caTotalBrut = 358800;
+  const totalFraisLogistique = 106400; // 38 livraisons * 2800 F (800 F closing + 2000 F livraison)
+  const soldeNetDisponible = caTotalBrut - totalFraisLogistique; // 252 400 F
+
+  const partnerProducts = products.filter((p) => p.partnerId === currentPartner.id);
+  const totalStockWarehouse = partnerProducts.reduce((acc, p) => acc + p.remainingStock, 0);
+
+  // Filtered orders
+  const filteredOrders = partnerOrders.filter((ord) => {
+    const matchesStatus = filterStatus === "ALL" || ord.status === filterStatus;
+    const matchesSearch =
+      ord.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ord.clientPhone.includes(searchTerm) ||
+      ord.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ord.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const handleQuickPayout = () => {
+    setPayoutRequested(true);
+    setTimeout(() => setPayoutRequested(false), 4500);
+  };
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      {/* 🚀 EXECUTIVE HERO BANNER */}
-      <div className="bg-gradient-to-r from-[#0f291e] via-[#133d2b] to-[#0f291e] rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-xl shadow-emerald-950/10 border border-emerald-800/40 relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        {/* Glow ambient background lights */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#22c55e]/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* 🏛️ STRATE I : L'EN-TÊTE STATUTAIRE */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+            <span>Maison Partenaire</span>
+            <span>•</span>
+            <span className="text-[#0D5940]">Entrepôts Cotonou & Abomey-Calavi</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+            {currentPartner.companyName}
+          </h2>
+        </div>
 
-        {/* Left Info Column (8 cols) */}
-        <div className="lg:col-span-8 space-y-3.5 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-[#86efac] text-xs font-black uppercase tracking-wider border border-emerald-500/30">
-            <Sparkles className="w-3.5 h-3.5" /> ENO LIVRAISON • ESPACE E-COMMERÇANT
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#5C5649] font-medium hidden sm:inline">Stockage 100% Offert</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0D5940]"></span>
+          <span className="text-xs font-bold text-[#0D5940]">Actif & Garanti</span>
+        </div>
+      </div>
+
+      {/* 💎 STRATE II : LE GRAND COFFRE SOUVERAIN */}
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-10 shadow-[0_4px_24px_rgba(20,26,23,0.04)] relative overflow-hidden">
+        {/* Subtle accent bar on top */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-[#0D5940]"></div>
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* Solde & Intitulé */}
+          <div className="space-y-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#787163]">
+              Solde Net Encaissé • Prêt pour virement immédiat
+            </p>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#141A17] tracking-tight">
+                {soldeNetDisponible.toLocaleString("fr-FR")}
+              </span>
+              <span className="text-base sm:text-lg font-black text-[#0D5940] tracking-wider uppercase">
+                F CFA
+              </span>
+            </div>
+            <p className="text-xs text-[#5C5649]">
+              Revenu net après déduction transparente des frais ENO (2 800 F / colis livré).
+            </p>
           </div>
 
+          {/* Master Action CTA */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button
+              onClick={handleQuickPayout}
+              className="px-6 py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Wallet className="w-4 h-4 text-[#C5A059]" />
+              <span>Transférer sur Mobile Money</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-5 py-4 rounded-2xl bg-[#FAF9F5] hover:bg-white text-[#141A17] border border-[#EAE6DD] font-bold text-xs sm:text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4 text-[#0D5940]" />
+              <span>Nouveau Colis</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Payout Notification Toast */}
+        {payoutRequested && (
+          <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#0D5940]/40 text-[#0D5940] text-xs font-bold flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Demande de reversement de 252 400 F CFA transmise au pôle financier ENO. Traitement sous 30 min.</span>
+            </div>
+            <span className="text-[10px] uppercase tracking-wider text-[#787163]">MoMo MTN</span>
+          </div>
+        )}
+
+        {/* Décomposition financière claire */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 mt-6 border-t border-[#EAE6DD]">
+          <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD]/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">Chiffre d&apos;Affaires Brut</p>
+            <p className="text-base font-black text-[#141A17] mt-0.5">
+              {caTotalBrut.toLocaleString("fr-FR")} F CFA
+            </p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD]/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">Frais Logistique & Closing</p>
+            <p className="text-base font-black text-[#A84232] mt-0.5">
+              -{totalFraisLogistique.toLocaleString("fr-FR")} F CFA
+            </p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD]/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">Compte de Réception</p>
+            <p className="text-base font-bold text-[#141A17] mt-0.5">
+              MTN • +229 01 97 36 29 06
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 📦 STRATE III : LE TRIPTYQUE D'ÉTAT (Les 3 Réalités Clés) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* 01. Encaissé */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#787163]">
+              01 • Encaissé & Livré
+            </span>
+            <span className="text-[10px] font-bold text-[#0D5940] bg-[#FAF9F5] border border-[#EAE6DD] px-2 py-0.5 rounded-full">
+              Taux 92%
+            </span>
+          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {totalDeliveredOrders} <span className="text-sm font-semibold text-[#787163]">colis</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">
+            Colis remis aux acheteurs avec encaissement cash à la livraison.
+          </p>
+        </div>
+
+        {/* 02. En Transit */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#787163]">
+              02 • En Cours de Livraison
+            </span>
+            <span className="text-[10px] font-bold text-[#141A17] bg-[#FAF9F5] border border-[#EAE6DD] px-2 py-0.5 rounded-full">
+              Cotonou & Calavi
+            </span>
+          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            14 <span className="text-sm font-semibold text-[#787163]">colis</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">
+            Livreurs déployés sur le terrain. Closes par téléphone sous 15 min.
+          </p>
+        </div>
+
+        {/* 03. Stock Réel */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#787163]">
+              03 • Stock en Entrepôt
+            </span>
+            <span className="text-[10px] font-bold text-[#0D5940] bg-[#FAF9F5] border border-[#EAE6DD] px-2 py-0.5 rounded-full">
+              Gratuit
+            </span>
+          </div>
+          <p className="text-3xl font-black text-[#141A17] tracking-tight">
+            {totalStockWarehouse} <span className="text-sm font-semibold text-[#787163]">unités</span>
+          </p>
+          <p className="text-xs text-[#5C5649]">
+            Stock sécurisé sous surveillance continue dans les hangars ENO.
+          </p>
+        </div>
+      </div>
+
+      {/* 📜 STRATE IV : LE LIVRE-JOURNAL DES EXPÉDITIONS */}
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden">
+        {/* Table Controls Header */}
+        <div className="p-6 border-b border-[#EAE6DD] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
-              Bonjour, {currentPartner.companyName} 👋
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/80 font-normal mt-1.5 leading-relaxed max-w-xl">
-              {partnerOrders.length} commandes enregistrées • Stockage 100% OFFERT dans nos entrepôts de Cotonou & Abomey-Calavi • Closing sous 15 min.
+            <h3 className="text-base font-black text-[#141A17] tracking-tight">
+              Livre des Expéditions Récentes
+            </h3>
+            <p className="text-xs text-[#787163] mt-0.5">
+              Historique en direct de vos commandes et livraisons au Bénin.
             </p>
           </div>
 
-          {/* Quick Action CTAs inside banner */}
-          <div className="flex flex-wrap items-center gap-2.5 pt-2">
-            <Link
-              href="/dashboard/commandes"
-              className="px-4 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 active:scale-95"
-            >
-              <Plus className="w-4 h-4" /> Nouvelle Commande
-            </Link>
-            <Link
-              href="/dashboard/stocks"
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-2 backdrop-blur"
-            >
-              <Package className="w-4 h-4 text-[#86efac]" /> Entrepôt & Stock
-            </Link>
-            <a
-              href="https://wa.me/2290164291884"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-[#25d366] hover:bg-emerald-600 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
-            >
-              <Headphones className="w-4 h-4" /> Support Agence Direct
-            </a>
-          </div>
-        </div>
-
-        {/* Right Column: Sleek Mini Metric Widget (4 cols) */}
-        <div className="lg:col-span-4 relative z-10 flex items-center justify-start lg:justify-end">
-          <div className="w-full max-w-xs bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] animate-pulse"></span>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-200">Réseau Actif</span>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded-md">
-                Bénin 24/7
-              </span>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 text-[#8C8474] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Chercher client, ville, N°..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+              />
             </div>
 
-            <div className="space-y-1">
-              <p className="text-xs text-emerald-100/70 font-medium">Livrées aujourd&apos;hui</p>
-              <p className="text-3xl font-black text-white leading-none">
-                0 <span className="text-xs font-semibold text-emerald-300">colis</span>
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-emerald-100/80">
-              <span>Taux de livraison global</span>
-              <strong className="text-white font-bold">100.0%</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 📊 SECTION: ACTIVITÉS D'AUJOURD'HUI */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a]"></span>
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Activités d&apos;Aujourd&apos;hui</h3>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping ml-0.5"></span>
-          </div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-            Temps réel
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Chiffre d'affaires */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Chiffre d&apos;affaires</span>
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              0 <span className="text-xs font-bold text-slate-400">F CFA</span>
-            </p>
-          </div>
-
-          {/* Revenu net */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <Wallet className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Revenu net</span>
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-[#16a34a] tracking-tight">
-              0 <span className="text-xs font-bold text-emerald-600">F CFA</span>
-            </p>
-          </div>
-
-          {/* Nombre de commandes */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
-                  <ShoppingCart className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Nombre de commandes</span>
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              0 <span className="text-xs font-bold text-slate-400">colis</span>
-            </p>
-          </div>
-
-          {/* Taux confirmation */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                  <Percent className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux confirmation</span>
-              </div>
-            </div>
-            <p className="text-2xl font-black text-slate-900 tracking-tight">0%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-emerald-500 h-full w-[0%] rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Taux livraison */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <Truck className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux livraison</span>
-              </div>
-            </div>
-            <p className="text-2xl font-black text-[#16a34a] tracking-tight">0%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-[#16a34a] h-full w-[0%] rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Taux retour */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                  <RotateCcw className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux retour</span>
-              </div>
-            </div>
-            <p className="text-2xl font-black text-rose-600 tracking-tight">0%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-rose-500 h-full w-[0%] rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 📈 SECTION: SYNTHÈSE DU MOIS */}
-      <div className="space-y-4 pt-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Synthèse du Mois</h3>
-          </div>
-          <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> +18.4% de croissance
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Chiffre d'affaires */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Chiffre d&apos;affaires</span>
-              </div>
-              <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                +14%
-              </span>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              343 200 <span className="text-xs font-bold text-slate-500">F CFA</span>
-            </p>
-          </div>
-
-          {/* Revenu net */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <Wallet className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Revenu net</span>
-              </div>
-              <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Net Partenaire
-              </span>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-[#16a34a] tracking-tight">
-              242 400 <span className="text-xs font-bold text-emerald-600">F CFA</span>
-            </p>
-          </div>
-
-          {/* Nombre de commandes */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
-                  <ShoppingCart className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Nombre de commandes</span>
-              </div>
-              <span className="text-[10px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                61 total
-              </span>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              61 <span className="text-xs font-bold text-slate-500">colis</span>
-            </p>
-          </div>
-
-          {/* Taux confirmation */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                  <Percent className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux confirmation</span>
-              </div>
-              <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Objectif &gt;50%
-              </span>
-            </div>
-            <p className="text-2xl font-black text-slate-900 tracking-tight">59.0%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-emerald-500 h-full w-[59%] rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Taux livraison */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <Truck className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux livraison</span>
-              </div>
-              <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Parfait
-              </span>
-            </div>
-            <p className="text-2xl font-black text-[#16a34a] tracking-tight">100.0%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-[#16a34a] h-full w-[100%] rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Taux retour */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                  <RotateCcw className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Taux retour</span>
-              </div>
-            </div>
-            <p className="text-2xl font-black text-rose-600 tracking-tight">27.9%</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-rose-500 h-full w-[28%] rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 🚀 TWO BOTTOM PANELS: Stock Entrepôt & Commandes Récentes */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-        {/* 📦 Stock Entrepôt Mini Widget (4 cols) */}
-        <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-3xl p-6 flex flex-col justify-between shadow-sm space-y-6">
-          <div className="space-y-5">
-            {/* Panel Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 gap-2">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-[#16a34a] flex items-center justify-center shrink-0">
-                  <Boxes className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="font-bold text-slate-900 text-sm truncate">Stock Entrepôt ENO</h4>
-                  <p className="text-[10px] text-slate-500 truncate">Cotonou & Calavi</p>
-                </div>
-              </div>
-              <Link
-                href="/dashboard/stocks"
-                className="text-xs font-bold text-emerald-700 hover:text-emerald-800 inline-flex items-center gap-1 transition-colors bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap"
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-[#FAF9F5] p-1 rounded-xl border border-[#EAE6DD]">
+              <button
+                onClick={() => setFilterStatus("ALL")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterStatus === "ALL"
+                    ? "bg-white text-[#141A17] shadow-2xs"
+                    : "text-[#787163] hover:text-[#141A17]"
+                }`}
               >
-                <span>Voir tout</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Visual Capacity Gauge Meter */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
-              <div className="flex justify-between items-center text-xs gap-2">
-                <span className="font-bold text-slate-700 whitespace-nowrap">Capacité Utilisée</span>
-                <span className="font-black text-[#16a34a] whitespace-nowrap">58 / 100 unités</span>
-              </div>
-              <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-[#16a34a] to-emerald-400 h-full w-[58%] rounded-full"></div>
-              </div>
-              <p className="text-[10px] text-slate-500 text-right whitespace-nowrap font-medium">Stockage 100% Offert</p>
-            </div>
-
-            {/* 3 Mini Metric Cards */}
-            <div className="space-y-2.5">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-2">
-                <span className="text-xs font-medium text-slate-600 whitespace-nowrap">Total Restant</span>
-                <span className="text-xs font-black text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200 whitespace-nowrap">
-                  58 unités
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-2">
-                <span className="text-xs font-medium text-slate-600 whitespace-nowrap">Valeur Stock</span>
-                <span className="text-xs font-black text-[#16a34a] bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
-                  452 400 F CFA
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-2">
-                <span className="text-xs font-medium text-slate-600 whitespace-nowrap">Produits Actifs</span>
-                <span className="text-xs font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200 whitespace-nowrap">
-                  1 produit
-                </span>
-              </div>
+                Tous
+              </button>
+              <button
+                onClick={() => setFilterStatus("LIVREE")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterStatus === "LIVREE"
+                    ? "bg-white text-[#0D5940] shadow-2xs"
+                    : "text-[#787163] hover:text-[#141A17]"
+                }`}
+              >
+                Livrées
+              </button>
+              <button
+                onClick={() => setFilterStatus("EN_COURS")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterStatus === "EN_COURS"
+                    ? "bg-white text-[#141A17] shadow-2xs"
+                    : "text-[#787163] hover:text-[#141A17]"
+                }`}
+              >
+                En route
+              </button>
+              <button
+                onClick={() => setFilterStatus("A_RAPPELER")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterStatus === "A_RAPPELER"
+                    ? "bg-white text-[#A84232] shadow-2xs"
+                    : "text-[#787163] hover:text-[#141A17]"
+                }`}
+              >
+                À rappeler
+              </button>
             </div>
           </div>
         </div>
 
-        {/* 🛒 Commandes Récentes Panel (8 cols) */}
-        <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div>
-              <h4 className="font-bold text-slate-900 text-base tracking-tight">Commandes récentes</h4>
-              <p className="text-xs text-slate-500">Dernières commandes enregistrées sur ENO LIVRAISON</p>
-            </div>
+        {/* Orders Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs whitespace-nowrap">
+            <thead className="bg-[#FAF9F5] border-b border-[#EAE6DD] text-[#787163] font-bold uppercase tracking-[0.15em] text-[10px]">
+              <tr>
+                <th className="py-3 px-5">Réf.</th>
+                <th className="py-3 px-5">Client & Contact</th>
+                <th className="py-3 px-5">Destination</th>
+                <th className="py-3 px-5">Articles</th>
+                <th className="py-3 px-5">Montant COD</th>
+                <th className="py-3 px-5">Statut</th>
+                <th className="py-3 px-5">Note Closing</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#EAE6DD]/60 font-medium text-[#141A17]">
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-[#787163] text-xs">
+                    Aucune expédition ne correspond à votre filtre.
+                  </td>
+                </tr>
+              ) : (
+                filteredOrders.slice(0, 8).map((ord) => {
+                  const isDelivered = ord.status === "LIVREE";
+                  const isRecall = ord.status === "A_RAPPELER";
 
-            <Link
-              href="/dashboard/commandes"
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 transition-colors bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shrink-0 self-start sm:self-auto"
-            >
-              Tout voir <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+                  return (
+                    <tr key={ord.id} className="hover:bg-[#FAF9F5]/70 transition-colors">
+                      {/* Ref */}
+                      <td className="py-3.5 px-5 font-mono font-bold text-[#0D5940]">
+                        {ord.orderNumber}
+                      </td>
 
-          {/* Interactive Orders List */}
-          <div className="space-y-3">
-            {recentOrders.map((ord) => {
-              const statusCfg = ORDER_STATUS_CONFIG[ord.status];
-              const isRecall = ord.status === "A_RAPPELER";
-              const isDelivered = ord.status === "LIVREE";
+                      {/* Client */}
+                      <td className="py-3.5 px-5">
+                        <p className="font-black text-[#141A17]">{ord.clientName}</p>
+                        <a
+                          href={`https://wa.me/${ord.clientPhone.replace(/\s+/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-[#787163] hover:text-[#0D5940] flex items-center gap-1 mt-0.5 font-semibold"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>{ord.clientPhone}</span>
+                        </a>
+                      </td>
 
-              return (
-                <div
-                  key={ord.id}
-                  className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-emerald-500/50 hover:bg-white transition-all flex items-center justify-between gap-4 group"
-                >
-                  {/* Left Column: ID + Client + Location */}
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                      {ord.id.slice(-3)}
-                    </div>
+                      {/* Destination */}
+                      <td className="py-3.5 px-5 text-[#5C5649]">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#8C8474] shrink-0" />
+                          <span>{ord.address}</span>
+                        </div>
+                      </td>
 
-                    <div className="min-w-0 space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate tracking-tight">
-                          {ord.clientName}
-                        </h5>
+                      {/* Product */}
+                      <td className="py-3.5 px-5 font-bold uppercase text-[#141A17]">
+                        {ord.products} <span className="text-[#787163] font-normal">({ord.quantity}x)</span>
+                      </td>
+
+                      {/* Amount */}
+                      <td className="py-3.5 px-5 font-black text-sm text-[#141A17]">
+                        {ord.totalPrice.toLocaleString("fr-FR")} F
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3.5 px-5">
                         <span
-                          className={`sm:hidden text-[9px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${
-                            isRecall
-                              ? "bg-amber-50 text-amber-700 border-amber-200"
-                              : isDelivered
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-slate-100 text-slate-700 border-slate-200"
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                            isDelivered
+                              ? "bg-[#FAF9F5] text-[#0D5940] border-[#0D5940]/30"
+                              : isRecall
+                              ? "bg-[#FAF9F5] text-[#A84232] border-[#A84232]/30"
+                              : "bg-[#FAF9F5] text-[#141A17] border-[#141A17]/30"
                           }`}
                         >
-                          {statusCfg.label}
+                          {isDelivered ? "LIVRÉE" : isRecall ? "À RAPPELER" : "EN ROUTE"}
                         </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 font-normal truncate flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#16a34a] shrink-0" />
-                        <span className="truncate">{ord.address}</span>
-                      </p>
-                    </div>
-                  </div>
+                      </td>
 
-                  {/* Middle Column: Products & Price (Desktop) */}
-                  <div className="hidden md:block text-right shrink-0">
-                    <p className="text-xs font-bold text-slate-900">{ord.products}</p>
-                    <p className="text-xs font-black text-[#16a34a]">
-                      {ord.totalPrice.toLocaleString("fr-FR")} F CFA
-                    </p>
-                  </div>
+                      {/* Comment */}
+                      <td className="py-3.5 px-5 text-[#787163] text-xs">
+                        {ord.comment ? (
+                          <span className="truncate max-w-[180px] block font-medium text-[#5C5649]">
+                            {ord.comment}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                  {/* Right Column: Status Badge & CTA (Desktop) */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span
-                      className={`hidden sm:inline-block text-xs font-bold px-3 py-1 rounded-full border ${
-                        isRecall
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : isDelivered
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
-                      }`}
-                    >
-                      {statusCfg.label}
-                    </span>
-
-                    <Link
-                      href="/dashboard/commandes"
-                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#16a34a] text-slate-700 hover:text-white text-xs font-bold transition-all shrink-0 flex items-center gap-1 shadow-xs"
-                    >
-                      <span>Détails</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* Footer Link to full orders page */}
+        <div className="p-4 bg-[#FAF9F5] border-t border-[#EAE6DD] flex items-center justify-between text-xs">
+          <span className="text-[#787163] font-medium">
+            Affichage des expéditions actives
+          </span>
+          <Link
+            href="/dashboard/commandes"
+            className="font-bold text-[#0D5940] hover:underline flex items-center gap-1"
+          >
+            <span>Consulter le livre complet des expéditions</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
+
+      {/* Global New Order Modal */}
+      <NewOrderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }
