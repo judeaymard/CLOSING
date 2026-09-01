@@ -12,7 +12,6 @@ import {
   Store,
   User,
   LogOut,
-  Bell,
   RefreshCw,
   Plus,
   Menu,
@@ -291,17 +290,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={handleRefresh}
               className="w-9 h-9 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#5C5649] flex items-center justify-center transition-all shadow-2xs"
-              title="Actualiser les registres"
+              title="Actualiser les données"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#0D5940]" : ""}`} />
-            </button>
-
-            <button
-              className="w-9 h-9 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#5C5649] flex items-center justify-center transition-all relative shadow-2xs"
-              title="Notifications"
-            >
-              <Bell className="w-3.5 h-3.5" />
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#0D5940]"></span>
             </button>
 
             <button

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   Search,
   Calendar,
-  Filter,
   MessageSquare,
   Phone,
   Plus,
@@ -183,9 +182,23 @@ export default function CommandesPage() {
       </div>
 
       {/* FILTER BAR */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs">
+        {/* Search Input (Takes majority of width) */}
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
+            <Search className="w-3.5 h-3.5 text-[#8C8474]" />
+          </div>
+          <input
+            type="text"
+            placeholder="Recherche rapide par nom de client, numéro de téléphone, N° de commande ou quartier..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
+          />
+        </div>
+
         {/* Date Filter */}
-        <div className="sm:col-span-3 relative">
+        <div className="relative sm:w-60 shrink-0">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
             <Calendar className="w-3.5 h-3.5 text-[#0D5940]" />
           </div>
@@ -194,42 +207,6 @@ export default function CommandesPage() {
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             className="w-full pl-9 pr-3 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
-          />
-        </div>
-
-        {/* Status Dropdown */}
-        <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
-            <Filter className="w-3.5 h-3.5 text-[#0D5940]" />
-          </div>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
-          >
-            <option value="ALL">Tous les statuts d&apos;expédition</option>
-            <option value="LIVREE">Livrée (Cash Encaissé)</option>
-            <option value="A_RAPPELER">À rappeler (Relance Closeuse)</option>
-            <option value="EN_COURS">En cours de livraison</option>
-            <option value="CONFIRMEE">Confirmée par Téléphone</option>
-            <option value="EN_ATTENTE">En attente de prise en charge</option>
-            <option value="REFUSEE">Refusée client</option>
-            <option value="ANNULEE">Annulée</option>
-            <option value="RETOURNEE">Retournée entrepôt</option>
-          </select>
-        </div>
-
-        {/* Search Input */}
-        <div className="sm:col-span-5 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
-            <Search className="w-3.5 h-3.5 text-[#8C8474]" />
-          </div>
-          <input
-            type="text"
-            placeholder="Chercher client, téléphone, N°, quartier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
           />
         </div>
       </div>
