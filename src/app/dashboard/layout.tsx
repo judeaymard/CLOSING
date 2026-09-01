@@ -18,6 +18,7 @@ import {
   Truck,
   Menu,
   X,
+  Headphones,
 } from "lucide-react";
 import { currentPartner } from "@/lib/mock-data";
 import NewOrderModal from "@/components/dashboard/NewOrderModal";
@@ -56,13 +57,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="min-h-screen bg-[#07130e] text-white flex flex-col md:flex-row antialiased selection:bg-[#16a34a] selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col md:flex-row antialiased selection:bg-[#16a34a] selection:text-white font-sans">
       {/* SIDEBAR (Desktop) */}
-      <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 bg-[#091b14] border-r border-emerald-950 p-5 shrink-0 min-h-screen sticky top-0">
-        <div className="space-y-6">
+      <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 bg-white border-r border-slate-200/80 p-5 shrink-0 min-h-screen sticky top-0 shadow-[1px_0_10px_rgba(0,0,0,0.02)]">
+        <div className="space-y-5">
           {/* ENO Brand Header with Logo */}
-          <Link href="/" className="flex items-center gap-3 p-2 bg-[#0d261c] rounded-2xl border border-emerald-900/60 shadow-sm">
-            <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shrink-0">
+          <Link
+            href="/"
+            className="flex items-center gap-3 p-2.5 bg-slate-50 hover:bg-emerald-50/60 rounded-2xl border border-slate-200/80 transition-colors"
+          >
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500 bg-white shrink-0 shadow-sm">
               <Image
                 src="/images/eno_livraison_logo.png"
                 alt="Logo ENO LIVRAISON"
@@ -72,28 +76,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
             </div>
             <div className="overflow-hidden">
-              <span className="text-sm font-black text-white block tracking-tight">
-                ENO <span className="text-[#22c55e]">LIVRAISON</span>
+              <span className="text-sm font-black text-slate-900 block tracking-tight leading-none">
+                ENO <span className="text-[#16a34a]">LIVRAISON</span>
               </span>
-              <span className="text-[9px] uppercase font-bold text-emerald-400 block tracking-wider truncate">
+              <span className="text-[9px] uppercase font-black text-emerald-600 block tracking-wider truncate mt-1">
                 Vos colis, notre priorité
               </span>
             </div>
           </Link>
 
           {/* Partner profile header */}
-          <div className="flex items-center gap-3 p-3 bg-emerald-950/40 rounded-2xl border border-emerald-900/40">
-            <div className="w-10 h-10 rounded-xl bg-[#16a34a] flex items-center justify-center text-white font-black text-sm shadow-md shadow-emerald-600/20">
+          <div className="flex items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/70">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#16a34a] to-emerald-700 flex items-center justify-center text-white font-black text-sm shadow-md shadow-emerald-600/20 shrink-0">
               {currentPartner.companyName.charAt(0)}
             </div>
-            <div className="overflow-hidden">
-              <h4 className="text-xs font-bold text-white truncate">{currentPartner.companyName}</h4>
-              <p className="text-[10px] text-emerald-200/60 truncate">{currentPartner.fullName}</p>
+            <div className="overflow-hidden min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-slate-900 truncate">{currentPartner.companyName}</h4>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Boutique certifiée ENO"></span>
+              </div>
+              <p className="text-[11px] text-slate-500 truncate">{currentPartner.fullName}</p>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1.5 pt-1">
+          <nav className="space-y-1 pt-1">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -101,21 +108,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all group ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all group ${
                     isActive
-                      ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20 font-black"
-                      : "text-emerald-100/70 hover:text-white hover:bg-emerald-900/40"
+                      ? "bg-[#16a34a] text-white shadow-md shadow-emerald-600/20 font-black"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
                       className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                        isActive ? "text-white" : "text-emerald-300"
+                        isActive ? "text-white" : "text-slate-500 group-hover:text-[#16a34a]"
                       }`}
                     />
                     <span>{item.label}</span>
                   </div>
-                  {isActive && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
                 </Link>
               );
             })}
@@ -123,37 +130,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Bottom Sidebar Footer */}
-        <div className="space-y-3 pt-4 border-t border-emerald-900/60">
+        <div className="space-y-3 pt-4 border-t border-slate-200">
           {/* Direct Agency Assistance */}
-          <div className="p-3 rounded-2xl bg-emerald-950/80 border border-emerald-800/60 text-xs space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] font-black uppercase text-emerald-400">
-              <span>Assistance Agences</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase text-emerald-700">
+              <span className="flex items-center gap-1.5">
+                <Headphones className="w-3.5 h-3.5" /> Assistance Agences
+              </span>
+              <span className="flex items-center gap-1 text-[9px] text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Direct
+              </span>
             </div>
-            <div className="space-y-1 text-[11px] text-slate-300">
-              <p>📍 Cotonou : <strong className="text-white font-mono">01 64 29 18 84</strong></p>
-              <p>📍 Lokossa : <strong className="text-white font-mono">01 67 51 00 82</strong></p>
+            <div className="space-y-0.5 text-[11px] text-slate-600">
+              <p>📍 Cotonou : <strong className="text-slate-900 font-bold">01 64 29 18 84</strong></p>
+              <p>📍 Lokossa : <strong className="text-slate-900 font-bold">01 67 51 00 82</strong></p>
             </div>
             <a
               href="https://wa.me/2290164291884"
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center py-1.5 rounded-xl bg-[#25d366] hover:bg-emerald-600 text-white font-bold text-[10px] transition-colors mt-2"
+              className="block text-center py-2 rounded-xl bg-[#25d366] hover:bg-emerald-600 text-white font-bold text-xs shadow-sm transition-colors mt-2"
             >
-              WhatsApp Support
+              WhatsApp Support Direct
             </a>
-          </div>
-
-          {/* Active Account Pill */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>Boutique certifiée ENO</span>
           </div>
 
           {/* Disconnect */}
           <button
             onClick={() => router.push("/partenaire")}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-xs font-semibold text-emerald-200/60 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            className="flex items-center gap-2.5 w-full px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Déconnexion</span>
@@ -162,7 +168,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* MOBILE HEADER & DRAWER */}
-      <div className="md:hidden flex items-center justify-between bg-[#091b14] border-b border-emerald-950 p-4 sticky top-0 z-40">
+      <div className="md:hidden flex items-center justify-between bg-white border-b border-slate-200 p-4 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-2.5">
           <div className="relative w-8 h-8 rounded-full overflow-hidden border border-emerald-500 bg-white">
             <Image
@@ -173,8 +179,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
           </div>
           <div>
-            <p className="text-xs font-bold text-white">{currentPartner.companyName}</p>
-            <p className="text-[10px] text-emerald-400 font-bold">ENO LIVRAISON</p>
+            <p className="text-xs font-bold text-slate-900">{currentPartner.companyName}</p>
+            <p className="text-[10px] text-emerald-600 font-bold">ENO LIVRAISON</p>
           </div>
         </div>
 
@@ -187,7 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="p-2 rounded-xl bg-emerald-950 text-emerald-200"
+            className="p-2 rounded-xl bg-slate-100 text-slate-700"
           >
             {mobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -195,8 +201,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {mobileSidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex">
-          <div className="w-72 bg-[#091b14] h-full p-6 flex flex-col justify-between">
+        <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex">
+          <div className="w-72 bg-white h-full p-6 flex flex-col justify-between shadow-2xl">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -209,16 +215,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">{currentPartner.companyName}</p>
-                    <p className="text-xs text-emerald-400">ENO LIVRAISON</p>
+                    <p className="text-sm font-bold text-slate-900">{currentPartner.companyName}</p>
+                    <p className="text-xs text-emerald-600 font-semibold">ENO LIVRAISON</p>
                   </div>
                 </div>
-                <button onClick={() => setMobileSidebarOpen(false)} className="text-emerald-300">
+                <button onClick={() => setMobileSidebarOpen(false)} className="text-slate-400 hover:text-slate-700">
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="space-y-1.5">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
@@ -230,7 +236,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold ${
                         isActive
                           ? "bg-[#16a34a] text-white"
-                          : "text-emerald-200/70 hover:text-white hover:bg-emerald-900/40"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -243,7 +249,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <button
               onClick={() => router.push("/partenaire")}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50"
             >
               <LogOut className="w-4 h-4" />
               <span>Déconnexion</span>
@@ -255,10 +261,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-20 bg-[#091b14]/80 backdrop-blur border-b border-emerald-950 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-30">
+        <header className="h-20 bg-white/90 backdrop-blur border-b border-slate-200/80 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-30 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
           <div>
-            <h1 className="text-lg lg:text-xl font-black text-white tracking-tight">{getPageTitle()}</h1>
-            <p className="text-[11px] text-emerald-400 font-semibold capitalize">
+            <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tight">{getPageTitle()}</h1>
+            <p className="text-[11px] text-slate-500 font-semibold capitalize">
               {new Intl.DateTimeFormat("fr-FR", {
                 weekday: "long",
                 day: "numeric",
@@ -270,23 +276,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-3">
             <button
               onClick={handleRefresh}
-              className="w-10 h-10 rounded-2xl bg-[#0d261c] border border-emerald-900/60 hover:bg-emerald-900/40 text-emerald-300 flex items-center justify-center transition-all shadow-sm"
+              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-all shadow-sm"
               title="Actualiser"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-[#22c55e]" : ""}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-[#16a34a]" : ""}`} />
             </button>
 
             <button
-              className="w-10 h-10 rounded-2xl bg-[#0d261c] border border-emerald-900/60 hover:bg-emerald-900/40 text-emerald-300 flex items-center justify-center transition-all relative shadow-sm"
+              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-all relative shadow-sm"
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#22c55e]"></span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#16a34a]"></span>
             </button>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Nouvelle commande</span>
@@ -295,7 +301,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page Body */}
-        <main className="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
 
       {/* Global New Order Modal */}

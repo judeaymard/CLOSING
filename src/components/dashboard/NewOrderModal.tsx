@@ -60,43 +60,43 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in-up">
-      <div className="bg-[#091b14] border border-emerald-900 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in-up">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl text-slate-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-emerald-900/60">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#16a34a] flex items-center justify-center text-white font-bold shadow-md shadow-emerald-600/20">
+            <div className="w-10 h-10 rounded-xl bg-[#16a34a] flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-600/20">
               +
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Nouvelle commande</h3>
-              <p className="text-xs text-emerald-300/70">Enregistrez une commande client au Bénin pour ENO LIVRAISON</p>
+              <h3 className="text-base font-bold text-slate-900">Nouvelle commande</h3>
+              <p className="text-xs text-slate-500">Enregistrez une commande client au Bénin pour ENO LIVRAISON</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300/70 hover:text-white flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto dark-scrollbar">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
           {/* Section: Informations client */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#22c55e] uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a] uppercase tracking-wider">
               <User className="w-4 h-4" /> Informations client (Bénin)
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <input
                 type="text"
                 required
-                placeholder="Nom du client *"
+                placeholder="Nom complet du client *"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
               />
 
               <input
@@ -105,14 +105,14 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
                 placeholder="Téléphone Bénin (ex: +229 97 00 00 00) *"
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
               />
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white focus:outline-none focus:border-[#16a34a] transition-colors"
+                  className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
                 >
                   <option value="Cotonou">Cotonou</option>
                   <option value="Abomey-Calavi">Abomey-Calavi</option>
@@ -126,10 +126,10 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
 
                 <input
                   type="text"
-                  placeholder="Zone exacte (Quartier: Cadjehoun, Akpakpa...)"
+                  placeholder="Zone (Quartier: Cadjehoun...)"
                   value={zone}
                   onChange={(e) => setZone(e.target.value)}
-                  className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
+                  className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -137,44 +137,44 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
 
           {/* Section: Date de commande */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#22c55e] uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a] uppercase tracking-wider">
               <Calendar className="w-4 h-4" /> Date de commande
             </div>
             <input
               type="date"
               value={orderDate}
               onChange={(e) => setOrderDate(e.target.value)}
-              className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white focus:outline-none focus:border-[#16a34a] transition-colors"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
             />
           </div>
 
           {/* Section: Disponibilité pour la livraison */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#22c55e] uppercase tracking-wider">
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a] uppercase tracking-wider">
               <Truck className="w-4 h-4" /> Disponibilité pour la livraison
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <input
                 type="date"
                 placeholder="jj/mm/aaaa"
                 value={deliveryDate}
                 onChange={(e) => setDeliveryDate(e.target.value)}
-                className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white focus:outline-none focus:border-[#16a34a] transition-colors"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
               />
               <input
                 type="text"
-                placeholder="Lieu (ex: Face Etoile Rouge Cotonou)"
+                placeholder="Lieu (ex: Face Étoile Rouge)"
                 value={deliveryLocation}
                 onChange={(e) => setDeliveryLocation(e.target.value)}
-                className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-800 rounded-xl text-sm text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a] transition-colors"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#16a34a] focus:bg-white transition-all"
               />
             </div>
           </div>
 
           {/* Section: Sélectionner les produits */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#22c55e] uppercase tracking-wider">
-              <Package className="w-4 h-4" /> Sélectionner les produits
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#16a34a] uppercase tracking-wider">
+              <Package className="w-4 h-4" /> Sélectionner le produit
             </div>
 
             <div className="space-y-2">
@@ -182,32 +182,32 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
                 <div
                   key={prod.id}
                   onClick={() => setSelectedProduct(prod)}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
                     selectedProduct.id === prod.id
-                      ? "bg-emerald-500/10 border-emerald-500 text-white"
-                      : "bg-emerald-950/40 border-emerald-900/60 text-emerald-300/70 hover:border-emerald-700"
+                      ? "bg-emerald-50/70 border-emerald-500 shadow-sm"
+                      : "bg-slate-50 border-slate-200 hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-emerald-950 flex items-center justify-center text-[#22c55e] border border-emerald-800">
-                      <Package className="w-5 h-5" />
+                    <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-[#16a34a] border border-slate-200 shadow-xs">
+                      <Package className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white uppercase">{prod.name}</p>
-                      <p className="text-[11px] text-emerald-300/70">
-                        {prod.price} F • Stock restant : <span className="text-emerald-400 font-bold">{prod.remainingStock}</span>
+                      <p className="text-xs font-bold text-slate-900 uppercase">{prod.name}</p>
+                      <p className="text-[11px] text-slate-500">
+                        {prod.price} F CFA • Stock : <span className="text-emerald-700 font-bold">{prod.remainingStock}</span>
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold">Qté:</span>
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs font-medium text-slate-500">Qté:</span>
                     <input
                       type="number"
                       min={1}
                       max={prod.remainingStock}
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-14 px-2 py-1 bg-emerald-950 border border-emerald-800 rounded-lg text-xs text-white text-center focus:outline-none focus:border-[#16a34a]"
+                      className="w-12 px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 text-center focus:outline-none focus:border-[#16a34a]"
                     />
                   </div>
                 </div>
@@ -216,17 +216,20 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
           </div>
 
           {/* Commission ENO LIVRAISON */}
-          <div className="bg-emerald-950/50 border border-emerald-900/60 rounded-2xl p-4 flex items-center justify-between">
-            <span className="text-xs font-medium text-emerald-200">Commission ENO LIVRAISON</span>
-            <span className="text-sm font-black text-[#22c55e]">{commission * quantity} F CFA</span>
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-semibold text-emerald-900 block">Commission ENO LIVRAISON</span>
+              <span className="text-[10px] text-emerald-700">Closing 800F + Livraison terrain 2000F</span>
+            </div>
+            <span className="text-sm font-black text-[#16a34a]">{commission * quantity} F CFA</span>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-4 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm shadow-xl shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+            className="w-full py-3.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
           >
-            <CheckCircle2 className="w-5 h-5" /> Enregistrer la commande
+            <CheckCircle2 className="w-4 h-4" /> Enregistrer la commande
           </button>
         </form>
       </div>
