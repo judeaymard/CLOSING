@@ -61,136 +61,137 @@ export default function CommandesPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in-up w-full max-w-full min-w-0">
       {/* 🏛️ HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 pb-2 border-b border-[#EAE6DD] min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-[#787163] truncate">
             <span>Journal Logistique</span>
             <span>•</span>
-            <span className="text-[#0D5940]">{filteredOrders.length} expéditions enregistrées</span>
+            <span className="text-[#0D5940]">{filteredOrders.length} expéditions</span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1 truncate">
             Livre des Expéditions
           </h2>
-          <p className="text-xs text-[#787163] mt-1">
+          <p className="text-xs text-[#787163] mt-1 leading-normal">
             Suivi complet de vos clôtures d&apos;appels, livraisons physiques et encaissements Cash On Delivery.
           </p>
         </div>
 
         {/* Top Action CTAs */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#141A17] text-xs font-bold transition-all flex items-center gap-2 shadow-2xs"
+            className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#141A17] text-xs font-bold transition-all flex items-center gap-2 shadow-2xs"
           >
-            <Download className="w-3.5 h-3.5 text-[#0D5940]" />
-            <span>Exporter CSV</span>
+            <Download className="w-3.5 h-3.5 text-[#0D5940] shrink-0" />
+            <span className="hidden sm:inline">Exporter CSV</span>
+            <span className="sm:hidden">CSV</span>
           </button>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 active:scale-95"
+            className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 active:scale-95"
           >
-            <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
+            <Plus className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
             <span>Nouvelle Expédition</span>
           </button>
         </div>
       </div>
 
-      {/* 📊 STATUS COUNTER PILLS BAR */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* 📊 STATUS COUNTER PILLS BAR (Alignd grid with identical heights) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 w-full min-w-0">
         {/* Tous */}
         <button
           onClick={() => setSelectedStatus("ALL")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between h-full min-w-0 ${
             selectedStatus === "ALL"
               ? "bg-white border-[#0D5940] shadow-xs"
               : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1">
-            <span>Toutes</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17]"></span>
+          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1 min-w-0">
+            <span className="truncate">Toutes</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17] shrink-0"></span>
           </div>
-          <p className="text-2xl font-black text-[#141A17]">{totalCount}</p>
+          <p className="text-xl sm:text-2xl font-black text-[#141A17]">{totalCount}</p>
         </button>
 
         {/* Livrées */}
         <button
           onClick={() => setSelectedStatus("LIVREE")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between h-full min-w-0 ${
             selectedStatus === "LIVREE"
               ? "bg-white border-[#0D5940] shadow-xs"
               : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#0D5940] font-bold uppercase tracking-wider mb-1">
-            <span>Livrées</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0D5940]"></span>
+          <div className="flex items-center justify-between text-[10px] text-[#0D5940] font-bold uppercase tracking-wider mb-1 min-w-0">
+            <span className="truncate">Livrées</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0D5940] shrink-0"></span>
           </div>
-          <p className="text-2xl font-black text-[#0D5940]">{deliveredCount}</p>
+          <p className="text-xl sm:text-2xl font-black text-[#0D5940]">{deliveredCount}</p>
         </button>
 
         {/* A Rappeler */}
         <button
           onClick={() => setSelectedStatus("A_RAPPELER")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between h-full min-w-0 ${
             selectedStatus === "A_RAPPELER"
               ? "bg-white border-[#0D5940] shadow-xs"
               : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#A84232] font-bold uppercase tracking-wider mb-1">
-            <span>À rappeler</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A84232]"></span>
+          <div className="flex items-center justify-between text-[10px] text-[#A84232] font-bold uppercase tracking-wider mb-1 min-w-0">
+            <span className="truncate">À rappeler</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A84232] shrink-0"></span>
           </div>
-          <p className="text-2xl font-black text-[#A84232]">{recallCount}</p>
+          <p className="text-xl sm:text-2xl font-black text-[#A84232]">{recallCount}</p>
         </button>
 
         {/* En Cours */}
         <button
           onClick={() => setSelectedStatus("EN_COURS")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between h-full min-w-0 ${
             selectedStatus === "EN_COURS"
               ? "bg-white border-[#0D5940] shadow-xs"
               : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#141A17] font-bold uppercase tracking-wider mb-1">
-            <span>En cours</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17]"></span>
+          <div className="flex items-center justify-between text-[10px] text-[#141A17] font-bold uppercase tracking-wider mb-1 min-w-0">
+            <span className="truncate">En cours</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#141A17] shrink-0"></span>
           </div>
-          <p className="text-2xl font-black text-[#141A17]">{inProgressCount}</p>
+          <p className="text-xl sm:text-2xl font-black text-[#141A17]">{inProgressCount}</p>
         </button>
 
         {/* Refusées */}
         <button
           onClick={() => setSelectedStatus("REFUSEE")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between h-full min-w-0 col-span-2 sm:col-span-1 ${
             selectedStatus === "REFUSEE"
               ? "bg-white border-[#0D5940] shadow-xs"
               : "bg-white border-[#EAE6DD] hover:border-[#D9D3C7]"
           }`}
         >
-          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1">
-            <span>Refusées</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#787163]"></span>
+          <div className="flex items-center justify-between text-[10px] text-[#787163] font-bold uppercase tracking-wider mb-1 min-w-0">
+            <span className="truncate">Refusées</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#787163] shrink-0"></span>
           </div>
-          <p className="text-2xl font-black text-[#787163]">{refusedCount}</p>
+          <p className="text-xl sm:text-2xl font-black text-[#787163]">{refusedCount}</p>
         </button>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs">
-        {/* Search Input (Takes majority of width) */}
-        <div className="relative flex-1">
+      {/* FILTER BAR (Clean flex wrap alignment) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white border border-[#EAE6DD] p-3.5 rounded-2xl shadow-2xs w-full min-w-0">
+        {/* Search Input (Expands to fill space) */}
+        <div className="relative flex-1 min-w-0">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
             <Search className="w-3.5 h-3.5 text-[#8C8474]" />
           </div>
           <input
             type="text"
-            placeholder="Recherche rapide par nom de client, numéro de téléphone, N° de commande ou quartier..."
+            placeholder="Rechercher client, téléphone, N° de commande, quartier..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs text-[#141A17] placeholder:text-[#8C8474] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
@@ -198,7 +199,7 @@ export default function CommandesPage() {
         </div>
 
         {/* Date Filter */}
-        <div className="relative sm:w-60 shrink-0">
+        <div className="relative sm:w-56 shrink-0 min-w-0">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C8474]">
             <Calendar className="w-3.5 h-3.5 text-[#0D5940]" />
           </div>
@@ -211,10 +212,10 @@ export default function CommandesPage() {
         </div>
       </div>
 
-      {/* ORDERS DATA TABLE */}
-      <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs whitespace-nowrap">
+      {/* ORDERS DATA TABLE (With safe horizontal scroll) */}
+      <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden w-full min-w-0">
+        <div className="overflow-x-auto w-full max-w-full">
+          <table className="w-full text-left text-xs whitespace-nowrap min-w-[850px]">
             <thead className="bg-[#FAF9F5] border-b border-[#EAE6DD] text-[#787163] font-bold uppercase tracking-[0.15em] text-[10px]">
               <tr>
                 <th className="py-3.5 px-5">Date</th>
@@ -292,7 +293,7 @@ export default function CommandesPage() {
 
                       {/* Fees */}
                       <td className="py-3.5 px-5 text-[11px] text-[#5C5649]">
-                        <span className="font-bold text-[#141A17]">2 800 F</span> (Closing + Liv)
+                        <span className="font-bold text-[#141A17]">2 800 F</span>
                       </td>
 
                       {/* Status Badge */}

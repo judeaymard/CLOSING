@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#141A17] flex flex-col md:flex-row antialiased selection:bg-[#0D5940] selection:text-white font-sans">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#141A17] flex flex-col md:flex-row antialiased selection:bg-[#0D5940] selection:text-white font-sans w-full max-w-full overflow-x-hidden">
       {/* SIDEBAR (Desktop) */}
       <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 bg-[#FAF9F5] border-r border-[#EAE6DD] p-6 shrink-0 min-h-screen sticky top-0">
         <div className="space-y-6">
@@ -271,12 +271,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden">
         {/* Top Header */}
-        <header className="h-20 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EAE6DD] px-6 lg:px-12 flex items-center justify-between sticky top-0 z-30">
-          <div>
-            <h1 className="text-base lg:text-lg font-black text-[#141A17] tracking-tight">{getPageTitle()}</h1>
-            <p className="text-[11px] text-[#8C8474] font-medium capitalize">
+        <header className="h-16 sm:h-20 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EAE6DD] px-4 sm:px-6 lg:px-10 flex items-center justify-between sticky top-0 z-30 w-full min-w-0">
+          <div className="min-w-0 mr-2">
+            <h1 className="text-sm sm:text-base lg:text-lg font-black text-[#141A17] tracking-tight truncate">{getPageTitle()}</h1>
+            <p className="text-[10px] sm:text-[11px] text-[#8C8474] font-medium capitalize truncate">
               {new Intl.DateTimeFormat("fr-FR", {
                 weekday: "long",
                 day: "numeric",
@@ -286,10 +286,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={handleRefresh}
-              className="w-9 h-9 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#5C5649] flex items-center justify-center transition-all shadow-2xs"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white border border-[#EAE6DD] hover:bg-[#FAF9F5] text-[#5C5649] flex items-center justify-center transition-all shadow-2xs"
               title="Actualiser les données"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#0D5940]" : ""}`} />
@@ -297,7 +297,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+              className="hidden sm:inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
               <span>Nouvelle Expédition</span>
@@ -306,7 +306,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page Body */}
-        <main className="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0">{children}</main>
       </div>
 
       {/* Global New Order Modal */}

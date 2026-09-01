@@ -38,19 +38,19 @@ export default function ProfilPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up max-w-4xl">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in-up w-full max-w-4xl min-w-0">
       {/* 🏛️ HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 pb-2 border-b border-[#EAE6DD] min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-[#787163] truncate">
             <span>Paramètres Partenaire</span>
             <span>•</span>
             <span className="text-[#0D5940]">Compte Certifié ENO LIVRAISON Bénin</span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1 truncate">
             Identité Partenaire
           </h2>
-          <p className="text-xs text-[#787163] mt-1">
+          <p className="text-xs text-[#787163] mt-1 leading-normal">
             Coordonnées d&apos;entreprise, comptes de réception Mobile Money et sécurité.
           </p>
         </div>

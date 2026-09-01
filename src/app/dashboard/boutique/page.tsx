@@ -78,19 +78,19 @@ export default function BoutiquePage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up max-w-4xl">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in-up w-full max-w-4xl min-w-0">
       {/* 🏛️ HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE6DD]">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#787163]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 pb-2 border-b border-[#EAE6DD] min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-[#787163] truncate">
             <span>Passerelle E-Commerce</span>
             <span>•</span>
             <span className="text-[#0D5940]">Synchronisation Automatique</span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1 truncate">
             Connexion E-Commerce
           </h2>
-          <p className="text-xs text-[#787163] mt-1">
+          <p className="text-xs text-[#787163] mt-1 leading-normal">
             Reliez votre boutique en ligne pour importer automatiquement vos commandes vers ENO LIVRAISON.
           </p>
         </div>
@@ -186,7 +186,7 @@ export default function BoutiquePage() {
       </div>
 
       {/* CUSTOM INTEGRATION NOTE */}
-      <div className="p-4 rounded-2xl bg-white border border-[#EAE6DD] text-xs text-[#5C5649] flex items-center justify-between">
+      <div className="p-4 rounded-2xl bg-white border border-[#EAE6DD] text-xs text-[#5C5649] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 w-full min-w-0">
         <p>
           Vous utilisez <strong className="text-[#141A17]">WooCommerce</strong>, <strong className="text-[#141A17]">PrestaShop</strong> ou un système sur-mesure ?
         </p>
@@ -194,7 +194,7 @@ export default function BoutiquePage() {
           href="https://wa.me/2290164291884"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#0D5940] font-bold hover:underline flex items-center gap-1 shrink-0 ml-2"
+          className="text-[#0D5940] font-bold hover:underline flex items-center gap-1 shrink-0"
         >
           <span>Intégration API personnalisée</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
