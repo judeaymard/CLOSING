@@ -11,17 +11,19 @@ import {
   Search,
   Phone,
   MapPin,
-  Plus,
   CheckCircle2,
+  Smartphone,
+  X,
 } from "lucide-react";
 import { currentPartner, orders, products } from "@/lib/mock-data";
-import NewOrderModal from "@/components/dashboard/NewOrderModal";
 
 export default function DashboardOverviewPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "LIVREE" | "EN_COURS" | "A_RAPPELER">("ALL");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [payoutRequested, setPayoutRequested] = useState(false);
+  const [showPayoutModal, setShowPayoutModal] = useState(false);
+  const [payoutSuccess, setPayoutSuccess] = useState(false);
+  const [payoutAmount, setPayoutAmount] = useState("252400");
+  const [payoutMethod, setPayoutMethod] = useState<"MTN" | "MOOV" | "WAVE">("MTN");
 
   const partnerOrders = orders.filter((o) => o.partnerId === currentPartner.id);
 
@@ -45,9 +47,11 @@ export default function DashboardOverviewPage() {
     return matchesStatus && matchesSearch;
   });
 
-  const handleQuickPayout = () => {
-    setPayoutRequested(true);
-    setTimeout(() => setPayoutRequested(false), 4500);
+  const handlePayoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPayoutSuccess(true);
+    setShowPayoutModal(false);
+    setTimeout(() => setPayoutSuccess(false), 5000);
   };
 
   return (
@@ -96,35 +100,31 @@ export default function DashboardOverviewPage() {
             </p>
           </div>
 
-          {/* Master Action CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 shrink-0">
+          {/* Master Action CTA Button - Payout Only */}
+          <div className="shrink-0">
             <button
-              onClick={handleQuickPayout}
-              className="px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+              onClick={() => setShowPayoutModal(true)}
+              className="px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2.5"
             >
-              <Wallet className="w-4 h-4 text-[#C5A059] shrink-0" />
+              <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
               <span>Transférer sur Mobile Money</span>
               <ArrowUpRight className="w-4 h-4 shrink-0" />
-            </button>
-
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl bg-[#FAF9F5] hover:bg-white text-[#141A17] border border-[#EAE6DD] font-bold text-xs sm:text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4 text-[#0D5940] shrink-0" />
-              <span>Nouveau Colis</span>
             </button>
           </div>
         </div>
 
         {/* Payout Notification Toast */}
-        {payoutRequested && (
-          <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#0D5940]/40 text-[#0D5940] text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {payoutSuccess && (
+          <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#0D5940] text-[#0D5940] text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
             <div className="flex items-center gap-2 min-w-0">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span className="truncate">Demande de reversement de 252 400 F CFA transmise. Traitement sous 30 min.</span>
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0D5940]" />
+              <span className="truncate">
+                Virement de {Number(payoutAmount).toLocaleString("fr-FR")} F CFA validé avec succès vers votre compte {payoutMethod} MoMo !
+              </span>
             </div>
-            <span className="text-[10px] uppercase tracking-wider text-[#787163] shrink-0">MoMo MTN</span>
+            <span className="text-[10px] uppercase tracking-wider text-[#787163] shrink-0 bg-white px-2.5 py-0.5 rounded-full border border-[#EAE6DD]">
+              Traité sous 30 min
+            </span>
           </div>
         )}
 
@@ -401,8 +401,92 @@ export default function DashboardOverviewPage() {
         </div>
       </div>
 
-      {/* Global New Order Modal */}
-      <NewOrderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* 📱 MODAL DE VIREMENT MOBILE MONEY */}
+      {showPayoutModal && (
+        <div className="fixed inset-0 z-50 bg-[#141A17]/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 animate-fade-in-up">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
+              <div>
+                <h3 className="text-base font-black text-[#141A17]">Virement Mobile Money Immédiat</h3>
+                <p className="text-xs text-[#787163] mt-0.5">Fonds transférés directement sur votre compte sous 30 min</p>
+              </div>
+              <button
+                onClick={() => setShowPayoutModal(false)}
+                className="w-8 h-8 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[#8C8474] flex items-center justify-center hover:text-[#141A17]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePayoutSubmit} className="space-y-4">
+              {/* Operator selection */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#141A17] uppercase">Opérateur de Réception</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["MTN", "MOOV", "WAVE"] as const).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPayoutMethod(method)}
+                      className={`py-3 rounded-xl border text-xs font-black transition-all ${
+                        payoutMethod === method
+                          ? "bg-white border-[#0D5940] text-[#0D5940] shadow-2xs"
+                          : "bg-[#FAF9F5] border-[#EAE6DD] text-[#787163] hover:text-[#141A17]"
+                      }`}
+                    >
+                      {method} MoMo
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recipient Phone Number */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#141A17] uppercase">Numéro Destinataire</label>
+                <input
+                  type="text"
+                  defaultValue="+229 01 97 36 29 06"
+                  className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                  required
+                />
+              </div>
+
+              {/* Amount */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#141A17] uppercase">Montant à Transférer (F CFA)</label>
+                <input
+                  type="number"
+                  value={payoutAmount}
+                  max={soldeNetDisponible}
+                  onChange={(e) => setPayoutAmount(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-base font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                  required
+                />
+                <p className="text-[11px] text-[#787163]">
+                  Solde net maximum disponible : <strong className="text-[#141A17]">{soldeNetDisponible.toLocaleString("fr-FR")} F CFA</strong>
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-2 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPayoutModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-xs"
+                >
+                  Confirmer le Virement vers {payoutMethod}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
