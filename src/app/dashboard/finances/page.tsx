@@ -9,14 +9,44 @@ import {
   TrendingUp,
   Download,
   X,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { orders } from "@/lib/mock-data";
 
+const AFRICAN_COUNTRIES = [
+  { code: "+229", country: "Bénin", flag: "🇧🇯" },
+  { code: "+225", country: "Côte d'Ivoire", flag: "🇨🇮" },
+  { code: "+221", country: "Sénégal", flag: "🇸🇳" },
+  { code: "+228", country: "Togo", flag: "🇹🇬" },
+  { code: "+237", country: "Cameroun", flag: "🇨🇲" },
+  { code: "+226", country: "Burkina Faso", flag: "🇧🇫" },
+  { code: "+223", country: "Mali", flag: "🇲🇱" },
+  { code: "+224", country: "Guinée", flag: "🇬🇳" },
+];
+
+type PayoutOperator = "MTN" | "MOOV" | "WAVE" | "ORANGE";
+
+const OPERATORS: { id: PayoutOperator; name: string; tag: string }[] = [
+  { id: "MTN", name: "MTN MoMo", tag: "Bénin, CI, Cameroun" },
+  { id: "MOOV", name: "Moov Money", tag: "Bénin, CI, Togo, BF" },
+  { id: "WAVE", name: "Wave", tag: "Sénégal, CI, Bénin" },
+  { id: "ORANGE", name: "Orange Money", tag: "CI, Sénégal, Mali, BF" },
+];
+
 export default function FinancesPage() {
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [payoutSuccess, setPayoutSuccess] = useState(false);
+  const [payoutStep, setPayoutStep] = useState<"FORM" | "PENDING_ADMIN">("FORM");
+  const [payoutCountryCode, setPayoutCountryCode] = useState("+229");
+  const [payoutPhone, setPayoutPhone] = useState("01 97 36 29 06");
+  const [payoutMethod, setPayoutMethod] = useState<PayoutOperator>("MTN");
   const [payoutAmount, setPayoutAmount] = useState("252400");
-  const [payoutMethod, setPayoutMethod] = useState<"MTN" | "MOOV" | "WAVE">("MTN");
+  const [submittedPayout, setSubmittedPayout] = useState<{
+    amount: string;
+    phone: string;
+    operator: string;
+    time: string;
+  } | null>(null);
 
   const deliveredOrdersCount = 38;
   const totalOrdersCount = 77;
@@ -26,9 +56,26 @@ export default function FinancesPage() {
 
   const handleRequestPayout = (e: React.FormEvent) => {
     e.preventDefault();
-    setPayoutSuccess(true);
+    const formattedPhone = `${payoutCountryCode} ${payoutPhone.trim()}`;
+    const currentTime = new Intl.DateTimeFormat("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date());
+
+    setSubmittedPayout({
+      amount: payoutAmount,
+      phone: formattedPhone,
+      operator: payoutMethod,
+      time: currentTime,
+    });
+    setPayoutStep("PENDING_ADMIN");
+  };
+
+  const handleCloseModal = () => {
     setShowPayoutModal(false);
-    setTimeout(() => setPayoutSuccess(false), 5000);
+    setTimeout(() => {
+      setPayoutStep("FORM");
+    }, 300);
   };
 
   return (
@@ -51,7 +98,10 @@ export default function FinancesPage() {
 
         {/* Action Button */}
         <button
-          onClick={() => setShowPayoutModal(true)}
+          onClick={() => {
+            setShowPayoutModal(true);
+            setPayoutStep("FORM");
+          }}
           className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 active:scale-95 shrink-0 self-start sm:self-auto"
         >
           <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
@@ -60,146 +110,111 @@ export default function FinancesPage() {
         </button>
       </div>
 
-      {/* Payout Success Toast Notification */}
-      {payoutSuccess && (
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#0D5940] text-[#0D5940] text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <CheckCircle2 className="w-4 h-4 text-[#0D5940] shrink-0" />
-            <span className="truncate">
-              Demande de virement de {Number(payoutAmount).toLocaleString("fr-FR")} F CFA transmise vers votre compte {payoutMethod} MoMo !
-            </span>
+      {/* ⏳ BANNIÈRE STATUTAIRE SI RETRAIT EN ATTENTE DE VALIDATION ADMIN */}
+      {submittedPayout && (
+        <div className="p-4 rounded-3xl bg-amber-50/80 border border-amber-200/80 text-amber-900 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 text-amber-800">
+              <Clock className="w-4 h-4 animate-pulse" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-amber-950">
+                Retrait de {Number(submittedPayout.amount).toLocaleString("fr-FR")} F CFA en cours de validation
+              </p>
+              <p className="text-[11px] text-amber-800/90 mt-0.5 truncate">
+                Destination : <strong>{submittedPayout.operator} Money ({submittedPayout.phone})</strong> • Transmis à {submittedPayout.time}
+              </p>
+            </div>
           </div>
-          <span className="text-[10px] bg-[#FAF9F5] border border-[#EAE6DD] text-[#0D5940] px-2.5 py-0.5 rounded-full uppercase font-bold shrink-0">
-            Traité sous 30 min
+          <span className="text-[10px] uppercase font-bold tracking-wider bg-white border border-amber-300 text-amber-800 px-3 py-1 rounded-full shrink-0 self-start sm:self-auto">
+            Validation Admin en cours (~quelques min)
           </span>
         </div>
       )}
 
-      {/* 💎 4 SUMMARY NOBLE CARDS (Synchronized baselines) */}
+      {/* 💎 4 SYNCHRONIZED FINANCIAL METRIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0">
-        {/* Solde Net Disponible */}
-        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full space-y-2 min-w-0">
+        {/* 01. Revenu Net Encaissé */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0D5940] truncate">
-              Net Disponible
-            </span>
-            <Wallet className="w-4 h-4 text-[#0D5940] shrink-0" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">01 • Solde Net Disponible</span>
+            <span className="w-2 h-2 rounded-full bg-[#0D5940] shrink-0"></span>
           </div>
-          <div>
-            <p className="text-2xl sm:text-3xl font-black text-[#0D5940] tracking-tight">
-              {revenuNet.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-1.5 truncate">
+              <span className="text-2xl sm:text-3xl font-black text-[#141A17]">{revenuNet.toLocaleString("fr-FR")}</span>
+              <span className="text-xs font-bold text-[#0D5940] uppercase">F CFA</span>
+            </div>
+            <p className="text-[11px] text-[#5C5649] mt-1 leading-normal truncate">
+              Prêt pour virement MoMo immédiat
             </p>
-            <p className="text-xs text-[#5C5649] mt-0.5 truncate">Prêt pour virement immédiat</p>
           </div>
         </div>
 
-        {/* Chiffre d'affaires brut */}
-        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full space-y-2 min-w-0">
+        {/* 02. Chiffre d'Affaires Brut */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">
-              CA Brut Encaissé
-            </span>
-            <TrendingUp className="w-4 h-4 text-[#8C8474] shrink-0" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">02 • Total Brut Encaissé</span>
+            <TrendingUp className="w-3.5 h-3.5 text-[#787163] shrink-0" />
           </div>
-          <div>
-            <p className="text-2xl sm:text-3xl font-black text-[#141A17] tracking-tight">
-              {caTotal.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-1.5 truncate">
+              <span className="text-2xl sm:text-3xl font-black text-[#141A17]">{caTotal.toLocaleString("fr-FR")}</span>
+              <span className="text-xs font-bold text-[#787163] uppercase">F CFA</span>
+            </div>
+            <p className="text-[11px] text-[#5C5649] mt-1 leading-normal truncate">
+              {deliveredOrdersCount} colis livrés et payés
             </p>
-            <p className="text-xs text-[#5C5649] mt-0.5 truncate">Total collecté par les livreurs</p>
           </div>
         </div>
 
-        {/* Frais Logistiques Déduits */}
-        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full space-y-2 min-w-0">
+        {/* 03. Frais de Prestation */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A84232] truncate">
-              Frais ENO Déduits
-            </span>
-            <span className="text-[10px] font-bold text-[#A84232] bg-[#FAF9F5] px-2 py-0.5 rounded-md border border-[#EAE6DD] shrink-0">
-              -2 800 F / colis
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">03 • Frais Logistique & Closing</span>
+            <span className="text-[10px] font-bold text-[#A84232] bg-[#FAF9F5] border border-[#EAE6DD] px-1.5 py-0.5 rounded shrink-0">Déduit</span>
           </div>
-          <div>
-            <p className="text-2xl sm:text-3xl font-black text-[#A84232] tracking-tight">
-              -{commissions.toLocaleString("fr-FR")} <span className="text-xs font-semibold text-[#787163]">F CFA</span>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-1.5 truncate">
+              <span className="text-2xl sm:text-3xl font-black text-[#A84232]">-{commissions.toLocaleString("fr-FR")}</span>
+              <span className="text-xs font-bold text-[#A84232] uppercase">F CFA</span>
+            </div>
+            <p className="text-[11px] text-[#5C5649] mt-1 leading-normal truncate">
+              2 800 F / colis livré (stockage offert)
             </p>
-            <p className="text-xs text-[#5C5649] mt-0.5 truncate">800 F Closing + 2 000 F Livraison</p>
           </div>
         </div>
 
-        {/* Taux de Conversion */}
-        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full space-y-2 min-w-0">
+        {/* 04. Compte de Versement */}
+        <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-6 shadow-2xs flex flex-col justify-between h-full min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">
-              Colis Encaissés
-            </span>
-            <span className="text-[10px] font-bold text-[#0D5940] bg-[#FAF9F5] px-2 py-0.5 rounded-md border border-[#EAE6DD] shrink-0">
-              Succès
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">04 • Compte MoMo</span>
+            <span className="text-[10px] font-bold text-[#0D5940] bg-[#FAF9F5] border border-[#EAE6DD] px-1.5 py-0.5 rounded shrink-0">Actif</span>
           </div>
-          <div>
-            <p className="text-2xl sm:text-3xl font-black text-[#141A17] tracking-tight">
-              {deliveredOrdersCount} <span className="text-xs font-semibold text-[#787163]">/ {totalOrdersCount}</span>
+          <div className="mt-3">
+            <p className="text-base sm:text-lg font-black text-[#141A17] truncate">
+              {payoutMethod} MoMo
             </p>
-            <p className="text-xs text-[#5C5649] mt-0.5 truncate">Cash collecté sans incident</p>
+            <p className="text-[11px] text-[#787163] mt-1 font-mono font-medium truncate">
+              {payoutCountryCode} {payoutPhone}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* 📜 DÉTAIL DES FRAIS PAR LIVRAISON (Equal heights) */}
-      <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-8 shadow-[0_2px_12px_rgba(20,26,23,0.03)] space-y-4 w-full min-w-0">
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <h3 className="text-sm sm:text-base font-black text-[#141A17] tracking-tight truncate">
-            Barème Tarifaire Transparent
-          </h3>
-          <span className="text-[10px] font-bold text-[#0D5940] uppercase tracking-wider bg-[#FAF9F5] border border-[#EAE6DD] px-2.5 py-1 rounded-full shrink-0">
-            Zéro Frais Caché
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full min-w-0">
-          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl flex flex-col justify-between h-full min-w-0">
-            <p className="text-[10px] font-bold text-[#787163] uppercase tracking-wider truncate">Service Closing Téléphonique</p>
-            <div className="mt-2">
-              <p className="text-lg sm:text-xl font-black text-[#141A17]">800 F CFA</p>
-              <p className="text-[11px] text-[#5C5649] mt-0.5">Appel sous 15 min & confirmation client</p>
-            </div>
-          </div>
-
-          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl flex flex-col justify-between h-full min-w-0">
-            <p className="text-[10px] font-bold text-[#787163] uppercase tracking-wider truncate">Livraison Express Urbaine</p>
-            <div className="mt-2">
-              <p className="text-lg sm:text-xl font-black text-[#141A17]">2 000 F CFA</p>
-              <p className="text-[11px] text-[#5C5649] mt-0.5">Déploiement livreur Cotonou & Calavi</p>
-            </div>
-          </div>
-
-          <div className="bg-[#FAF9F5] border border-[#EAE6DD] p-4 rounded-2xl flex flex-col justify-between h-full min-w-0">
-            <p className="text-[10px] font-bold text-[#0D5940] uppercase tracking-wider truncate">Total Retenu par Commande</p>
-            <div className="mt-2">
-              <p className="text-lg sm:text-xl font-black text-[#0D5940]">2 800 F CFA</p>
-              <p className="text-[11px] text-[#5C5649] mt-0.5">Facturé uniquement si le client paie</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 📜 HISTORIQUE DU LIVRE FINANCIER (Safe horizontal table) */}
+      {/* 📜 HISTORIQUE DES TRANSACTIONS */}
       <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden w-full min-w-0">
-        <div className="p-4 sm:p-6 border-b border-[#EAE6DD] flex items-center justify-between gap-4 min-w-0">
-          <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-black text-[#141A17] tracking-tight truncate">
-              Journal des Commissions & Reversements
-            </h3>
-            <p className="text-xs text-[#787163] mt-0.5 truncate">
-              Détail ligne par ligne pour chaque commande livrée.
-            </p>
+        <div className="p-4 sm:p-6 border-b border-[#EAE6DD] flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+          <div>
+            <h3 className="text-sm sm:text-base font-black text-[#141A17]">Livre des Flux Financiers</h3>
+            <p className="text-xs text-[#787163] mt-0.5">Détail des encaissements COD et déductions logistiques par colis.</p>
           </div>
-
-          <button className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-[#FAF9F5] text-[#141A17] text-xs font-bold border border-[#EAE6DD] flex items-center gap-1.5 transition-all shadow-2xs shrink-0">
-            <Download className="w-3.5 h-3.5 text-[#0D5940] shrink-0" />
-            <span className="hidden sm:inline">Relevé PDF</span>
-            <span className="sm:hidden">PDF</span>
+          <button
+            onClick={() => alert("Téléchargement du grand livre comptable (CSV)...")}
+            className="px-3.5 py-2 rounded-xl bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-xs font-bold text-[#141A17] flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0"
+          >
+            <Download className="w-3.5 h-3.5 text-[#0D5940]" />
+            <span>Grand Livre CSV</span>
           </button>
         </div>
 
@@ -207,52 +222,32 @@ export default function FinancesPage() {
           <table className="w-full text-left text-xs whitespace-nowrap min-w-[700px]">
             <thead className="bg-[#FAF9F5] border-b border-[#EAE6DD] text-[#787163] font-bold uppercase tracking-[0.15em] text-[10px]">
               <tr>
-                <th className="py-3 px-5">Réf.</th>
+                <th className="py-3 px-5">Réf. Colis</th>
+                <th className="py-3 px-5">Date & Heure</th>
                 <th className="py-3 px-5">Client</th>
-                <th className="py-3 px-5">Encaissé COD</th>
-                <th className="py-3 px-5">Frais ENO</th>
-                <th className="py-3 px-5">Net Marchand</th>
+                <th className="py-3 px-5">Montant Encaissé</th>
+                <th className="py-3 px-5">Frais Prestation</th>
+                <th className="py-3 px-5">Net Partenaire</th>
                 <th className="py-3 px-5">Statut</th>
-                <th className="py-3 px-5">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAE6DD]/60 font-medium text-[#141A17]">
-              {orders.slice(0, 8).map((ord) => {
-                const isDelivered = ord.status === "LIVREE";
+              {orders.slice(0, 7).map((ord) => {
+                const fee = 2800;
+                const net = ord.totalPrice - fee;
                 return (
                   <tr key={ord.id} className="hover:bg-[#FAF9F5]/70 transition-colors">
                     <td className="py-3.5 px-5 font-mono font-bold text-[#0D5940]">{ord.orderNumber}</td>
+                    <td className="py-3.5 px-5 text-[#787163]">24 Oct, 14:30</td>
+                    <td className="py-3.5 px-5 font-black">{ord.clientName}</td>
+                    <td className="py-3.5 px-5 font-bold">{ord.totalPrice.toLocaleString("fr-FR")} F</td>
+                    <td className="py-3.5 px-5 text-[#A84232] font-semibold">-{fee.toLocaleString("fr-FR")} F</td>
+                    <td className="py-3.5 px-5 font-black text-[#0D5940]">{net.toLocaleString("fr-FR")} F CFA</td>
                     <td className="py-3.5 px-5">
-                      <p className="font-bold text-[#141A17]">{ord.clientName}</p>
-                      <p className="text-[11px] text-[#787163]">{ord.clientPhone}</p>
-                    </td>
-                    <td className="py-3.5 px-5 font-black text-[#141A17]">
-                      {ord.totalPrice.toLocaleString("fr-FR")} F CFA
-                    </td>
-                    <td className="py-3.5 px-5 font-bold">
-                      {isDelivered ? <span className="text-[#A84232]">-2 800 F</span> : <span className="text-[#8C8474]">—</span>}
-                    </td>
-                    <td className="py-3.5 px-5 font-black">
-                      {isDelivered ? (
-                        <span className="text-[#0D5940]">
-                          {(ord.totalPrice - 2800).toLocaleString("fr-FR")} F
-                        </span>
-                      ) : (
-                        <span className="text-[#8C8474]">—</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                          isDelivered
-                            ? "bg-[#FAF9F5] text-[#0D5940] border-[#0D5940]/30"
-                            : "bg-[#FAF9F5] text-[#A84232] border-[#A84232]/30"
-                        }`}
-                      >
-                        {isDelivered ? "ENCAISSÉE" : "À RAPPELER"}
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FAF9F5] text-[#0D5940] border border-[#0D5940]/30">
+                        Encaissé COD
                       </span>
                     </td>
-                    <td className="py-3.5 px-5 text-[#787163]">24/08/2026</td>
                   </tr>
                 );
               })}
@@ -261,139 +256,212 @@ export default function FinancesPage() {
         </div>
       </div>
 
-      {/* 📱 MODAL DE RETRAIT DE BÉNÉFICES */}
+      {/* 📱 MODAL DE RETRAIT DE BÉNÉFICES AVEC VALIDATION ADMIN */}
       {showPayoutModal && (
         <div className="fixed inset-0 z-50 bg-[#141A17]/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 animate-fade-in-up">
             <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
               <div>
-                <h3 className="text-base font-black text-[#141A17]">Retrait de vos Bénéfices</h3>
-                <p className="text-xs text-[#787163] mt-0.5">Vos gains sont versés sur votre compte Mobile Money</p>
+                <h3 className="text-base font-black text-[#141A17]">Demande de Retrait</h3>
+                <p className="text-xs text-[#787163] mt-0.5">Reversement de vos bénéfices marchands</p>
               </div>
               <button
-                onClick={() => setShowPayoutModal(false)}
+                onClick={handleCloseModal}
                 className="w-8 h-8 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[#8C8474] flex items-center justify-center hover:text-[#141A17]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleRequestPayout} className="space-y-4">
-              {/* Compte Mobile Money du Profil */}
-              <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD] space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
-                    Compte MoMo de versement
-                  </span>
-                  <span className="text-[10px] font-bold text-[#0D5940] bg-white border border-[#EAE6DD] px-2 py-0.5 rounded-md">
-                    Certifié
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-1">
+            {payoutStep === "FORM" ? (
+              <form onSubmit={handleRequestPayout} className="space-y-4">
+                {/* 1. SAISIE DU NUMÉRO MOBILE MONEY */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 text-[#0D5940]" />
+                    <span>1. Numéro de compte Mobile Money</span>
+                  </label>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#0D5940] text-white flex items-center justify-center font-black text-xs">
-                      {payoutMethod.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-[#141A17]">{payoutMethod} Money</p>
-                      <p className="text-[11px] text-[#787163] font-medium">+229 01 97 36 29 06</p>
-                    </div>
+                    {/* Country prefix selector */}
+                    <select
+                      value={payoutCountryCode}
+                      onChange={(e) => setPayoutCountryCode(e.target.value)}
+                      className="px-2.5 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white shrink-0"
+                    >
+                      {AFRICAN_COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.flag} {c.code} ({c.country})
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Phone number input */}
+                    <input
+                      type="tel"
+                      value={payoutPhone}
+                      onChange={(e) => setPayoutPhone(e.target.value)}
+                      placeholder="01 97 00 00 00"
+                      className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                      required
+                    />
                   </div>
-                  <div className="flex items-center gap-1">
-                    {(["MTN", "MOOV", "WAVE"] as const).map((net) => (
+                </div>
+
+                {/* 2. CHOIX DU MODE DE PAIEMENT */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
+                    <Wallet className="w-3.5 h-3.5 text-[#0D5940]" />
+                    <span>2. Mode de paiement</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {OPERATORS.map((op) => (
                       <button
-                        key={net}
+                        key={op.id}
                         type="button"
-                        onClick={() => setPayoutMethod(net)}
-                        className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          payoutMethod === net
-                            ? "bg-[#0D5940] text-white"
-                            : "bg-white text-[#787163] border border-[#EAE6DD] hover:text-[#141A17]"
+                        onClick={() => setPayoutMethod(op.id)}
+                        className={`p-3 rounded-2xl border text-left transition-all ${
+                          payoutMethod === op.id
+                            ? "bg-white border-[#0D5940] shadow-xs"
+                            : "bg-[#FAF9F5] border-[#EAE6DD] hover:border-[#D9D3C7]"
                         }`}
                       >
-                        {net}
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-black ${payoutMethod === op.id ? "text-[#0D5940]" : "text-[#141A17]"}`}>
+                            {op.name}
+                          </span>
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              payoutMethod === op.id ? "bg-[#0D5940]" : "bg-[#EAE6DD]"
+                            }`}
+                          ></span>
+                        </div>
+                        <p className="text-[10px] text-[#787163] mt-0.5">{op.tag}</p>
                       </button>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Montant à retirer */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
-                    Montant à retirer
-                  </label>
-                  <span className="text-[11px] text-[#787163]">
-                    Disponible : <strong className="text-[#0D5940]">252 400 F</strong>
-                  </span>
+                {/* 3. MONTANT DU RETRAIT */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
+                      3. Montant du retrait
+                    </label>
+                    <span className="text-[11px] text-[#787163]">
+                      Disponible : <strong className="text-[#0D5940]">252 400 F</strong>
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={payoutAmount}
+                      max={revenuNet}
+                      min={1000}
+                      onChange={(e) => setPayoutAmount(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-lg font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                      required
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#787163]">
+                      F CFA
+                    </span>
+                  </div>
+
+                  {/* Raccourcis */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount("50000")}
+                      className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17]"
+                    >
+                      50 000 F
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount("100000")}
+                      className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17]"
+                    >
+                      100 000 F
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount(revenuNet.toString())}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#0D5940] text-[11px] font-bold text-[#0D5940]"
+                    >
+                      Tout retirer
+                    </button>
+                  </div>
                 </div>
 
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={payoutAmount}
-                    max="252400"
-                    min="1000"
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#FAF9F5] border border-[#EAE6DD] rounded-2xl text-xl font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
-                    required
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#787163]">
-                    F CFA
-                  </span>
-                </div>
-
-                {/* Raccourcis de retrait */}
-                <div className="flex items-center gap-2 pt-1">
+                {/* 4. ACTION SUBMIT */}
+                <div className="pt-2 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setPayoutAmount("50000")}
-                    className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17] transition-all"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
                   >
-                    50 000 F
+                    Annuler
                   </button>
                   <button
-                    type="button"
-                    onClick={() => setPayoutAmount("100000")}
-                    className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17] transition-all"
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
                   >
-                    100 000 F
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutAmount("252400")}
-                    className="px-2.5 py-1 rounded-lg bg-white border border-[#0D5940] text-[11px] font-bold text-[#0D5940] transition-all"
-                  >
-                    Tout retirer (252 400 F)
+                    <span>Lancer la demande de retrait</span>
+                    <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </form>
+            ) : (
+              /* ÉCRAN DE CONFIRMATION / EN ATTENTE VALIDATION ADMIN */
+              <div className="space-y-5 text-center py-2 animate-fade-in-up">
+                <div className="w-14 h-14 rounded-3xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+                  <Clock className="w-7 h-7 animate-pulse" />
+                </div>
 
-              {/* Engagement de versement */}
-              <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[11px] text-[#5C5649] flex items-center justify-between">
-                <span>Délai de versement :</span>
-                <span className="font-bold text-[#0D5940]">Moins de 30 minutes sans frais</span>
-              </div>
+                <div className="space-y-1.5">
+                  <h4 className="text-lg font-black text-[#141A17]">
+                    Demande de Retrait Transmise !
+                  </h4>
+                  <p className="text-xs text-[#5C5649] leading-relaxed max-w-sm mx-auto">
+                    Veuillez patienter quelques minutes pendant que l&apos;administrateur valide votre demande de retrait.
+                  </p>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-2">
+                {/* Détails du virement à venir */}
+                <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD] text-left space-y-2 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-[#EAE6DD]">
+                    <span className="text-[#787163]">Montant demandé :</span>
+                    <span className="font-black text-[#0D5940] text-sm">
+                      {Number(submittedPayout?.amount || 0).toLocaleString("fr-FR")} F CFA
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#787163]">Compte de versement :</span>
+                    <span className="font-bold text-[#141A17]">
+                      {submittedPayout?.operator} ({submittedPayout?.phone})
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#787163]">Statut actuel :</span>
+                    <span className="font-bold text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded-md text-[10px] uppercase">
+                      En attente de validation admin
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-[#787163] leading-relaxed">
+                  Dès que l&apos;admin approuve la demande, les fonds sont crédités directement sur votre compte Mobile Money.
+                </p>
+
                 <button
                   type="button"
-                  onClick={() => setShowPayoutModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
+                  onClick={handleCloseModal}
+                  className="w-full py-3 rounded-2xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
-                >
-                  <span>Confirmer le Retrait de {Number(payoutAmount || 0).toLocaleString("fr-FR")} F CFA</span>
-                  <ArrowUpRight className="w-4 h-4" />
+                  Compris, je patiente
                 </button>
               </div>
-            </form>
+            )}
           </div>
         </div>
       )}

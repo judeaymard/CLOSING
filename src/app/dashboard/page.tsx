@@ -14,23 +14,56 @@ import {
   CheckCircle2,
   Smartphone,
   X,
+  Clock,
+  ShieldCheck,
+  Globe,
 } from "lucide-react";
 import { currentPartner, orders, products } from "@/lib/mock-data";
+
+const AFRICAN_COUNTRIES = [
+  { code: "+229", country: "Bénin", flag: "🇧🇯" },
+  { code: "+225", country: "Côte d'Ivoire", flag: "🇨🇮" },
+  { code: "+221", country: "Sénégal", flag: "🇸🇳" },
+  { code: "+228", country: "Togo", flag: "🇹🇬" },
+  { code: "+237", country: "Cameroun", flag: "🇨🇲" },
+  { code: "+226", country: "Burkina Faso", flag: "🇧🇫" },
+  { code: "+223", country: "Mali", flag: "🇲🇱" },
+  { code: "+224", country: "Guinée", flag: "🇬🇳" },
+];
+
+type PayoutOperator = "MTN" | "MOOV" | "WAVE" | "ORANGE";
+
+const OPERATORS: { id: PayoutOperator; name: string; tag: string }[] = [
+  { id: "MTN", name: "MTN MoMo", tag: "Bénin, CI, Cameroun" },
+  { id: "MOOV", name: "Moov Money", tag: "Bénin, CI, Togo, BF" },
+  { id: "WAVE", name: "Wave", tag: "Sénégal, CI, Bénin" },
+  { id: "ORANGE", name: "Orange Money", tag: "CI, Sénégal, Mali, BF" },
+];
 
 export default function DashboardOverviewPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "LIVREE" | "EN_COURS" | "A_RAPPELER">("ALL");
+
+  // Payout Flow States
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [payoutSuccess, setPayoutSuccess] = useState(false);
+  const [payoutStep, setPayoutStep] = useState<"FORM" | "PENDING_ADMIN">("FORM");
+  const [payoutCountryCode, setPayoutCountryCode] = useState("+229");
+  const [payoutPhone, setPayoutPhone] = useState("01 97 36 29 06");
+  const [payoutMethod, setPayoutMethod] = useState<PayoutOperator>("MTN");
   const [payoutAmount, setPayoutAmount] = useState("252400");
-  const [payoutMethod, setPayoutMethod] = useState<"MTN" | "MOOV" | "WAVE">("MTN");
+  const [submittedPayout, setSubmittedPayout] = useState<{
+    amount: string;
+    phone: string;
+    operator: string;
+    time: string;
+  } | null>(null);
 
   const partnerOrders = orders.filter((o) => o.partnerId === currentPartner.id);
 
   // Financial calculations
   const totalDeliveredOrders = 38;
   const caTotalBrut = 358800;
-  const totalFraisLogistique = 106400; // 38 livraisons * 2800 F (800 F closing + 2000 F livraison)
+  const totalFraisLogistique = 106400; // 38 livraisons * 2800 F
   const soldeNetDisponible = caTotalBrut - totalFraisLogistique; // 252 400 F
 
   const partnerProducts = products.filter((p) => p.partnerId === currentPartner.id);
@@ -49,9 +82,27 @@ export default function DashboardOverviewPage() {
 
   const handlePayoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPayoutSuccess(true);
+    const formattedPhone = `${payoutCountryCode} ${payoutPhone.trim()}`;
+    const currentTime = new Intl.DateTimeFormat("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date());
+
+    setSubmittedPayout({
+      amount: payoutAmount,
+      phone: formattedPhone,
+      operator: payoutMethod,
+      time: currentTime,
+    });
+    setPayoutStep("PENDING_ADMIN");
+  };
+
+  const handleCloseModal = () => {
     setShowPayoutModal(false);
-    setTimeout(() => setPayoutSuccess(false), 5000);
+    // Reset to form step if they open it again
+    setTimeout(() => {
+      setPayoutStep("FORM");
+    }, 300);
   };
 
   return (
@@ -75,6 +126,28 @@ export default function DashboardOverviewPage() {
           <span className="text-xs font-bold text-[#0D5940]">Actif & Garanti</span>
         </div>
       </div>
+
+      {/* ⏳ BANNIÈRE STATUTAIRE SI RETRAIT EN ATTENTE DE VALIDATION ADMIN */}
+      {submittedPayout && (
+        <div className="p-4 rounded-3xl bg-amber-50/80 border border-amber-200/80 text-amber-900 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 text-amber-800">
+              <Clock className="w-4 h-4 animate-pulse" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-amber-950">
+                Retrait de {Number(submittedPayout.amount).toLocaleString("fr-FR")} F CFA en cours de validation
+              </p>
+              <p className="text-[11px] text-amber-800/90 mt-0.5 truncate">
+                Destination : <strong>{submittedPayout.operator} Money ({submittedPayout.phone})</strong> • Transmis à {submittedPayout.time}
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider bg-white border border-amber-300 text-amber-800 px-3 py-1 rounded-full shrink-0 self-start sm:self-auto">
+            Validation Admin en cours (~quelques min)
+          </span>
+        </div>
+      )}
 
       {/* 💎 STRATE II : LE GRAND COFFRE SOUVERAIN */}
       <div className="bg-white border border-[#EAE6DD] rounded-3xl p-5 sm:p-8 lg:p-10 shadow-[0_4px_24px_rgba(20,26,23,0.04)] relative overflow-hidden w-full min-w-0">
@@ -103,7 +176,10 @@ export default function DashboardOverviewPage() {
           {/* Master Action CTA Button - Payout Only */}
           <div className="shrink-0">
             <button
-              onClick={() => setShowPayoutModal(true)}
+              onClick={() => {
+                setShowPayoutModal(true);
+                setPayoutStep("FORM");
+              }}
               className="px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2.5"
             >
               <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
@@ -112,21 +188,6 @@ export default function DashboardOverviewPage() {
             </button>
           </div>
         </div>
-
-        {/* Payout Notification Toast */}
-        {payoutSuccess && (
-          <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#0D5940] text-[#0D5940] text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
-            <div className="flex items-center gap-2 min-w-0">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0D5940]" />
-              <span className="truncate">
-                Virement de {Number(payoutAmount).toLocaleString("fr-FR")} F CFA validé avec succès vers votre compte {payoutMethod} MoMo !
-              </span>
-            </div>
-            <span className="text-[10px] uppercase tracking-wider text-[#787163] shrink-0 bg-white px-2.5 py-0.5 rounded-full border border-[#EAE6DD]">
-              Traité sous 30 min
-            </span>
-          </div>
-        )}
 
         {/* Décomposition financière alignée */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 mt-6 border-t border-[#EAE6DD] w-full">
@@ -147,7 +208,7 @@ export default function DashboardOverviewPage() {
           <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD]/60 flex flex-col justify-between h-full min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">Compte de Réception</p>
             <p className="text-base sm:text-lg font-bold text-[#141A17] mt-1 truncate">
-              MTN • +229 01 97 36 29 06
+              {payoutMethod} • {payoutCountryCode} {payoutPhone}
             </p>
           </div>
         </div>
@@ -401,140 +462,213 @@ export default function DashboardOverviewPage() {
         </div>
       </div>
 
-      {/* 📱 MODAL DE RETRAIT DE BÉNÉFICES */}
+      {/* 📱 MODAL DE RETRAIT DE BÉNÉFICES AVEC VALIDATION ADMIN */}
       {showPayoutModal && (
         <div className="fixed inset-0 z-50 bg-[#141A17]/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 animate-fade-in-up">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
               <div>
-                <h3 className="text-base font-black text-[#141A17]">Retrait de vos Bénéfices</h3>
-                <p className="text-xs text-[#787163] mt-0.5">Vos gains sont versés sur votre compte Mobile Money</p>
+                <h3 className="text-base font-black text-[#141A17]">Demande de Retrait</h3>
+                <p className="text-xs text-[#787163] mt-0.5">Reversement de vos bénéfices marchands</p>
               </div>
               <button
-                onClick={() => setShowPayoutModal(false)}
+                onClick={handleCloseModal}
                 className="w-8 h-8 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[#8C8474] flex items-center justify-center hover:text-[#141A17]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handlePayoutSubmit} className="space-y-4">
-              {/* Compte Mobile Money du Profil */}
-              <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD] space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
-                    Compte MoMo de versement
-                  </span>
-                  <span className="text-[10px] font-bold text-[#0D5940] bg-white border border-[#EAE6DD] px-2 py-0.5 rounded-md">
-                    Certifié
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-1">
+            {payoutStep === "FORM" ? (
+              <form onSubmit={handlePayoutSubmit} className="space-y-4">
+                {/* 1. SAISIE DU NUMÉRO MOBILE MONEY */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 text-[#0D5940]" />
+                    <span>1. Numéro de compte Mobile Money</span>
+                  </label>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#0D5940] text-white flex items-center justify-center font-black text-xs">
-                      {payoutMethod.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-[#141A17]">{payoutMethod} Money</p>
-                      <p className="text-[11px] text-[#787163] font-medium">+229 01 97 36 29 06</p>
-                    </div>
+                    {/* Country prefix selector */}
+                    <select
+                      value={payoutCountryCode}
+                      onChange={(e) => setPayoutCountryCode(e.target.value)}
+                      className="px-2.5 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white shrink-0"
+                    >
+                      {AFRICAN_COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.flag} {c.code} ({c.country})
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Phone number input */}
+                    <input
+                      type="tel"
+                      value={payoutPhone}
+                      onChange={(e) => setPayoutPhone(e.target.value)}
+                      placeholder="01 97 00 00 00"
+                      className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                      required
+                    />
                   </div>
-                  <div className="flex items-center gap-1">
-                    {(["MTN", "MOOV", "WAVE"] as const).map((net) => (
+                </div>
+
+                {/* 2. CHOIX DU MODE DE PAIEMENT */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
+                    <Wallet className="w-3.5 h-3.5 text-[#0D5940]" />
+                    <span>2. Mode de paiement</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {OPERATORS.map((op) => (
                       <button
-                        key={net}
+                        key={op.id}
                         type="button"
-                        onClick={() => setPayoutMethod(net)}
-                        className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          payoutMethod === net
-                            ? "bg-[#0D5940] text-white"
-                            : "bg-white text-[#787163] border border-[#EAE6DD] hover:text-[#141A17]"
+                        onClick={() => setPayoutMethod(op.id)}
+                        className={`p-3 rounded-2xl border text-left transition-all ${
+                          payoutMethod === op.id
+                            ? "bg-white border-[#0D5940] shadow-xs"
+                            : "bg-[#FAF9F5] border-[#EAE6DD] hover:border-[#D9D3C7]"
                         }`}
                       >
-                        {net}
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-black ${payoutMethod === op.id ? "text-[#0D5940]" : "text-[#141A17]"}`}>
+                            {op.name}
+                          </span>
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              payoutMethod === op.id ? "bg-[#0D5940]" : "bg-[#EAE6DD]"
+                            }`}
+                          ></span>
+                        </div>
+                        <p className="text-[10px] text-[#787163] mt-0.5">{op.tag}</p>
                       </button>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Montant à retirer */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
-                    Montant à retirer
-                  </label>
-                  <span className="text-[11px] text-[#787163]">
-                    Disponible : <strong className="text-[#0D5940]">{soldeNetDisponible.toLocaleString("fr-FR")} F</strong>
-                  </span>
+                {/* 3. MONTANT DU RETRAIT */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163]">
+                      3. Montant du retrait
+                    </label>
+                    <span className="text-[11px] text-[#787163]">
+                      Disponible : <strong className="text-[#0D5940]">{soldeNetDisponible.toLocaleString("fr-FR")} F</strong>
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={payoutAmount}
+                      max={soldeNetDisponible}
+                      min={1000}
+                      onChange={(e) => setPayoutAmount(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-lg font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                      required
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#787163]">
+                      F CFA
+                    </span>
+                  </div>
+
+                  {/* Raccourcis tactiles */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount("50000")}
+                      className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17]"
+                    >
+                      50 000 F
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount("100000")}
+                      className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17]"
+                    >
+                      100 000 F
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount(soldeNetDisponible.toString())}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#0D5940] text-[11px] font-bold text-[#0D5940]"
+                    >
+                      Tout retirer
+                    </button>
+                  </div>
                 </div>
 
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={payoutAmount}
-                    max={soldeNetDisponible}
-                    min={1000}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#FAF9F5] border border-[#EAE6DD] rounded-2xl text-xl font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white transition-all"
-                    required
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#787163]">
-                    F CFA
-                  </span>
-                </div>
-
-                {/* Raccourcis de retrait */}
-                <div className="flex items-center gap-2 pt-1">
+                {/* 4. BOUTON D'ENVOI DE LA DEMANDE */}
+                <div className="pt-2 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setPayoutAmount("50000")}
-                    className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17] transition-all"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
                   >
-                    50 000 F
+                    Annuler
                   </button>
                   <button
-                    type="button"
-                    onClick={() => setPayoutAmount("100000")}
-                    className="px-2.5 py-1 rounded-lg bg-[#FAF9F5] hover:bg-white border border-[#EAE6DD] text-[11px] font-bold text-[#141A17] transition-all"
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
                   >
-                    100 000 F
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutAmount(soldeNetDisponible.toString())}
-                    className="px-2.5 py-1 rounded-lg bg-white border border-[#0D5940] text-[11px] font-bold text-[#0D5940] transition-all"
-                  >
-                    Tout retirer ({soldeNetDisponible.toLocaleString("fr-FR")} F)
+                    <span>Lancer la demande de retrait</span>
+                    <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </form>
+            ) : (
+              /* ÉCRAN DE CONFIRMATION / EN ATTENTE VALIDATION ADMIN */
+              <div className="space-y-5 text-center py-2 animate-fade-in-up">
+                <div className="w-14 h-14 rounded-3xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+                  <Clock className="w-7 h-7 animate-pulse" />
+                </div>
 
-              {/* Engagement de versement */}
-              <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#EAE6DD] text-[11px] text-[#5C5649] flex items-center justify-between">
-                <span>Délai de versement :</span>
-                <span className="font-bold text-[#0D5940]">Moins de 30 minutes sans frais</span>
-              </div>
+                <div className="space-y-1.5">
+                  <h4 className="text-lg font-black text-[#141A17]">
+                    Demande de Retrait Transmise !
+                  </h4>
+                  <p className="text-xs text-[#5C5649] leading-relaxed max-w-sm mx-auto">
+                    Veuillez patienter quelques minutes pendant que l&apos;administrateur valide votre demande de retrait.
+                  </p>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-2">
+                {/* Détails du virement à venir */}
+                <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD] text-left space-y-2 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-[#EAE6DD]">
+                    <span className="text-[#787163]">Montant demandé :</span>
+                    <span className="font-black text-[#0D5940] text-sm">
+                      {Number(submittedPayout?.amount || 0).toLocaleString("fr-FR")} F CFA
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#787163]">Compte de versement :</span>
+                    <span className="font-bold text-[#141A17]">
+                      {submittedPayout?.operator} ({submittedPayout?.phone})
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#787163]">Statut actuel :</span>
+                    <span className="font-bold text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded-md text-[10px] uppercase">
+                      En attente de validation admin
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-[#787163] leading-relaxed">
+                  Dès que l&apos;admin approuve la demande, les fonds sont crédités directement sur votre compte Mobile Money.
+                </p>
+
                 <button
                   type="button"
-                  onClick={() => setShowPayoutModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-[#EAE6DD] text-xs font-bold text-[#5C5649] hover:bg-[#FAF9F5]"
+                  onClick={handleCloseModal}
+                  className="w-full py-3 rounded-2xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
-                >
-                  <span>Confirmer le Retrait de {Number(payoutAmount || 0).toLocaleString("fr-FR")} F CFA</span>
-                  <ArrowUpRight className="w-4 h-4" />
+                  Compris, je patiente
                 </button>
               </div>
-            </form>
+            )}
           </div>
         </div>
       )}
