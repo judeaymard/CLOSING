@@ -107,7 +107,7 @@ export default function DashboardOverviewPage() {
               className="px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2.5"
             >
               <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
-              <span>Transférer sur Mobile Money</span>
+              <span>Demande de retrait</span>
               <ArrowUpRight className="w-4 h-4 shrink-0" />
             </button>
           </div>
@@ -407,7 +407,7 @@ export default function DashboardOverviewPage() {
           <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 animate-fade-in-up">
             <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
               <div>
-                <h3 className="text-base font-black text-[#141A17]">Virement Mobile Money Immédiat</h3>
+                <h3 className="text-base font-black text-[#141A17]">Demande de Retrait</h3>
                 <p className="text-xs text-[#787163] mt-0.5">Fonds transférés directement sur votre compte sous 30 min</p>
               </div>
               <button
@@ -480,7 +480,7 @@ export default function DashboardOverviewPage() {
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Confirmer le Virement vers {payoutMethod}
+                  Valider la Demande de Retrait ({payoutMethod})
                 </button>
               </div>
             </form>

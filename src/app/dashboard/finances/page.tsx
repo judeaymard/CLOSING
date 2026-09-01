@@ -55,7 +55,7 @@ export default function FinancesPage() {
           className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 active:scale-95 shrink-0 self-start sm:self-auto"
         >
           <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
-          <span>Débloquer vers Mobile Money</span>
+          <span>Demande de retrait</span>
           <ArrowUpRight className="w-4 h-4 shrink-0" />
         </button>
       </div>
@@ -267,7 +267,7 @@ export default function FinancesPage() {
           <div className="bg-white border border-[#EAE6DD] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-[#EAE6DD]">
               <div>
-                <h3 className="text-base font-black text-[#141A17]">Virement Mobile Money Immédiat</h3>
+                <h3 className="text-base font-black text-[#141A17]">Demande de Retrait</h3>
                 <p className="text-xs text-[#787163] mt-0.5">Transfert traité sous 30 minutes sans frais</p>
               </div>
               <button
@@ -339,7 +339,7 @@ export default function FinancesPage() {
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs font-bold transition-all shadow-xs"
                 >
-                  Valider le Virement
+                  Valider la Demande de Retrait
                 </button>
               </div>
             </form>
