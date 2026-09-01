@@ -24,7 +24,7 @@ import NewOrderModal from "@/components/dashboard/NewOrderModal";
 
 const NAV_ITEMS = [
   { label: "Vue d'ensemble", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Expéditions", href: "/dashboard/commandes", icon: Package },
+  { label: "Livraisons", href: "/dashboard/commandes", icon: Package },
   { label: "Stocks Entrepôt", href: "/dashboard/stocks", icon: Boxes },
   { label: "Coffre & Finances", href: "/dashboard/finances", icon: Wallet },
   { label: "Boutique en ligne", href: "/dashboard/boutique", icon: Store },
@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const getPageTitle = () => {
     if (pathname === "/dashboard") return "Registre Général";
-    if (pathname.includes("/commandes")) return "Livre des Expéditions";
+    if (pathname.includes("/commandes")) return "Livre des Livraisons";
     if (pathname.includes("/stocks")) return "Inventaire & Entrepôts";
     if (pathname.includes("/finances")) return "Coffre & Reversements";
     if (pathname.includes("/boutique")) return "Connexion E-commerce";
@@ -300,7 +300,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="hidden sm:inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>Nouvelle Expédition</span>
+              <span>Nouvelle Livraison</span>
             </button>
           </div>
         </header>

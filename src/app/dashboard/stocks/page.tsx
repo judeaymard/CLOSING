@@ -112,7 +112,7 @@ export default function StocksPage() {
             <p className="text-2xl sm:text-3xl font-black text-[#0D5940] tracking-tight">
               {totalRemaining} <span className="text-xs font-semibold text-[#787163]">unités</span>
             </p>
-            <p className="text-xs text-[#5C5649] mt-0.5 truncate">Prêt pour expédition rapide</p>
+            <p className="text-xs text-[#5C5649] mt-0.5 truncate">Prêt pour livraison rapide</p>
           </div>
         </div>
 

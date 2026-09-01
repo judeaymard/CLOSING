@@ -216,13 +216,13 @@ export default function DashboardOverviewPage() {
         </div>
       </div>
 
-      {/* 📜 STRATE IV : LE LIVRE-JOURNAL DES EXPÉDITIONS */}
+      {/* 📜 STRATE IV : LE LIVRE-JOURNAL DES LIVRAISONS */}
       <div className="bg-white border border-[#EAE6DD] rounded-3xl shadow-[0_2px_12px_rgba(20,26,23,0.03)] overflow-hidden w-full min-w-0">
         {/* Table Controls Header */}
         <div className="p-4 sm:p-6 border-b border-[#EAE6DD] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 min-w-0">
           <div className="min-w-0">
             <h3 className="text-sm sm:text-base font-black text-[#141A17] tracking-tight">
-              Livre des Expéditions Récentes
+              Livre des Livraisons Récentes
             </h3>
             <p className="text-xs text-[#787163] mt-0.5">
               Historique en direct de vos commandes et livraisons au Bénin.
@@ -306,7 +306,7 @@ export default function DashboardOverviewPage() {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-[#787163] text-xs">
-                    Aucune expédition ne correspond à votre filtre.
+                    Aucune livraison ne correspond à votre filtre.
                   </td>
                 </tr>
               ) : (
@@ -389,13 +389,13 @@ export default function DashboardOverviewPage() {
         {/* Footer Link to full orders page */}
         <div className="p-3.5 sm:p-4 bg-[#FAF9F5] border-t border-[#EAE6DD] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <span className="text-[#787163] font-medium">
-            Affichage des expéditions actives
+            Affichage des livraisons actives
           </span>
           <Link
             href="/dashboard/commandes"
             className="font-bold text-[#0D5940] hover:underline flex items-center gap-1"
           >
-            <span>Consulter le livre complet des expéditions</span>
+            <span>Consulter le livre complet des livraisons</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>

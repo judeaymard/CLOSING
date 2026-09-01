@@ -44,7 +44,7 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
       deliveryFee: 2000,
       serviceFee: 800,
       status: "EN_ATTENTE",
-      comment: "NOUVELLE EXPÉDITION (CONFIRMATION ENO EN COURS)",
+      comment: "NOUVELLE LIVRAISON (CONFIRMATION ENO EN COURS)",
       availability: deliveryDate,
       availabilityLocation: deliveryLocation,
       createdAt: new Date().toISOString(),
@@ -65,7 +65,7 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#EAE6DD] bg-[#FAF9F5]">
           <div>
-            <h3 className="text-base font-black text-[#141A17]">Nouvelle Expédition Client</h3>
+            <h3 className="text-base font-black text-[#141A17]">Nouvelle Livraison Client</h3>
             <p className="text-xs text-[#787163] mt-0.5">Clôture d&apos;appel sous 15 min & livraison express au Bénin</p>
           </div>
           <button

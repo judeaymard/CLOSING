@@ -54,7 +54,7 @@ export default function CommandesPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `expeditions-eno-livraison-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `livraisons-eno-livraison-${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -68,10 +68,10 @@ export default function CommandesPage() {
           <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-[#787163] truncate">
             <span>Journal Logistique</span>
             <span>•</span>
-            <span className="text-[#0D5940]">{filteredOrders.length} expéditions</span>
+            <span className="text-[#0D5940]">{filteredOrders.length} livraisons</span>
           </div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141A17] tracking-tight mt-1 truncate">
-            Livre des Expéditions
+            Livre des Livraisons
           </h2>
           <p className="text-xs text-[#787163] mt-1 leading-normal">
             Suivi complet de vos clôtures d&apos;appels, livraisons physiques et encaissements Cash On Delivery.
@@ -94,7 +94,7 @@ export default function CommandesPage() {
             className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[#141A17] hover:bg-[#0D5940] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 active:scale-95"
           >
             <Plus className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
-            <span>Nouvelle Expédition</span>
+            <span>Nouvelle Livraison</span>
           </button>
         </div>
       </div>
@@ -234,7 +234,7 @@ export default function CommandesPage() {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-16 text-center text-[#787163] text-xs">
-                    Aucune expédition ne correspond à vos critères de recherche.
+                    Aucune livraison ne correspond à vos critères de recherche.
                   </td>
                 </tr>
               ) : (
