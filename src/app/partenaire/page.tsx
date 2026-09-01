@@ -79,11 +79,11 @@ function AuthForm() {
   };
 
   return (
-    <div className="max-w-[420px] w-full mx-auto space-y-6">
+    <div className="max-w-[420px] w-full mx-auto space-y-3.5 sm:space-y-4">
       {/* Mobile Header with Logo */}
-      <div className="lg:hidden flex flex-col items-center text-center space-y-3 pb-2">
+      <div className="lg:hidden flex flex-col items-center text-center space-y-2 pb-1">
         <Link href="/" className="inline-flex items-center gap-2">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
             <Image
               src="/images/eno_livraison_logo.png"
               alt="Logo ENO LIVRAISON"
@@ -94,10 +94,10 @@ function AuthForm() {
           </div>
         </Link>
         <div>
-          <span className="text-xl font-black text-slate-900 block">
+          <span className="text-lg font-black text-slate-900 block">
             ENO <span className="text-[#16a34a]">LIVRAISON</span>
           </span>
-          <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">
+          <span className="text-[9px] font-black uppercase text-emerald-600 tracking-wider">
             VOS COLIS, NOTRE PRIORITÉ
           </span>
         </div>
@@ -113,20 +113,20 @@ function AuthForm() {
       </div>
 
       {/* 🔘 TOP ROLE SWITCHER */}
-      <div className="bg-[#f0fdf4] p-1.5 rounded-2xl flex items-center gap-1 border border-emerald-100">
+      <div className="bg-[#f0fdf4] p-1 rounded-2xl flex items-center gap-1 border border-emerald-100">
         <button
           type="button"
           onClick={() => {
             setRole("partenaire");
             setSuccessMsg("");
           }}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
             role === "partenaire"
               ? "bg-[#16a34a] text-white shadow-md shadow-emerald-600/20 font-black"
               : "text-slate-600 hover:text-slate-900 font-semibold"
           }`}
         >
-          <Truck className="w-4 h-4" /> Partenaire
+          <Truck className="w-3.5 h-3.5" /> Partenaire
         </button>
 
         <button
@@ -136,30 +136,30 @@ function AuthForm() {
             setIsRegister(false);
             setSuccessMsg("");
           }}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
             role === "agence"
               ? "bg-[#0f291e] text-white shadow-md font-black"
               : "text-slate-600 hover:text-slate-900 font-semibold"
           }`}
         >
-          <Shield className="w-4 h-4" /> Agence ENO
+          <Shield className="w-3.5 h-3.5" /> Agence ENO
         </button>
       </div>
 
       {/* Success Toast */}
       {successMsg && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-sm animate-fade-in-up">
+        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-sm animate-fade-in-up">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {/* FORM TITLE & SUBTITLE */}
-      <div className="space-y-1.5 pt-2">
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+      <div className="space-y-1">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
           {isRegister ? "Créer un compte" : "Bon retour !"}
         </h2>
-        <p className="text-sm text-slate-500 font-medium">
+        <p className="text-xs text-slate-500 font-medium">
           {isRegister
             ? "Inscrivez votre boutique chez ENO LIVRAISON"
             : role === "partenaire"
@@ -172,123 +172,129 @@ function AuthForm() {
       {/* 📝 FORMULAIRE D'INSCRIPTION */}
       {/* ══════════════════════════════════════════════════════ */}
       {isRegister ? (
-        <form onSubmit={handleSignup} className="space-y-3.5">
-          {/* Nom complet */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <User className="w-4 h-4 text-[#16a34a]" />
+        <form onSubmit={handleSignup} className="space-y-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Nom complet */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <User className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Nom du gérant"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              />
             </div>
-            <input
-              type="text"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Nom et prénom du gérant"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
-            />
+
+            {/* Nom de la boutique */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Store className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <input
+                type="text"
+                required
+                value={shopName}
+                onChange={(e) => setShopName(e.target.value)}
+                placeholder="Nom boutique"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              />
+            </div>
           </div>
 
-          {/* Nom de la boutique */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Store className="w-4 h-4 text-[#16a34a]" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Téléphone WhatsApp */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Phone className="w-3.5 h-3.5 text-[#25d366]" />
+              </div>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="WhatsApp (+229...)"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              />
             </div>
-            <input
-              type="text"
-              required
-              value={shopName}
-              onChange={(e) => setShopName(e.target.value)}
-              placeholder="Nom de votre boutique e-commerce"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
-            />
+
+            {/* Ville */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <MapPin className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <select
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:bg-white transition-all"
+              >
+                <option value="Cotonou">Cotonou</option>
+                <option value="Abomey-Calavi">Abomey-Calavi</option>
+                <option value="Porto-Novo">Porto-Novo</option>
+                <option value="Lokossa">Lokossa (Mono)</option>
+                <option value="Parakou">Parakou</option>
+                <option value="Autre">Autre ville</option>
+              </select>
+            </div>
           </div>
 
-          {/* Téléphone WhatsApp */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Phone className="w-4 h-4 text-[#25d366]" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Email */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <input
+                type="email"
+                required
+                value={signupEmail}
+                onChange={(e) => setSignupEmail(e.target.value)}
+                placeholder="Adresse email"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              />
             </div>
-            <input
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Numéro WhatsApp (+229...)"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
-            />
-          </div>
 
-          {/* Ville */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <MapPin className="w-4 h-4 text-[#16a34a]" />
+            {/* Mot de passe */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={signupPassword}
+                onChange={(e) => setSignupPassword(e.target.value)}
+                placeholder="Mot de passe"
+                className="w-full pl-9 pr-8 py-2.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
             </div>
-            <select
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:bg-white transition-all"
-            >
-              <option value="Cotonou">Cotonou</option>
-              <option value="Abomey-Calavi">Abomey-Calavi</option>
-              <option value="Porto-Novo">Porto-Novo</option>
-              <option value="Lokossa">Lokossa (Mono)</option>
-              <option value="Parakou">Parakou</option>
-              <option value="Autre">Autre ville du Bénin</option>
-            </select>
-          </div>
-
-          {/* Email */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Mail className="w-4 h-4 text-[#16a34a]" />
-            </div>
-            <input
-              type="email"
-              required
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              placeholder="Adresse email"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* Mot de passe */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Lock className="w-4 h-4 text-[#16a34a]" />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              value={signupPassword}
-              onChange={(e) => setSignupPassword(e.target.value)}
-              placeholder="Mot de passe"
-              className="w-full pl-11 pr-11 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
           </div>
 
           {/* Bouton de soumission Vert ENO */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 mt-3"
+            className="w-full py-3 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 mt-1"
           >
             {loading ? (
-              <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
               "Créer un compte partenaire"
             )}
           </button>
 
           {/* Switch vers connexion */}
-          <p className="text-center text-xs text-slate-500 font-medium pt-3">
+          <p className="text-center text-xs text-slate-500 font-medium pt-1">
             Déjà un compte ?{" "}
             <button
               type="button"
@@ -303,10 +309,10 @@ function AuthForm() {
         /* ══════════════════════════════════════════════════════ */
         /* 🔐 FORMULAIRE DE CONNEXION */
         /* ══════════════════════════════════════════════════════ */
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-3">
           {/* Champ Email */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <Mail className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
@@ -315,13 +321,13 @@ function AuthForm() {
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               placeholder="Adresse email"
-              className="w-full pl-11 pr-4 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
           </div>
 
           {/* Champ Mot de passe */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <Lock className="w-4 h-4 text-[#16a34a]" />
             </div>
             <input
@@ -330,12 +336,12 @@ function AuthForm() {
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
               placeholder="Mot de passe"
-              className="w-full pl-11 pr-11 py-3.5 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-2xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
+              className="w-full pl-10 pr-10 py-3 bg-[#f0fdf4] border border-emerald-100 hover:border-emerald-300 focus:border-[#16a34a] rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -355,19 +361,19 @@ function AuthForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70"
+            className="w-full py-3.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70"
           >
             {loading ? (
-              <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
               "Se connecter à ENO LIVRAISON"
             )}
           </button>
 
           {/* Séparateur OU */}
-          <div className="relative flex items-center justify-center pt-2">
+          <div className="relative flex items-center justify-center pt-1">
             <div className="border-t border-slate-200 w-full"></div>
-            <span className="bg-white px-3 text-xs font-bold uppercase tracking-wider text-slate-400 relative">
+            <span className="bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 relative">
               OU
             </span>
           </div>
@@ -379,7 +385,7 @@ function AuthForm() {
               if (role === "agence") router.push("/admin");
               else router.push("/dashboard");
             }}
-            className="w-full py-3.5 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+            className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -399,11 +405,11 @@ function AuthForm() {
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.61l3.99 3.15c.95-2.85 3.6-4.96 6.72-4.96z"
               />
             </svg>
-            Continuer avec Google
+            <span>Continuer avec Google</span>
           </button>
 
-          {/* Lien bas de page */}
-          <p className="text-center text-xs text-slate-500 font-medium pt-3">
+          {/* Switch vers inscription */}
+          <p className="text-center text-xs text-slate-500 font-medium pt-1">
             Pas encore de compte ?{" "}
             <button
               type="button"
@@ -529,14 +535,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (Auth Form - Smooth independent scrolling) */}
-      <div className="h-full lg:h-screen overflow-y-auto bg-white">
-        <div className="min-h-full flex flex-col justify-center py-8 px-6 sm:px-12 lg:px-16">
-          <div className="max-w-[420px] w-full mx-auto my-auto">
-            <Suspense fallback={<div className="text-center text-slate-400 text-xs py-10">Chargement...</div>}>
-              <AuthForm />
-            </Suspense>
-          </div>
+      {/* RIGHT COLUMN (Auth Form - 100% Statique, sans défilement) */}
+      <div className="h-screen max-h-screen overflow-hidden flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-6 bg-white select-none">
+        <div className="max-w-[420px] w-full mx-auto my-auto">
+          <Suspense fallback={<div className="text-center text-slate-400 text-xs py-10">Chargement...</div>}>
+            <AuthForm />
+          </Suspense>
         </div>
       </div>
     </div>
