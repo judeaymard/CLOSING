@@ -13,11 +13,16 @@ import {
   PhoneCall,
   Clock,
   ChevronDown,
+  UserCheck,
+  Bot,
+  User,
+  ShieldCheck,
 } from "lucide-react";
 
 interface Message {
   id: string;
-  sender: "agent" | "user";
+  sender: "agent" | "user" | "system" | "human_agent";
+  agentName?: string;
   text: string;
   time: string;
 }
@@ -26,20 +31,28 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: "m-1",
     sender: "agent",
-    text: "Bonjour ! 👋 Bienvenue sur le support officiel ENO LIVRAISON. Comment pouvons-nous vous aider aujourd'hui ?",
+    text: "Bonjour ! 👋 Bienvenue sur le support officiel ENO LIVRAISON. Je suis l'assistant virtuel. Comment puis-je vous aider ?",
     time: "À l'instant",
   },
 ];
 
 const SUGGESTED_QUESTIONS = [
+  "👩‍💼 Parler à un agent humain en direct",
   "📦 Comment suivre mes livraisons ?",
   "💸 Quand mon retrait est-il validé ?",
   "🚚 Programmer un ramassage de stock",
-  "📱 Contacter un agent sur WhatsApp",
 ];
+
+const HUMAN_AGENT = {
+  name: "Inès TOVIHOUDJI",
+  role: "Responsable Support & Exploitation ENO",
+  avatar: "👩‍💼",
+  phone: "+229 01 64 29 18 84",
+};
 
 export default function SupportChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [chatMode, setChatMode] = useState<"BOT" | "CONNECTING_HUMAN" | "HUMAN_AGENT">("BOT");
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -55,7 +68,34 @@ export default function SupportChatWidget() {
       setUnreadCount(0);
       scrollToBottom();
     }
-  }, [isOpen, messages]);
+  }, [isOpen, messages, isTyping, chatMode]);
+
+  const connectToHumanAgent = () => {
+    setChatMode("CONNECTING_HUMAN");
+    setIsTyping(true);
+
+    const systemMsg: Message = {
+      id: `sys-${Date.now()}`,
+      sender: "system",
+      text: "🔔 Connexion en cours avec un agent humain du support ENO...",
+      time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+    };
+    setMessages((prev) => [...prev, systemMsg]);
+
+    setTimeout(() => {
+      setChatMode("HUMAN_AGENT");
+      setIsTyping(false);
+
+      const humanWelcomeMsg: Message = {
+        id: `human-${Date.now()}`,
+        sender: "human_agent",
+        agentName: HUMAN_AGENT.name,
+        text: `Bonjour ! Je suis Inès, responsable support chez ENO LIVRAISON. 👋 J'ai repris la main sur la discussion. En quoi puis-je vous aider personnellement ?`,
+        time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      };
+      setMessages((prev) => [...prev, humanWelcomeMsg]);
+    }, 1500);
+  };
 
   const handleSendMessage = (textToSend?: string) => {
     const text = textToSend || inputMessage;
@@ -72,31 +112,71 @@ export default function SupportChatWidget() {
     if (!textToSend) setInputMessage("");
     setIsTyping(true);
 
-    // Smart Automated Response Logic
+    const lower = text.toLowerCase();
+
+    // Trigger human connection if requested
+    if (
+      chatMode === "BOT" &&
+      (lower.includes("agent") ||
+        lower.includes("humain") ||
+        lower.includes("conseiller") ||
+        lower.includes("quelqu'un") ||
+        lower.includes("parler"))
+    ) {
+      setTimeout(() => {
+        setIsTyping(false);
+        connectToHumanAgent();
+      }, 500);
+      return;
+    }
+
+    // Response when already talking to Human Agent Inès
+    if (chatMode === "HUMAN_AGENT") {
+      setTimeout(() => {
+        let agentReplyText = `J'ai bien noté votre demande. Je vérifie cela immédiatement sur notre terminal d'exploitation et je reviens vers vous.`;
+        if (lower.includes("retrait") || lower.includes("argent") || lower.includes("solde")) {
+          agentReplyText = `Je viens de notifier notre direction financière pour accélérer la validation de votre virement. Vous recevrez la confirmation d'ici quelques minutes.`;
+        } else if (lower.includes("colis") || lower.includes("livraison") || lower.includes("adresse")) {
+          agentReplyText = `Je viens d'appeler le livreur affecté à votre secteur. Il vous contactera d'ici 15 minutes pour finaliser la remise du colis au client.`;
+        } else if (lower.includes("merci") || lower.includes("ok") || lower.includes("d'accord")) {
+          agentReplyText = `Avec grand plaisir ! L'équipe ENO LIVRAISON reste à votre entière disposition pour faire grandir vos ventes.`;
+        }
+
+        const agentMsg: Message = {
+          id: `human-${Date.now()}`,
+          sender: "human_agent",
+          agentName: HUMAN_AGENT.name,
+          text: agentReplyText,
+          time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+        };
+        setMessages((prev) => [...prev, agentMsg]);
+        setIsTyping(false);
+      }, 1200);
+      return;
+    }
+
+    // Default Bot Smart Automated Responses
     setTimeout(() => {
-      let replyText = "Merci pour votre message ! Un conseiller ENO LIVRAISON prend en charge votre demande. Pour une urgence, écrivez-nous directement sur WhatsApp.";
-      const lower = text.toLowerCase();
+      let replyText = "Merci pour votre message ! Un conseiller ENO LIVRAISON prend en charge votre demande. Pour parler directement à un humain, cliquez sur 'Parler à un agent'.";
 
       if (lower.includes("retrait") || lower.includes("argent") || lower.includes("solde") || lower.includes("finances") || lower.includes("usdt")) {
-        replyText = "💸 Les demandes de retrait Mobile Money (MTN, Moov, Wave) et Crypto (USDT, Binance Pay) sont vérifiées et validées par la direction d'ENO en quelques minutes ouvrées. Vous recevez vos fonds directement sur votre compte.";
+        replyText = "💸 Les demandes de retrait Mobile Money (MTN, Moov, Wave) et Crypto (USDT, Binance Pay) sont validées par la direction d'ENO en quelques minutes ouvrées.";
       } else if (lower.includes("colis") || lower.includes("livraison") || lower.includes("suivre") || lower.includes("commande")) {
-        replyText = "📦 Vos commandes passent par nos closeuses pour confirmation téléphonique puis sont attribuées en direct à nos livreurs de zone (Cotonou, Calavi, Porto-Novo). Vous pouvez suivre l'état en direct dans l'onglet 'Livraisons'.";
+        replyText = "📦 Vos commandes sont confirmées par téléphone par nos closeuses puis attribuées en direct à nos coursiers de zone (Cotonou, Calavi, Porto-Novo).";
       } else if (lower.includes("ramassage") || lower.includes("stock") || lower.includes("entrepôt")) {
-        replyText = "🚚 Nos coursiers effectuent les ramassages de stocks directement à votre boutique ou domicile. Vos articles sont ensuite stockés en toute sécurité dans nos entrepôts centraux.";
-      } else if (lower.includes("whatsapp") || lower.includes("agent") || lower.includes("humain") || lower.includes("téléphone")) {
-        replyText = "📱 Vous pouvez joindre notre responsable d'exploitation directement au +229 01 97 36 29 06 ou en cliquant sur le bouton WhatsApp vert ci-dessous.";
+        replyText = "🚚 Nos coursiers effectuent les ramassages de stocks directement à votre boutique. Vos articles sont stockés en toute sécurité dans nos entrepôts.";
       }
 
-      const agentReply: Message = {
+      const botReply: Message = {
         id: `reply-${Date.now()}`,
         sender: "agent",
         text: replyText,
         time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
       };
 
-      setMessages((prev) => [...prev, agentReply]);
+      setMessages((prev) => [...prev, botReply]);
       setIsTyping(false);
-    }, 900);
+    }, 800);
   };
 
   return (
@@ -127,7 +207,7 @@ export default function SupportChatWidget() {
             <p className="text-xs font-black tracking-tight leading-none">Support ENO</p>
             <p className="text-[10px] text-emerald-200 font-semibold mt-0.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              En ligne (<span className="text-white">5 min</span>)
+              {chatMode === "HUMAN_AGENT" ? "Agent Humain En Ligne" : "Support Actif (< 5 min)"}
             </p>
           </div>
 
@@ -141,32 +221,50 @@ export default function SupportChatWidget() {
 
       {/* 💬 CHAT BOX WINDOW */}
       {isOpen && (
-        <div className="w-[92vw] sm:w-[380px] h-[520px] max-h-[85vh] bg-[#FAF9F5] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-[#EAE6DD] flex flex-col overflow-hidden animate-fade-in-up">
+        <div className="w-[92vw] sm:w-[380px] h-[540px] max-h-[85vh] bg-[#FAF9F5] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-[#EAE6DD] flex flex-col overflow-hidden animate-fade-in-up">
           {/* 1. Header (Charte ENO Vert Profond) */}
           <div className="bg-[#0D5940] text-white p-4 flex items-center justify-between border-b border-[#093D2C] shrink-0">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-white shrink-0 border-2 border-emerald-400/40 shadow-xs">
-                <Image
-                  src="/images/eno_livraison_logo.png"
-                  alt="ENO Support"
-                  fill
-                  className="object-contain p-0.5"
-                />
-              </div>
+              {chatMode === "HUMAN_AGENT" ? (
+                <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center text-xl shrink-0 shadow-xs">
+                  {HUMAN_AGENT.avatar}
+                </div>
+              ) : (
+                <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-white shrink-0 border-2 border-emerald-400/40 shadow-xs">
+                  <Image
+                    src="/images/eno_livraison_logo.png"
+                    alt="ENO Support"
+                    fill
+                    className="object-contain p-0.5"
+                  />
+                </div>
+              )}
+
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-sm font-black text-white truncate">Support ENO LIVRAISON</h3>
+                  <h3 className="text-sm font-black text-white truncate">
+                    {chatMode === "HUMAN_AGENT" ? HUMAN_AGENT.name : "Support ENO LIVRAISON"}
+                  </h3>
+                  {chatMode === "HUMAN_AGENT" && (
+                    <span className="text-[9px] bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 font-bold px-1.5 py-0.2 rounded">
+                      Humain
+                    </span>
+                  )}
                 </div>
-                <p className="text-[11px] text-emerald-200 font-medium flex items-center gap-1.5 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>Opérateurs & Closeuses Actifs</span>
+                <p className="text-[11px] text-emerald-200 font-medium flex items-center gap-1.5 mt-0.5 truncate">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                  <span className="truncate">
+                    {chatMode === "HUMAN_AGENT"
+                      ? HUMAN_AGENT.role
+                      : "Assistant & Opérateurs en Ligne"}
+                  </span>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <a
-                href="https://wa.me/2290197362906?text=Bonjour%20ENO%20LIVRAISON%2C%20j%27ai%20besoin%20d%27une%20assistance%20concernant%20mon%20compte%20marchand."
+                href={`https://wa.me/2290197362906?text=Bonjour%20ENO%20LIVRAISON%2C%20j%27ai%20besoin%20d%27une%20assistance%20concernant%20mon%20compte%20marchand.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-xl bg-white/10 hover:bg-[#25D366] text-white transition-colors"
@@ -184,7 +282,24 @@ export default function SupportChatWidget() {
             </div>
           </div>
 
-          {/* 2. Messages List */}
+          {/* 2. Mode Switch Banner if talking to Bot */}
+          {chatMode === "BOT" && (
+            <div className="bg-[#093D2C] px-3.5 py-2 flex items-center justify-between text-[11px] text-emerald-200 border-b border-emerald-900/50">
+              <span className="flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Mode Assistant Virtuel</span>
+              </span>
+              <button
+                onClick={connectToHumanAgent}
+                className="text-white font-bold bg-emerald-700/60 hover:bg-emerald-600 px-2 py-0.5 rounded-md text-[10px] transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <span>Parler à un humain</span>
+                <span>👩‍💼</span>
+              </button>
+            </div>
+          )}
+
+          {/* 3. Messages List */}
           <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs bg-[#FAF9F5]">
             {/* Disclaimer badge */}
             <div className="text-center my-1">
@@ -194,23 +309,46 @@ export default function SupportChatWidget() {
               </span>
             </div>
 
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex flex-col ${m.sender === "user" ? "items-end" : "items-start"}`}
-              >
+            {messages.map((m) => {
+              if (m.sender === "system") {
+                return (
+                  <div key={m.id} className="text-center my-2">
+                    <span className="inline-block px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 font-bold text-[10px] animate-pulse">
+                      {m.text}
+                    </span>
+                  </div>
+                );
+              }
+
+              const isUser = m.sender === "user";
+              const isHuman = m.sender === "human_agent";
+
+              return (
                 <div
-                  className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
-                    m.sender === "user"
-                      ? "bg-[#0D5940] text-white rounded-br-xs shadow-xs"
-                      : "bg-white border border-[#EAE6DD] text-[#141A17] rounded-bl-xs shadow-2xs"
-                  }`}
+                  key={m.id}
+                  className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                 >
-                  <p className="text-xs">{m.text}</p>
+                  {isHuman && (
+                    <span className="text-[10px] font-bold text-[#0D5940] mb-0.5 px-1 flex items-center gap-1">
+                      <span>{HUMAN_AGENT.avatar}</span>
+                      <span>{m.agentName || HUMAN_AGENT.name} (Support ENO)</span>
+                    </span>
+                  )}
+                  <div
+                    className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
+                      isUser
+                        ? "bg-[#0D5940] text-white rounded-br-xs shadow-xs"
+                        : isHuman
+                        ? "bg-white border-2 border-emerald-500/40 text-[#141A17] rounded-bl-xs shadow-xs"
+                        : "bg-white border border-[#EAE6DD] text-[#141A17] rounded-bl-xs shadow-2xs"
+                    }`}
+                  >
+                    <p className="text-xs">{m.text}</p>
+                  </div>
+                  <span className="text-[10px] text-[#787163] mt-1 px-1">{m.time}</span>
                 </div>
-                <span className="text-[10px] text-[#787163] mt-1 px-1">{m.time}</span>
-              </div>
-            ))}
+              );
+            })}
 
             {isTyping && (
               <div className="flex items-center gap-1.5 p-3 rounded-2xl bg-white border border-[#EAE6DD] text-[#787163] w-fit">
@@ -222,7 +360,7 @@ export default function SupportChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 3. Suggestions chips */}
+          {/* 4. Suggestions chips */}
           <div className="px-3 py-2 bg-[#F3EFE6]/60 border-t border-[#EAE6DD] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
             {SUGGESTED_QUESTIONS.map((q, idx) => (
               <button
@@ -235,7 +373,7 @@ export default function SupportChatWidget() {
             ))}
           </div>
 
-          {/* 4. WhatsApp Direct Action Bar */}
+          {/* 5. WhatsApp Direct Action Bar */}
           <a
             href="https://wa.me/2290197362906?text=Bonjour%20ENO%20LIVRAISON%2C%20j%27ai%20besoin%20d%27aide%20imm%C3%A9diate."
             target="_blank"
@@ -244,14 +382,14 @@ export default function SupportChatWidget() {
           >
             <div className="flex items-center gap-2 text-xs font-black">
               <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
-              <span>Besoin d&apos;une réponse ultra-rapide ?</span>
+              <span>Besoin d&apos;une réponse WhatsApp ?</span>
             </div>
             <span className="text-[10px] uppercase font-black bg-[#25D366] text-white px-2 py-0.5 rounded-full flex items-center gap-1">
               WhatsApp <ExternalLink className="w-2.5 h-2.5" />
             </span>
           </a>
 
-          {/* 5. Input Bar */}
+          {/* 6. Input Bar */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -263,7 +401,11 @@ export default function SupportChatWidget() {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Écrivez votre message..."
+              placeholder={
+                chatMode === "HUMAN_AGENT"
+                  ? `Message direct pour ${HUMAN_AGENT.name}...`
+                  : "Écrivez votre message..."
+              }
               className="flex-1 px-3.5 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
             />
             <button
