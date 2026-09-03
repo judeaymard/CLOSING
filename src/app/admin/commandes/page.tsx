@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -20,9 +20,11 @@ import {
   Headset,
   MapPin,
   X,
+  Package,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { OrderStatus, ORDER_STATUS_CONFIG } from "@/lib/types";
+import { formatCFA } from "@/lib/mock-data";
 
 export default function AdminCommandesPage() {
   const {
@@ -30,11 +32,7 @@ export default function AdminCommandesPage() {
     partners,
     livreurs,
     closeuses,
-    currentRole,
-    activeCloseuse,
-    updateOrderStatus,
     logClosingCall,
-    assignOrderToLivreur,
     addCloseuse,
   } = useOperations();
 
@@ -99,46 +97,64 @@ export default function AdminCommandesPage() {
       ord.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ord.clientPhone.includes(searchTerm) ||
       ord.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ord.address.toLowerCase().includes(searchTerm.toLowerCase());
-
+      ord.city.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesPartner && matchesStatus && matchesSearch;
   });
 
+  const pendingCount = orders.filter((o) => o.status === "EN_ATTENTE").length;
+  const callbackCount = orders.filter((o) => o.status === "A_RAPPELER").length;
+  const confirmedCount = orders.filter((o) => o.status === "CONFIRMEE").length;
+  const inDeliveryCount = orders.filter((o) => o.status === "EN_COURS").length;
+
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Header Info */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in-up font-sans max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Closing & Gestion des Commandes</h2>
-          <p className="text-xs text-emerald-300/70 mt-1">
-            File de confirmation téléphonique, enregistrement des notes de closing et dispatch livreurs.
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Opérations & Closing des Commandes</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            File de traitement, confirmation par télévente et dispatch vers les livreurs de zone.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-emerald-300 bg-emerald-950 px-3 py-1.5 rounded-xl border border-emerald-800">
-            {filteredOrders.length} commande(s) active(s)
-          </span>
+        <button
+          onClick={() => setShowAddCloserModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs self-start sm:self-center cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Ajouter une Closeuse</span>
+        </button>
+      </div>
 
-          <button
-            onClick={() => setShowAddCloserModal(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5"
-          >
-            <span>+ Ajouter une Closeuse</span>
-          </button>
+      {/* 4 Summary Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold text-amber-700 uppercase">À Confirmer (Nouveau)</span>
+          <p className="text-2xl font-black text-slate-900">{pendingCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold text-orange-700 uppercase">Clients à Rappeler</span>
+          <p className="text-2xl font-black text-slate-900">{callbackCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold text-blue-700 uppercase">Confirmées (Prêtes)</span>
+          <p className="text-2xl font-black text-slate-900">{confirmedCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold text-purple-700 uppercase">En Cours Livraison</span>
+          <p className="text-2xl font-black text-slate-900">{inDeliveryCount}</p>
         </div>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#091b14] border border-emerald-900/60 p-4 rounded-3xl shadow-xl">
-        {/* Partner Select */}
+      {/* Filter Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-2xs">
         <div className="sm:col-span-4">
           <select
             value={selectedPartner}
             onChange={(e) => setSelectedPartner(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-slate-800"
           >
-            <option value="ALL">🏢 Toutes les Boutiques Partenaires</option>
+            <option value="ALL">Toutes les Boutiques Partenaires</option>
             {partners.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.companyName} ({p.fullName})
@@ -147,55 +163,53 @@ export default function AdminCommandesPage() {
           </select>
         </div>
 
-        {/* Status Select */}
         <div className="sm:col-span-4">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-slate-800"
           >
-            <option value="ALL">📌 Tous les Statuts</option>
-            <option value="EN_ATTENTE">🟡 En attente de confirmation</option>
-            <option value="CONFIRMEE">🔵 Confirmée par Closeuse</option>
-            <option value="EN_COURS">🚴 En livraison coursier</option>
-            <option value="LIVREE">🟢 Livrée & Encaissée</option>
-            <option value="A_RAPPELER">🟠 À rappeler</option>
-            <option value="REFUSEE">🔴 Refusée / Annulée</option>
+            <option value="ALL">Tous les Statuts</option>
+            <option value="EN_ATTENTE">En attente de confirmation</option>
+            <option value="CONFIRMEE">Confirmée par Closeuse</option>
+            <option value="EN_COURS">En livraison coursier</option>
+            <option value="LIVREE">Livrée & Encaissée</option>
+            <option value="A_RAPPELER">À rappeler</option>
+            <option value="REFUSEE">Refusée / Annulée</option>
           </select>
         </div>
 
-        {/* Search Input */}
         <div className="sm:col-span-4 relative">
-          <Search className="w-3.5 h-3.5 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Rechercher client, N°, ville..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs text-white placeholder:text-emerald-500/60 focus:outline-none focus:border-emerald-400"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
           />
         </div>
       </div>
 
-      {/* TABLE DES COMMANDES */}
-      <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl shadow-xl overflow-hidden">
+      {/* Orders Table */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
         <div className="overflow-x-auto w-full max-w-full">
           <table className="w-full text-left text-xs whitespace-nowrap min-w-[850px]">
-            <thead className="bg-[#0c241a] border-b border-emerald-900/80 text-emerald-400 font-black uppercase text-[10px] tracking-wider">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
               <tr>
                 <th className="py-3.5 px-5">Réf & Boutique</th>
                 <th className="py-3.5 px-5">Client & Contact</th>
                 <th className="py-3.5 px-5">Destination & Articles</th>
                 <th className="py-3.5 px-5">Montant COD</th>
-                <th className="py-3.5 px-5">Statut Actuel</th>
-                <th className="py-3.5 px-5">Suivi Closing & Livreur</th>
+                <th className="py-3.5 px-5">Statut</th>
+                <th className="py-3.5 px-5">Closing & Livreur</th>
                 <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-emerald-900/40 text-emerald-100 font-medium">
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-emerald-400/60">
+                  <td colSpan={7} className="py-10 text-center text-slate-400">
                     Aucune commande trouvée pour ces critères.
                   </td>
                 </tr>
@@ -203,95 +217,64 @@ export default function AdminCommandesPage() {
                 filteredOrders.map((ord) => {
                   const statusCfg = ORDER_STATUS_CONFIG[ord.status] || {
                     label: ord.status,
-                    color: "text-emerald-300",
-                    bg: "bg-emerald-950",
+                    color: "text-slate-700",
+                    bg: "bg-slate-100",
                   };
 
                   return (
-                    <tr key={ord.id} className="hover:bg-emerald-950/40 transition-colors">
-                      {/* Ref & Boutique */}
-                      <td className="py-4 px-5">
-                        <span className="font-mono font-bold text-emerald-400">{ord.orderNumber}</span>
-                        <p className="text-[10px] text-emerald-300/70 font-semibold mt-0.5">
-                          {ord.partnerName || "Afrimarket"}
-                        </p>
+                    <tr key={ord.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3.5 px-5">
+                        <div className="font-mono font-bold text-slate-900">{ord.orderNumber}</div>
+                        <div className="text-[11px] text-slate-500 font-semibold">{ord.partnerName || "Afrimarket"}</div>
                       </td>
 
-                      {/* Client */}
-                      <td className="py-4 px-5">
-                        <p className="font-black text-white">{ord.clientName}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <a
-                            href={`tel:${ord.clientPhone.replace(/\s+/g, "")}`}
-                            className="text-[11px] font-mono text-emerald-300 hover:text-white flex items-center gap-1"
-                          >
-                            <Phone className="w-3 h-3 text-emerald-400" />
-                            <span>{ord.clientPhone}</span>
-                          </a>
-                          <a
-                            href={`https://wa.me/${ord.clientPhone.replace(/[^0-9]/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-bold text-[#25D366] bg-[#25D366]/10 px-1.5 py-0.5 rounded"
-                          >
-                            WA
-                          </a>
+                      <td className="py-3.5 px-5">
+                        <div className="font-bold text-slate-900">{ord.clientName}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
+                          <Phone className="w-3 h-3 text-slate-400" />
+                          <span>{ord.clientPhone}</span>
                         </div>
                       </td>
 
-                      {/* Destination & Product */}
-                      <td className="py-4 px-5">
-                        <p className="font-bold text-white flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <span>{ord.address}</span>
-                        </p>
-                        <p className="text-[11px] text-emerald-300/70 mt-0.5">
-                          📦 {ord.products} ({ord.quantity}x)
-                        </p>
+                      <td className="py-3.5 px-5">
+                        <div className="font-bold text-slate-900 truncate max-w-[200px]">{ord.products}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          <span>{ord.city} • {ord.address}</span>
+                        </div>
                       </td>
 
-                      {/* Montant COD */}
-                      <td className="py-4 px-5">
-                        <span className="font-black text-sm text-emerald-400">
-                          {ord.totalPrice.toLocaleString("fr-FR")} F
-                        </span>
-                        <p className="text-[10px] text-emerald-500/80">Cash On Delivery</p>
+                      <td className="py-3.5 px-5">
+                        <div className="font-mono font-black text-slate-900">{formatCFA(ord.totalPrice)}</div>
+                        <div className="text-[10px] text-slate-400">Dont 2 800 F Prestation</div>
                       </td>
 
-                      {/* Statut */}
-                      <td className="py-4 px-5">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-700/60 ${statusCfg.bg} ${statusCfg.color}`}
-                        >
+                      <td className="py-3.5 px-5">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusCfg.bg} ${statusCfg.color}`}>
                           {statusCfg.label}
                         </span>
                       </td>
 
-                      {/* Note & Livreur */}
-                      <td className="py-4 px-5 max-w-xs">
-                        {ord.closingNotes ? (
-                          <p className="text-[11px] text-emerald-200 truncate font-semibold">
-                            💬 {ord.closingNotes}
-                          </p>
-                        ) : (
-                          <span className="text-[10px] text-emerald-500/60">Pas encore qualifié</span>
-                        )}
+                      <td className="py-3.5 px-5">
+                        <div className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+                          <Headset className="w-3 h-3 text-slate-400" />
+                          <span>{ord.assignedCloseuseName || "Non assigné"}</span>
+                        </div>
                         {ord.assignedLivreurName && (
-                          <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
-                            <Bike className="w-3 h-3" />
-                            <span>Coursier : {ord.assignedLivreurName}</span>
-                          </p>
+                          <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                            <Bike className="w-3 h-3 text-slate-400" />
+                            <span>{ord.assignedLivreurName}</span>
+                          </div>
                         )}
                       </td>
 
-                      {/* Actions */}
-                      <td className="py-4 px-5 text-right">
+                      <td className="py-3.5 px-5 text-right">
                         <button
                           onClick={() => openCallModal(ord)}
-                          className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 ml-auto"
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer"
                         >
-                          <Headset className="w-3.5 h-3.5" />
-                          <span>Closing & Appel</span>
+                          <PhoneCall className="w-3.5 h-3.5" />
+                          <span>Closing & Livreur</span>
                         </button>
                       </td>
                     </tr>
@@ -303,136 +286,98 @@ export default function AdminCommandesPage() {
         </div>
       </div>
 
-      {/* 📞 MODAL DE CLOSING & APPEL CLIENT */}
+      {/* 📞 MODAL DE CLOSING & ATTRIBUTION LIVREUR */}
       {activeCallOrder && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#091b14] border border-emerald-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-5 animate-fade-in-up">
-            <div className="flex items-center justify-between pb-3 border-b border-emerald-900">
+        <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 space-y-5 shadow-2xl animate-fade-in-up">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase">
-                  Closing Téléphonique • {activeCallOrder.orderNumber}
-                </span>
-                <h3 className="text-base font-black text-white mt-0.5">{activeCallOrder.clientName}</h3>
+                <h3 className="text-base font-black text-slate-900">Closing Téléphonique</h3>
+                <p className="text-xs text-slate-500">Commande {activeCallOrder.orderNumber}</p>
               </div>
               <button
                 onClick={() => setActiveCallOrder(null)}
-                className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center hover:text-white"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Quick Call & WhatsApp Shortcuts */}
-            <div className="p-3.5 rounded-2xl bg-emerald-950/80 border border-emerald-800 flex items-center justify-between gap-2">
-              <div>
-                <p className="text-[10px] text-emerald-400 uppercase font-bold">Numéro Client</p>
-                <p className="text-sm font-mono font-black text-white">{activeCallOrder.clientPhone}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href={`tel:${activeCallOrder.clientPhone.replace(/\s+/g, "")}`}
-                  className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Lancer l&apos;appel</span>
-                </a>
-                <a
-                  href={`https://wa.me/${activeCallOrder.clientPhone.replace(/[^0-9]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs flex items-center gap-1.5"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
-                </a>
-              </div>
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+              <p className="font-bold text-slate-900">Client : {activeCallOrder.clientName}</p>
+              <p className="text-slate-600">Téléphone : <strong>{activeCallOrder.clientPhone}</strong></p>
+              <p className="text-slate-600">Articles : {activeCallOrder.products} ({formatCFA(activeCallOrder.totalPrice)})</p>
+              <p className="text-slate-600">Ville : {activeCallOrder.city} • {activeCallOrder.address}</p>
             </div>
 
-            <form onSubmit={handleSaveCall} className="space-y-4 text-xs">
-              {/* Statut suite à l'appel */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-emerald-400">Résultat de l&apos;Appel</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: "CONFIRMEE", label: "✅ Confirmée (Prêt)", color: "text-emerald-300" },
-                    { id: "A_RAPPELER", label: "🟠 Injoignable / Rappeler", color: "text-orange-300" },
-                    { id: "EN_COURS", label: "🚴 Partir en livraison direct", color: "text-blue-300" },
-                    { id: "REFUSEE", label: "❌ Commande Refusée / Fausse", color: "text-red-300" },
-                  ].map((st) => (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() => setCallStatus(st.id as OrderStatus)}
-                      className={`p-2.5 rounded-xl border text-left font-bold transition-all ${
-                        callStatus === st.id
-                          ? "bg-emerald-700/80 border-emerald-400 text-white shadow-xs"
-                          : "bg-emerald-950 border-emerald-900 text-emerald-200 hover:border-emerald-700"
-                      }`}
-                    >
-                      {st.label}
-                    </button>
-                  ))}
-                </div>
+            <form onSubmit={handleSaveCall} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Issue de l&apos;Appel</label>
+                <select
+                  value={callStatus}
+                  onChange={(e) => setCallStatus(e.target.value as OrderStatus)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-800"
+                >
+                  <option value="CONFIRMEE">🟢 Confirmée — Prête pour livraison</option>
+                  <option value="A_RAPPELER">🟠 À rappeler (Injoignable / Occupé)</option>
+                  <option value="REFUSEE">🔴 Refusée par le client</option>
+                  <option value="ANNULEE">⚪ Annulée</option>
+                </select>
               </div>
 
-              {/* Note de closing */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-emerald-400">Note de Closing (Visible par le Partenaire)</label>
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Notes du Closing</label>
                 <textarea
+                  rows={2}
                   value={callNote}
                   onChange={(e) => setCallNote(e.target.value)}
-                  placeholder="Ex: Client confirme sa présence à domicile pour 15h30. Avoir la monnaie sur 20 000 F..."
-                  rows={2}
-                  className="w-full p-3 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-400 placeholder:text-emerald-600"
-                  required
-                ></textarea>
+                  placeholder="Ex: Client disponible de 14h à 16h au carrefour IITA..."
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
+                />
               </div>
 
-              {/* Attribution Livreur si Confirmée */}
               {(callStatus === "CONFIRMEE" || callStatus === "EN_COURS") && (
-                <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase text-emerald-400">Attribuer au Livreur</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Livreur Assigné</label>
                     <select
                       value={assignedDriver}
                       onChange={(e) => setAssignedDriver(e.target.value)}
-                      className="w-full p-2 bg-emerald-900 border border-emerald-700 rounded-xl text-xs font-bold text-white"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-slate-800"
                     >
                       {livreurs.map((l) => (
                         <option key={l.id} value={l.id}>
-                          {l.name} ({l.zone.split("•")[0]})
+                          {l.name} ({l.zone})
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase text-emerald-400">Créneau Convenu</label>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Créneau Horaire</label>
                     <input
                       type="text"
                       value={timeSlot}
                       onChange={(e) => setTimeSlot(e.target.value)}
-                      placeholder="15h00 - 17h00"
-                      className="w-full p-2 bg-emerald-900 border border-emerald-700 rounded-xl text-xs font-bold text-white"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-800"
                     />
                   </div>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveCallOrder(null)}
-                  className="px-4 py-2.5 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs cursor-pointer"
                 >
-                  Enregistrer & Mettre à jour en Direct
+                  Enregistrer & Assigner
                 </button>
               </div>
             </form>
@@ -440,109 +385,83 @@ export default function AdminCommandesPage() {
         </div>
       )}
 
-      {/* MODAL CRÉATION DE NOUVELLE CLOSEUSE */}
+      {/* 🎧 MODAL AJOUT CLOSEUSE */}
       {showAddCloserModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#091b14] border border-emerald-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 animate-fade-in-up">
-            <div className="flex items-center justify-between pb-3 border-b border-emerald-900">
-              <div>
-                <h3 className="text-base font-black text-white">Enregistrer une Nouvelle Closeuse</h3>
-                <p className="text-xs text-emerald-300/80 mt-0.5">Accès au centre d&apos;appels & qualification des leads</p>
-              </div>
-              <button
-                onClick={() => setShowAddCloserModal(false)}
-                className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center hover:text-white"
-              >
-                <X className="w-4 h-4" />
+        <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in-up">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-black text-slate-900">Ajouter une Opératrice Télévente</h3>
+              <button onClick={() => setShowAddCloserModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {createdCloserInfo ? (
-              <div className="space-y-4 py-2 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto shadow-md">
-                  <CheckCircle2 className="w-6 h-6" />
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
+                <p className="text-xs font-bold text-emerald-900">Opératrice créée avec succès !</p>
+                <p className="text-xs text-emerald-800">
+                  Transmettez ce code d&apos;activation temporaire à <strong>{createdCloserInfo.name}</strong> :
+                </p>
+                <div className="text-xl font-mono font-black text-emerald-900 bg-white p-3 rounded-xl border border-emerald-300 text-center tracking-widest">
+                  {createdCloserInfo.code}
                 </div>
-
-                <div className="space-y-1">
-                  <h4 className="text-sm font-black text-white">Compte Closeuse Créé avec Succès !</h4>
-                  <p className="text-xs text-emerald-300/80 leading-relaxed">
-                    Un email contenant son code d&apos;accès temporaire a été envoyé à :
-                  </p>
-                  <p className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 p-2 rounded-xl border border-emerald-800">
-                    {createdCloserInfo.email}
-                  </p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-800 text-left space-y-1 text-xs">
-                  <p className="text-[11px] font-bold text-amber-300">🔑 Code d&apos;accès temporaire généré :</p>
-                  <p className="text-lg font-mono font-black text-white tracking-widest">{createdCloserInfo.code}</p>
-                  <p className="text-[10px] text-amber-300/80 mt-1">
-                    À sa 1ère connexion, tout son espace sera verrouillé jusqu&apos;à ce qu&apos;elle saisisse ce code et définisse son mot de passe personnel.
-                  </p>
-                </div>
-
                 <button
-                  type="button"
                   onClick={() => {
                     setCreatedCloserInfo(null);
                     setShowAddCloserModal(false);
                   }}
-                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
+                  className="w-full py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs cursor-pointer mt-2"
                 >
-                  Fermer & Continuer
+                  Fermer
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleCreateCloser} className="space-y-3.5 text-xs">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-emerald-400">Nom & Prénom de la Closeuse *</label>
+              <form onSubmit={handleCreateCloser} className="space-y-3.5">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Nom Complet</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Flora DOSSOU"
                     value={closerName}
                     onChange={(e) => setCloserName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                    placeholder="Ex: Flora AGBODJAN"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-800"
                   />
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-emerald-400">Adresse Email de la Closeuse * (Pour envoi du code)</label>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Email Professionnel</label>
                   <input
                     type="email"
                     required
-                    placeholder="flora.dossou@gmail.com"
                     value={closerEmail}
                     onChange={(e) => setCloserEmail(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                    placeholder="flora@eno-livraison.bj"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-800"
                   />
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-emerald-400">Numéro WhatsApp / Téléphonique Professionnel *</label>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Numéro Téléphone</label>
                   <input
-                    type="text"
+                    type="tel"
                     required
-                    placeholder="+229 01 97 00 00 00"
                     value={closerPhone}
                     onChange={(e) => setCloserPhone(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-800"
                   />
                 </div>
-
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowAddCloserModal(false)}
-                    className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                    className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-xs cursor-pointer"
                   >
-                    Créer & Envoyer le Code par Email
+                    Créer l&apos;accès
                   </button>
                 </div>
               </form>

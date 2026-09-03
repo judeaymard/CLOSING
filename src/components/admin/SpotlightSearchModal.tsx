@@ -93,17 +93,17 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
   };
 
   return (
-    <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 sm:p-6 pt-16 sm:pt-24 animate-fade-in-up">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh]">
+    <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center p-4 sm:p-6 pt-16 sm:pt-24 animate-fade-in-up font-sans">
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh]">
         {/* Search Input Bar */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
-          <Search className="w-5 h-5 text-[#2563EB] shrink-0" />
+          <Search className="w-5 h-5 text-slate-700 shrink-0" />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher une commande, un e-commerçant, un livreur, un message..."
+            placeholder="Rechercher une commande (#CMD), un marchand, un livreur, un message..."
             className="w-full bg-transparent text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none"
           />
           {query && (
@@ -123,15 +123,17 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
         <div className="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1">
           {!query ? (
             <div className="py-8 text-center space-y-2">
-              <Sparkles className="w-8 h-8 text-[#2563EB] mx-auto opacity-70" />
-              <p className="text-xs font-bold text-slate-700">Recherche Instantanée Command Center</p>
+              <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center mx-auto">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <p className="text-xs font-bold text-slate-900">Recherche Instantanée Command Center</p>
               <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
                 Tapez le numéro d&apos;un colis (#CMD), le nom d&apos;une boutique, d&apos;un coursier ou d&apos;une closeuse.
               </p>
             </div>
           ) : !hasResults ? (
             <div className="py-8 text-center space-y-1">
-              <p className="text-xs font-bold text-slate-700">Aucun résultat trouvé pour &quot;{query}&quot;</p>
+              <p className="text-xs font-bold text-slate-900">Aucun résultat trouvé pour &quot;{query}&quot;</p>
               <p className="text-[11px] text-slate-400">Vérifiez l&apos;orthographe ou essayez un autre mot-clé.</p>
             </div>
           ) : (
@@ -147,10 +149,10 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                       <button
                         key={o.id}
                         onClick={() => navigateTo("/admin/commandes")}
-                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between text-left transition-colors cursor-pointer group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center font-bold">
+                          <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
                             <Package className="w-4 h-4" />
                           </div>
                           <div>
@@ -161,7 +163,7 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                             <p className="text-[11px] text-slate-400">{o.city} • {o.totalPrice.toLocaleString("fr-FR")} F CFA</p>
                           </div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
                       </button>
                     ))}
                   </div>
@@ -178,11 +180,11 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                     {filteredPartners.map((p) => (
                       <button
                         key={p.id}
-                        onClick={() => navigateTo(`/admin/partenaires/${p.id}`)}
-                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border border-slate-100 hover:border-purple-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                        onClick={() => navigateTo(`/admin/partenaires`)}
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between text-left transition-colors cursor-pointer group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold">
+                          <div className="w-8 h-8 rounded-xl bg-slate-800 text-white flex items-center justify-center font-bold">
                             <Users className="w-4 h-4" />
                           </div>
                           <div>
@@ -190,7 +192,7 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                             <p className="text-[11px] text-slate-400">{p.fullName} • {p.phone}</p>
                           </div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#7C3AED] group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
                       </button>
                     ))}
                   </div>
@@ -208,10 +210,10 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                       <button
                         key={c.id}
                         onClick={() => navigateTo("/admin/conversations")}
-                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between text-left transition-colors cursor-pointer group"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-slate-800 text-white flex items-center justify-center font-bold shrink-0">
                             <MessageSquare className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
@@ -219,7 +221,7 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                             <p className="text-[11px] text-slate-500 truncate">{c.lastMessage}</p>
                           </div>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -237,9 +239,9 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                       <button
                         key={l.id}
                         onClick={() => navigateTo("/admin/livreurs")}
-                        className="p-3 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
+                        className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                       >
-                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-slate-200 text-slate-800 flex items-center justify-center shrink-0">
                           <Bike className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
@@ -253,9 +255,9 @@ export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearc
                       <button
                         key={c.id}
                         onClick={() => navigateTo("/admin/commandes")}
-                        className="p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
+                        className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                       >
-                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-slate-200 text-slate-800 flex items-center justify-center shrink-0">
                           <Headset className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">

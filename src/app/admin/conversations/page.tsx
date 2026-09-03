@@ -71,13 +71,13 @@ export default function CommunicationHubPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col font-sans max-w-7xl mx-auto space-y-4">
+    <div className="h-[calc(100vh-130px)] flex flex-col font-sans max-w-7xl mx-auto space-y-4">
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <span>Communication Hub</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7C3AED] font-black">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 font-bold">
               {conversations.length} fils actifs
             </span>
           </h2>
@@ -100,7 +100,7 @@ export default function CommunicationHubPage() {
               onClick={() => setFilterTab(t.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 filterTab === t.id
-                  ? "bg-[#7C3AED] text-white shadow-xs font-black"
+                  ? "bg-slate-900 text-white shadow-xs font-black"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -111,7 +111,7 @@ export default function CommunicationHubPage() {
       </div>
 
       {/* Main 3-Column Communication Grid */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0 bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-0 bg-white rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
         {/* 1. Left List of Conversations (4 Cols) */}
         <div className="lg:col-span-4 border-r border-slate-200/80 flex flex-col min-h-0">
           {/* Search Box */}
@@ -123,7 +123,7 @@ export default function CommunicationHubPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher une boutique..."
-                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7C3AED]"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
               />
             </div>
           </div>
@@ -139,10 +139,10 @@ export default function CommunicationHubPage() {
                   key={c.id}
                   onClick={() => setActiveConvId(c.id)}
                   className={`w-full p-4 text-left transition-colors flex items-start gap-3 cursor-pointer ${
-                    isSelected ? "bg-purple-50/60 border-l-4 border-l-[#7C3AED]" : "hover:bg-slate-50"
+                    isSelected ? "bg-slate-100/80 border-l-4 border-l-slate-900" : "hover:bg-slate-50"
                   }`}
                 >
-                  <div className="relative w-10 h-10 rounded-2xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-black text-sm shrink-0">
+                  <div className="relative w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shrink-0">
                     {c.companyName.charAt(0)}
                     {c.unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white">
@@ -153,7 +153,7 @@ export default function CommunicationHubPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
-                      <h4 className="text-xs font-black text-slate-900 truncate">{c.companyName}</h4>
+                      <h4 className="text-xs font-bold text-slate-900 truncate">{c.companyName}</h4>
                       <span className="text-[10px] text-slate-400 font-medium shrink-0">{c.lastMessageAt}</span>
                     </div>
 
@@ -161,7 +161,7 @@ export default function CommunicationHubPage() {
 
                     <div className="flex items-center gap-1.5">
                       {isUrgent && (
-                        <span className="px-1.5 py-0.2 rounded-md bg-rose-100 text-rose-700 text-[9px] font-black">
+                        <span className="px-1.5 py-0.2 rounded-md bg-rose-100 text-rose-700 text-[9px] font-bold">
                           Urgent
                         </span>
                       )}
@@ -185,7 +185,7 @@ export default function CommunicationHubPage() {
             <>
               <div className="p-4 border-b border-slate-200/80 bg-white flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">{activeConversation.companyName}</h3>
+                  <h3 className="text-sm font-bold text-slate-900">{activeConversation.companyName}</h3>
                   <p className="text-[11px] text-slate-400">
                     Contact : {activeConversation.partnerName} • {activeConversation.phone}
                   </p>
@@ -220,14 +220,14 @@ export default function CommunicationHubPage() {
                             : isPartner
                             ? "bg-white border border-slate-200 text-slate-800 rounded-bl-xs shadow-2xs"
                             : isBot
-                            ? "bg-blue-50 border border-blue-200 text-blue-900 rounded-br-xs"
-                            : "bg-[#7C3AED] text-white rounded-br-xs shadow-xs"
+                            ? "bg-slate-100 border border-slate-200 text-slate-800 rounded-br-xs"
+                            : "bg-slate-900 text-white rounded-br-xs shadow-xs"
                         }`}
                       >
                         {isInternal && (
-                          <div className="flex items-center gap-1 text-[10px] font-black uppercase text-amber-700 mb-1">
+                          <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-amber-700 mb-1">
                             <Lock className="w-3 h-3" />
-                            <span>Note Interne Super Admin</span>
+                            <span>Note Interne Direction</span>
                           </div>
                         )}
                         <p>{m.text}</p>
@@ -245,10 +245,10 @@ export default function CommunicationHubPage() {
                       type="button"
                       onClick={() => setIsInternalNote(false)}
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-md cursor-pointer ${
-                        !isInternalNote ? "bg-purple-100 text-[#7C3AED]" : "text-slate-400 hover:text-slate-600"
+                        !isInternalNote ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600"
                       }`}
                     >
-                      Réponse Partenaire
+                      Réponse Marchand
                     </button>
                     <button
                       type="button"
@@ -276,14 +276,14 @@ export default function CommunicationHubPage() {
                     className={`flex-1 px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none ${
                       isInternalNote
                         ? "bg-amber-50/50 border-amber-300 text-amber-900 placeholder:text-amber-400"
-                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#7C3AED] focus:bg-white"
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-slate-800 focus:bg-white"
                     }`}
                   />
                   <button
                     type="submit"
                     disabled={!messageInput.trim()}
                     className={`p-2.5 rounded-xl text-white font-bold transition-all disabled:opacity-40 cursor-pointer ${
-                      isInternalNote ? "bg-amber-600 hover:bg-amber-500" : "bg-[#7C3AED] hover:bg-purple-600"
+                      isInternalNote ? "bg-amber-600 hover:bg-amber-500" : "bg-slate-900 hover:bg-slate-800"
                     }`}
                   >
                     <Send className="w-4 h-4" />
@@ -304,16 +304,16 @@ export default function CommunicationHubPage() {
             <>
               {/* Partner Card */}
               <div className="space-y-3 pb-4 border-b border-slate-100">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Fiche E-commerçant
                 </span>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#7C3AED] text-white flex items-center justify-center font-black text-base shadow-xs">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shadow-xs">
                     {activeConversation.companyName.charAt(0)}
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-xs font-black text-slate-900 truncate">
+                    <h4 className="text-xs font-bold text-slate-900 truncate">
                       {activeConversation.companyName}
                     </h4>
                     <p className="text-[11px] text-slate-400">{activeConversation.partnerName}</p>
@@ -323,12 +323,12 @@ export default function CommunicationHubPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-slate-600 pt-1">
-                  <p className="flex items-center gap-2">
+                <div className="space-y-1 text-xs text-slate-600 pt-1">
+                  <p className="flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-slate-400" />
                     <span>{activeConversation.phone}</span>
                   </p>
-                  <p className="flex items-center gap-2">
+                  <p className="flex items-center gap-1.5">
                     <Store className="w-3.5 h-3.5 text-slate-400" />
                     <span>{activePartner.city || "Cotonou"}</span>
                   </p>
@@ -337,7 +337,7 @@ export default function CommunicationHubPage() {
 
               {/* Assignment Control */}
               <div className="space-y-2 pb-4 border-b border-slate-100">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Attribuer la Conversation
                 </span>
                 <div className="space-y-1">
@@ -345,10 +345,10 @@ export default function CommunicationHubPage() {
                     <button
                       key={cls.id}
                       onClick={() => assignConversation(activeConversation.id, cls.name, "Closeuse")}
-                      className={`w-full p-2 rounded-xl text-left text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                      className={`w-full p-2 rounded-xl text-left text-xs font-semibold transition-all flex items-center justify-between cursor-pointer ${
                         activeConversation.assignedAgentName === cls.name
-                          ? "bg-purple-100 text-[#7C3AED]"
-                          : "hover:bg-slate-100 text-slate-700"
+                          ? "bg-slate-100 text-slate-900 font-bold"
+                          : "hover:bg-slate-50 text-slate-600"
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export default function CommunicationHubPage() {
                         <span>{cls.name}</span>
                       </div>
                       {activeConversation.assignedAgentName === cls.name && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#7C3AED]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-900" />
                       )}
                     </button>
                   ))}
@@ -366,10 +366,10 @@ export default function CommunicationHubPage() {
               {/* Recent Orders linked */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Dernières Commandes ({partnerOrders.length})
                   </span>
-                  <Link href="/admin/commandes" className="text-[10px] font-bold text-[#2563EB] hover:underline">
+                  <Link href="/admin/commandes" className="text-[10px] font-bold text-slate-900 hover:underline">
                     Voir tout
                   </Link>
                 </div>
@@ -382,7 +382,7 @@ export default function CommunicationHubPage() {
                         <span className="text-emerald-600">{formatCFA(ord.totalPrice)}</span>
                       </div>
                       <p className="text-[11px] text-slate-500 truncate">{ord.clientName} • {ord.city}</p>
-                      <span className="inline-block px-1.5 py-0.2 rounded-md bg-blue-100 text-blue-800 text-[9px] font-bold uppercase">
+                      <span className="inline-block px-1.5 py-0.2 rounded-md bg-slate-200 text-slate-800 text-[9px] font-bold uppercase">
                         {ord.status}
                       </span>
                     </div>

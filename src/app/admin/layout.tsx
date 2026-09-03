@@ -10,7 +10,6 @@ import {
   Bike,
   Boxes,
   Users,
-  Headset,
   MessageSquare,
   BadgeDollarSign,
   Bell,
@@ -19,14 +18,10 @@ import {
   LogOut,
   ExternalLink,
   ChevronLeft,
-  Sparkles,
   Menu,
   X,
   Shield,
-  Activity,
   AlertTriangle,
-  CheckCircle2,
-  Clock,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import SpotlightSearchModal from "@/components/admin/SpotlightSearchModal";
@@ -80,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       title: "Opérations",
       items: [
-        { label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-blue-500 text-white" },
+        { label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
         { label: "Flotte Livreurs", href: "/admin/livreurs", icon: Bike },
         { label: "Stocks Entrepôt", href: "/admin/stocks", icon: Boxes },
       ],
@@ -99,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           href: "/admin/conversations",
           icon: MessageSquare,
           badge: urgentConversationsCount > 0 ? urgentConversationsCount : undefined,
-          badgeColor: "bg-purple-600 text-white",
+          badgeColor: "bg-slate-900 text-white",
         },
       ],
     },
@@ -120,13 +115,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pageMeta = getPageMeta();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-sans antialiased selection:bg-[#2563EB] selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-sans antialiased selection:bg-slate-900 selection:text-white">
       {/* 🔍 Global Spotlight Search Modal */}
       <SpotlightSearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
-      {/* 🚀 SIDEBAR (Desktop) — Standard SaaS 2027 */}
+      {/* 🚀 SIDEBAR (Desktop) — 2027 Calm & Ultra-Clean SaaS */}
       <aside
-        className={`hidden md:flex flex-col justify-between bg-white border-r border-slate-200/90 shrink-0 min-h-screen sticky top-0 transition-all duration-300 z-30 shadow-[1px_0_10px_rgba(0,0,0,0.02)] ${
+        className={`hidden md:flex flex-col justify-between bg-white border-r border-slate-200/80 shrink-0 min-h-screen sticky top-0 transition-all duration-300 z-30 shadow-[1px_0_4px_rgba(0,0,0,0.02)] ${
           sidebarCollapsed ? "w-20 p-3" : "w-64 lg:w-72 p-5"
         }`}
       >
@@ -134,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Header Brand */}
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group min-w-0">
-              <div className="relative w-10 h-10 rounded-2xl overflow-hidden border-2 border-[#2563EB] bg-white shrink-0 shadow-sm transition-transform group-hover:scale-105">
+              <div className="relative w-9 h-9 rounded-2xl overflow-hidden border border-slate-200 bg-white shrink-0 shadow-2xs">
                 <Image
                   src="/images/eno_livraison_logo.png"
                   alt="Logo ENO"
@@ -147,10 +142,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-black tracking-tight text-slate-900 leading-tight">
-                      ENO <span className="text-[#2563EB]">LIVRAISON</span>
+                      ENO LIVRAISON
                     </span>
                   </div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#7C3AED] block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                     Command Center
                   </span>
                 </div>
@@ -166,27 +161,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </div>
 
-          {/* 👑 PDG Profile Identity Pill */}
+          {/* 👑 PDG Executive Identity Pill */}
           {!sidebarCollapsed ? (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
                   JS
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1">
-                    <h4 className="text-xs font-black text-slate-900 truncate">Jude SINABEROGUI</h4>
-                  </div>
-                  <p className="text-[10px] font-semibold text-slate-500 truncate">
-                    Fondateur & Super Admin
-                  </p>
+                  <h4 className="text-xs font-bold text-slate-900 truncate">Jude SINABEROGUI</h4>
+                  <p className="text-[10px] text-slate-500 truncate">Direction Générale • HQ</p>
                 </div>
               </div>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" title="En ligne"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="En ligne"></span>
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-black text-xs shadow-xs" title="Jude (Super Admin)">
+              <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs" title="Jude (Super Admin)">
                 JS
               </div>
             </div>
@@ -197,7 +188,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {navSections.map((sec, idx) => (
               <div key={idx} className="space-y-1.5">
                 {!sidebarCollapsed && (
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 block">
                     {sec.title}
                   </span>
                 )}
@@ -209,25 +200,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`flex items-center justify-between rounded-2xl text-xs font-bold transition-all group cursor-pointer ${
+                        className={`flex items-center justify-between rounded-xl text-xs font-semibold transition-all group cursor-pointer ${
                           sidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
                         } ${
                           isActive
-                            ? "bg-[#2563EB] text-white shadow-md shadow-blue-600/20 font-black"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                            ? "bg-slate-900 text-white font-bold shadow-xs"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
                         }`}
                         title={sidebarCollapsed ? item.label : undefined}
                       >
                         <div className="flex items-center gap-3">
                           <Icon
-                            className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                              isActive ? "text-white" : "text-slate-500 group-hover:text-[#2563EB]"
+                            className={`w-4 h-4 transition-transform group-hover:scale-105 ${
+                              isActive ? "text-white" : "text-slate-400 group-hover:text-slate-800"
                             }`}
                           />
                           {!sidebarCollapsed && <span>{item.label}</span>}
                         </div>
                         {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${item.badgeColor}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeColor}`}>
                             {item.badge}
                           </span>
                         )}
@@ -241,10 +232,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Bottom Actions */}
-        <div className="space-y-2 pt-4 border-t border-slate-200/80">
+        <div className="space-y-1 pt-4 border-t border-slate-200/80">
           <Link
             href="/dashboard"
-            className={`flex items-center gap-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#2563EB] hover:bg-blue-50 transition-colors ${
+            className={`flex items-center gap-2.5 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors ${
               sidebarCollapsed ? "p-3 justify-center" : "px-3 py-2"
             }`}
             title={sidebarCollapsed ? "Vue Marchand" : undefined}
@@ -255,7 +246,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <button
             onClick={() => router.push("/partenaire")}
-            className={`flex items-center gap-2.5 w-full rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer ${
+            className={`flex items-center gap-2.5 w-full rounded-xl text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer ${
               sidebarCollapsed ? "p-3 justify-center" : "px-3 py-2"
             }`}
             title={sidebarCollapsed ? "Déconnexion" : undefined}
@@ -269,12 +260,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* 📱 MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-[#2563EB] bg-white">
+          <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-slate-200 bg-white">
             <Image src="/images/eno_livraison_logo.png" alt="ENO" fill className="object-contain" />
           </div>
           <div>
             <span className="font-black text-xs text-slate-900 block leading-none">ENO COMMAND</span>
-            <span className="text-[9px] font-bold text-[#2563EB]">Super Admin</span>
+            <span className="text-[9px] font-semibold text-slate-500">Super Admin</span>
           </div>
         </Link>
 
@@ -297,7 +288,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Drawer Menu */}
       {mobileSidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex">
+        <div className="md:hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex">
           <div className="w-4/5 max-w-sm bg-white h-full p-5 overflow-y-auto space-y-6 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <span className="text-sm font-black text-slate-900">Navigation Command Center</span>
@@ -308,7 +299,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {navSections.map((sec, idx) => (
               <div key={idx} className="space-y-1.5">
-                <span className="text-[10px] font-black uppercase text-slate-400 px-2 block">{sec.title}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-400 px-2 block">{sec.title}</span>
                 <div className="space-y-1">
                   {sec.items.map((item) => {
                     const Icon = item.icon;
@@ -319,7 +310,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         href={item.href}
                         onClick={() => setMobileSidebarOpen(false)}
                         className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                          isActive ? "bg-[#2563EB] text-white font-black" : "text-slate-600 hover:bg-slate-100"
+                          isActive ? "bg-slate-900 text-white font-bold" : "text-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -327,7 +318,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           <span>{item.label}</span>
                         </div>
                         {item.badge !== undefined && item.badge > 0 && (
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${item.badgeColor}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeColor}`}>
                             {item.badge}
                           </span>
                         )}
@@ -344,7 +335,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* 🏛️ MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="hidden md:flex bg-white border-b border-slate-200/80 px-6 lg:px-8 py-3.5 items-center justify-between sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <header className="hidden md:flex bg-white border-b border-slate-200/80 px-6 lg:px-8 py-3.5 items-center justify-between sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           {/* Breadcrumb & Title */}
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
@@ -363,7 +354,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-2xl bg-slate-100/80 hover:bg-slate-100 text-slate-400 hover:text-slate-600 border border-slate-200/60 text-xs font-medium w-80 transition-all cursor-pointer shadow-2xs"
           >
             <Search className="w-4 h-4 text-slate-400" />
-            <span className="flex-1 text-left">Recherche globale (colis, e-commerçant...)</span>
+            <span className="flex-1 text-left">Recherche globale (colis, marchand...)</span>
             <kbd className="text-[10px] font-mono font-bold bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 shadow-2xs">
               ⌘K
             </kbd>
@@ -380,7 +371,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <Bell className="w-4 h-4" />
                 {totalNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white font-black text-[10px] rounded-full flex items-center justify-center border-2 border-white shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white font-bold text-[10px] rounded-full flex items-center justify-center border-2 border-white shadow-xs">
                     {totalNotifications}
                   </span>
                 )}
@@ -391,8 +382,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-3xl border border-slate-200 shadow-2xl p-4 space-y-3 z-50 animate-fade-in-up">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-black text-slate-900">Centre d&apos;Alertes & Notifications</h4>
-                      <span className="px-2 py-0.2 rounded-full bg-blue-100 text-[#2563EB] text-[10px] font-black">
+                      <h4 className="text-xs font-black text-slate-900">Centre d&apos;Alertes</h4>
+                      <span className="px-2 py-0.2 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">
                         {totalNotifications}
                       </span>
                     </div>
@@ -405,7 +396,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
 
                   <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
-                    {/* Retraits Alert */}
                     {pendingPayoutsCount > 0 && (
                       <Link
                         href="/admin/finances"
@@ -422,24 +412,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       </Link>
                     )}
 
-                    {/* Messages Urgents */}
                     {urgentConversationsCount > 0 && (
                       <Link
                         href="/admin/conversations"
                         onClick={() => setNotificationsOpen(false)}
-                        className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200 flex items-start gap-2.5 hover:bg-purple-100/80 transition-colors block"
+                        className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5 hover:bg-slate-100 transition-colors block"
                       >
-                        <MessageSquare className="w-4 h-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                        <MessageSquare className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-xs font-black text-purple-900">
-                            {urgentConversationsCount} conversation(s) prioritaire(s)
+                          <p className="text-xs font-black text-slate-900">
+                            {urgentConversationsCount} message(s) prioritaire(s)
                           </p>
-                          <p className="text-[11px] text-purple-700">Des e-commerçants attendent une réponse rapide.</p>
+                          <p className="text-[11px] text-slate-500">Des e-commerçants attendent une réponse rapide.</p>
                         </div>
                       </Link>
                     )}
 
-                    {/* Alertes d'exploitation */}
                     {alerts.map((a) => (
                       <Link
                         key={a.id}
@@ -464,7 +452,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               href="/dashboard"
               className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs"
             >
-              <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span>Portail Marchand</span>
             </Link>
           </div>
