@@ -29,6 +29,7 @@ import {
   Truck,
   Sparkles,
   AlertTriangle,
+  Landmark,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import SpotlightSearchModal from "@/components/admin/SpotlightSearchModal";
@@ -72,8 +73,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/livreurs") return { title: "Flotte Coursiers", subtitle: "Livreurs et caisse terrain" };
     if (pathname === "/admin/conversations") return { title: "Communication Hub", subtitle: "Support e-commerçants" };
     if (pathname === "/admin/assistant-ia") return { title: "Assistant IA", subtitle: "Automatisation du support" };
-    if (pathname === "/admin/finances") return { title: "Retraits & Trésorerie", subtitle: "Arbitrage marchands" };
-    if (pathname === "/admin/commissions") return { title: "Commissions & Revenus", subtitle: "Rentabilité agence" };
+    if (pathname === "/admin/tresorerie" || pathname === "/admin/finances") return { title: "Trésorerie", subtitle: "Vision financière globale et flux de trésorerie" };
+    if (pathname === "/admin/commissions") return { title: "Commissions", subtitle: "Revenus et commissions perçus par ENO" };
+    if (pathname === "/admin/retraits") return { title: "Retraits", subtitle: "Reversements et demandes des e-commerçants" };
     if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
     if (pathname === "/admin/rapports") return { title: "Rapports & Exports", subtitle: "Téléchargement de données" };
     if (pathname === "/admin/notifications") return { title: "Centre de Notifications", subtitle: "Alertes et signaux" };
@@ -120,17 +122,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ],
     },
     {
-      title: "FINANCE",
+      title: "FINANCES",
       items: [
         {
-          id: "nav-finances",
-          label: "Retraits & Trésorerie",
-          href: "/admin/finances",
+          id: "nav-tresorerie",
+          label: "Trésorerie",
+          href: "/admin/tresorerie",
           icon: BadgeDollarSign,
+        },
+        {
+          id: "nav-commissions",
+          label: "Commissions",
+          href: "/admin/commissions",
+          icon: TrendingUp,
+        },
+        {
+          id: "nav-retraits",
+          label: "Retraits",
+          href: "/admin/retraits",
+          icon: Landmark,
           badge: pendingPayoutsCount > 0 ? pendingPayoutsCount : undefined,
           badgeColor: "bg-amber-500 text-slate-950 font-black",
         },
-        { id: "nav-commissions", label: "Commissions & Revenus", href: "/admin/commissions", icon: TrendingUp },
       ],
     },
     {

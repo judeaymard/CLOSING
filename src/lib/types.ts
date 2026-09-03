@@ -126,7 +126,9 @@ export interface CloseuseProfile {
 // Opérateurs de Retrait (Mobile Money & Crypto)
 export type PayoutOperator = 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE' | 'USDT_TRC20' | 'BINANCE_PAY';
 
-// Demande de Retrait Financier
+export type PayoutStatus = 'PENDING' | 'VALIDATED' | 'APPROVED' | 'PAID' | 'REJECTED';
+
+// Demande de Retrait Financier E-commerçant
 export interface PayoutRequest {
   id: string;
   partnerId: string;
@@ -139,9 +141,43 @@ export interface PayoutRequest {
   cryptoNetwork?: string;
   cryptoEstimatedUsdt?: number;
   requestedAt: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: PayoutStatus;
+  balanceBefore?: number;
+  balanceAfter?: number;
+  validatedAt?: string;
   approvedAt?: string;
+  paidAt?: string;
+  adminProcessorName?: string;
+  paymentReference?: string;
   txReference?: string;
+  rejectionReason?: string;
+}
+
+// Types d'opérations du Grand Livre de Trésorerie
+export type TransactionType =
+  | 'ENCAISSEMENT_COD'
+  | 'CREDIT_MARCHAND'
+  | 'COMMISSION_ENO'
+  | 'RETRAIT'
+  | 'DEPENSE'
+  | 'AJUSTEMENT';
+
+export interface FinancialTransaction {
+  id: string;
+  txReference: string;
+  date: string;
+  type: TransactionType;
+  label: string;
+  partnerId?: string;
+  partnerName?: string;
+  livreurId?: string;
+  livreurName?: string;
+  orderNumber?: string;
+  inflow: number; // Entrée de fonds
+  outflow: number; // Sortie de fonds
+  balanceAfter: number;
+  status: 'COMPLETED' | 'PENDING' | 'CANCELLED';
+  notes?: string;
 }
 
 // Statuts des E-commerçants

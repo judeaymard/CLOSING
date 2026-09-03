@@ -33,7 +33,11 @@ import {
   AssignmentMode,
   LivreurStatus,
   CloseuseStatus,
+  FinancialTransaction,
 } from "./types";
+import {
+  initialTransactions,
+} from "./mock-data";
 
 interface OperationsContextType {
   // Entités & Données
@@ -43,6 +47,7 @@ interface OperationsContextType {
   livreurs: LivreurProfile[];
   closeuses: CloseuseProfile[];
   payoutRequests: PayoutRequest[];
+  transactions: FinancialTransaction[];
   conversations: Conversation[];
   activities: ActivityItem[];
   alerts: AgencyAlert[];
@@ -121,7 +126,10 @@ interface OperationsContextType {
   reactivatePartner: (partnerId: string) => void;
   changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
-  rejectPayout: (payoutId: string) => void;
+  validatePayout: (payoutId: string) => void;
+  payPayout: (payoutId: string, paymentReference: string, adminName?: string) => void;
+  rejectPayout: (payoutId: string, reason?: string) => void;
+  addTransaction: (data: Partial<FinancialTransaction>) => FinancialTransaction;
   sendConversationMessage: (convId: string, text: string, isInternalNote?: boolean) => void;
   assignConversation: (convId: string, agentName: string, agentRole: string) => void;
   resolveAlert: (alertId: string) => void;
@@ -195,6 +203,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [livreurs, setLivreurs] = useState<LivreurProfile[]>(initialLivreurs);
   const [closeuses, setCloseuses] = useState<CloseuseProfile[]>(initialCloseuses);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>(initialPayoutRequests);
+  const [transactions, setTransactions] = useState<FinancialTransaction[]>(initialTransactions);
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
   const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
@@ -788,24 +797,116 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const changePassword = (_newPassword: string) => {};
 
   const approvePayout = (payoutId: string) => {
+    validatePayout(payoutId);
+  };
+
+  const validatePayout = (payoutId: string) => {
     setPayoutRequests((prev) =>
       prev.map((p) =>
         p.id === payoutId
           ? {
               ...p,
-              status: "APPROVED",
-              approvedAt: new Date().toISOString(),
-              txReference: `TX-ENO-${Date.now()}`,
+              status: "VALIDATED",
+              validatedAt: new Date().toISOString(),
+              txReference: p.txReference || `TX-VAL-${Date.now()}`,
             }
           : p
       )
     );
   };
 
-  const rejectPayout = (payoutId: string) => {
+  const payPayout = (payoutId: string, paymentReference: string, adminName = "Direction ENO") => {
+    const payout = payoutRequests.find((p) => p.id === payoutId);
+    if (!payout || payout.status === "PAID" || payout.status === "APPROVED") return;
+
+    const partner = partners.find((p) => p.id === payout.partnerId);
+    const balanceBefore = partner?.availableBalance || payout.amount;
+    const balanceAfter = Math.max(0, balanceBefore - payout.amount);
+
     setPayoutRequests((prev) =>
-      prev.map((p) => (p.id === payoutId ? { ...p, status: "REJECTED" } : p))
+      prev.map((p) =>
+        p.id === payoutId
+          ? {
+              ...p,
+              status: "PAID",
+              paidAt: new Date().toISOString(),
+              paymentReference,
+              adminProcessorName: adminName,
+              balanceBefore,
+              balanceAfter,
+              txReference: `TX-PAY-${Date.now()}`,
+            }
+          : p
+      )
     );
+
+    // Déduire du solde du marchand
+    if (partner) {
+      setPartners((prev) =>
+        prev.map((prt) =>
+          prt.id === partner.id
+            ? {
+                ...prt,
+                availableBalance: balanceAfter,
+                lastPayoutDate: new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+              }
+            : prt
+        )
+      );
+    }
+
+    // Ajouter l'écriture comptable au Grand Livre de Trésorerie
+    const newTx: FinancialTransaction = {
+      id: `tx-${Date.now()}`,
+      txReference: `TX-RET-${Date.now().toString().slice(-6)}`,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      type: "RETRAIT",
+      label: `Retrait Marchand ${payout.partnerName} (${payout.operator})`,
+      partnerId: payout.partnerId,
+      partnerName: payout.partnerName,
+      inflow: 0,
+      outflow: payout.amount,
+      balanceAfter: 14800000 - payout.amount,
+      status: "COMPLETED",
+      notes: `Virement exécuté. Réf: ${paymentReference}. Traité par ${adminName}.`,
+    };
+    setTransactions((prev) => [newTx, ...prev]);
+  };
+
+  const rejectPayout = (payoutId: string, reason?: string) => {
+    setPayoutRequests((prev) =>
+      prev.map((p) =>
+        p.id === payoutId
+          ? {
+              ...p,
+              status: "REJECTED",
+              rejectionReason: reason || "Demande refusée par la direction.",
+            }
+          : p
+      )
+    );
+  };
+
+  const addTransaction = (data: Partial<FinancialTransaction>): FinancialTransaction => {
+    const newTx: FinancialTransaction = {
+      id: `tx-${Date.now()}`,
+      txReference: data.txReference || `TX-${Date.now().toString().slice(-6)}`,
+      date: data.date || new Date().toISOString().replace("T", " ").slice(0, 16),
+      type: data.type || "AJUSTEMENT",
+      label: data.label || "Opération financière",
+      partnerId: data.partnerId,
+      partnerName: data.partnerName,
+      livreurId: data.livreurId,
+      livreurName: data.livreurName,
+      orderNumber: data.orderNumber,
+      inflow: data.inflow || 0,
+      outflow: data.outflow || 0,
+      balanceAfter: data.balanceAfter || 14850000,
+      status: data.status || "COMPLETED",
+      notes: data.notes,
+    };
+    setTransactions((prev) => [newTx, ...prev]);
+    return newTx;
   };
 
   const sendConversationMessage = (convId: string, text: string, isInternalNote = false) => {
@@ -859,6 +960,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         livreurs,
         closeuses,
         payoutRequests,
+        transactions,
         conversations,
         activities,
         alerts,
@@ -896,7 +998,10 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         reactivatePartner,
         changePassword,
         approvePayout,
+        validatePayout,
+        payPayout,
         rejectPayout,
+        addTransaction,
         sendConversationMessage,
         assignConversation,
         resolveAlert,
