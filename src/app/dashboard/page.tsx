@@ -108,6 +108,23 @@ export default function DashboardOverviewPage() {
   const isCryptoMethod = payoutMethod === "USDT_TRC20" || payoutMethod === "BINANCE_PAY";
   const estimatedUsdt = Math.round((Number(payoutAmount || 0) / 600) * 100) / 100;
 
+  const feeAmountCFA =
+    payoutMethod === "BINANCE_PAY"
+      ? 0
+      : payoutMethod === "USDT_TRC20"
+      ? 600
+      : payoutMethod === "ORANGE" || payoutCountryCode !== "+229"
+      ? Math.round(Number(payoutAmount || 0) * 0.01)
+      : 0;
+
+  const netAmountCFA = Math.max(0, Number(payoutAmount || 0) - feeAmountCFA);
+  const netEstimatedUSDT =
+    payoutMethod === "BINANCE_PAY"
+      ? estimatedUsdt
+      : payoutMethod === "USDT_TRC20"
+      ? Math.max(0, Math.round((estimatedUsdt - 1) * 100) / 100)
+      : null;
+
   const handleCloseModal = () => {
     setShowPayoutModal(false);
     setTimeout(() => {
@@ -668,6 +685,36 @@ export default function DashboardOverviewPage() {
                       Tout retirer
                     </button>
                   </div>
+                </div>
+
+                {/* ℹ️ RÉCAPITULATIF TRANSPARENT DES FRAIS & NET */}
+                <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD] text-xs space-y-1.5">
+                  <div className="flex justify-between items-center text-[#787163]">
+                    <span>
+                      Frais de transfert ({payoutMethod === "BINANCE_PAY" ? "Binance Pay" : payoutMethod === "USDT_TRC20" ? "Réseau Tron" : payoutMethod}) :
+                    </span>
+                    <span className="font-bold text-[#141A17]">
+                      {feeAmountCFA === 0
+                        ? "0 F (0% Gratuit)"
+                        : `${feeAmountCFA.toLocaleString("fr-FR")} F CFA (${payoutMethod === "USDT_TRC20" ? "1 USDT fixe" : "1%"})`}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-1.5 border-t border-[#EAE6DD]">
+                    <span className="font-bold text-[#141A17]">Net réel transféré :</span>
+                    <span className="font-black text-[#0D5940] text-sm font-mono">
+                      {isCryptoMethod
+                        ? `${netEstimatedUSDT} USDT (≈ ${netAmountCFA.toLocaleString("fr-FR")} F)`
+                        : `${netAmountCFA.toLocaleString("fr-FR")} F CFA`}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#787163] italic pt-0.5">
+                    {payoutMethod === "BINANCE_PAY"
+                      ? "⚡ Virement instantané sans aucun frais réseau."
+                      : payoutMethod === "USDT_TRC20"
+                      ? "⛓️ 1 USDT de frais de gaz réseau Tron TRC-20."
+                      : "📱 Virement validé par l'administrateur sous quelques minutes."}
+                  </p>
                 </div>
 
                 {/* 4. BOUTON D'ENVOI DE LA DEMANDE */}
