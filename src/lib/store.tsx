@@ -64,6 +64,7 @@ interface OperationsContextType {
     assignedLivreurId?: string,
     deliveryTimeSlot?: string
   ) => void;
+  assignOrderToCloseuse: (orderId: string, closeuseId: string) => void;
   assignOrderToLivreur: (orderId: string, livreurId: string) => void;
   markOrderDelivered: (orderId: string) => void;
   markOrderFailed: (orderId: string, reason: string) => void;
@@ -211,7 +212,28 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
-  // 4. Attribution de Commande à un Livreur
+  // 4a. Attribution de Commande à une Closeuse
+  const assignOrderToCloseuse = (orderId: string, closeuseId: string) => {
+    const closer = closeuses.find((c) => c.id === closeuseId);
+    if (!closer) return;
+
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              assignedCloseuseId: closer.id,
+              assignedCloseuseName: closer.name,
+              status: o.status === "EN_ATTENTE" ? "A_RAPPELER" : o.status,
+              updatedAt: new Date().toISOString(),
+              comment: `Attribué à la closeuse ${closer.name}`,
+            }
+          : o
+      )
+    );
+  };
+
+  // 4b. Attribution de Commande à un Livreur
   const assignOrderToLivreur = (orderId: string, livreurId: string) => {
     const livreur = livreurs.find((l) => l.id === livreurId);
     if (!livreur) return;
@@ -487,6 +509,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         createOrder,
         updateOrderStatus,
         logClosingCall,
+        assignOrderToCloseuse,
         assignOrderToLivreur,
         markOrderDelivered,
         markOrderFailed,
