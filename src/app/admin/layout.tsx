@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -27,6 +27,7 @@ import {
   Menu,
   X,
   Truck,
+  Sparkles,
   AlertTriangle,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
@@ -65,6 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/commandes") return { title: "Commandes & Closing", subtitle: "Traitement et télévente" };
     if (pathname === "/admin/livraisons") return { title: "Livraisons en Direct", subtitle: "Supervision des tournées" };
     if (pathname === "/admin/retours") return { title: "Retours & Litiges", subtitle: "Gestion des non-livrés" };
+    if (pathname === "/admin/attributions") return { title: "Automatisation des Attributions", subtitle: "Distribution intelligente" };
     if (pathname.startsWith("/admin/partenaires")) return { title: "E-commerçants", subtitle: "Portefeuille marchands" };
     if (pathname === "/admin/closeuses") return { title: "Pôle Closeuses", subtitle: "Télévente et conversion" };
     if (pathname === "/admin/livreurs") return { title: "Flotte Coursiers", subtitle: "Livreurs et caisse terrain" };
@@ -92,6 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { id: "nav-commandes", label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
         { id: "nav-livraisons", label: "Livraisons", href: "/admin/livraisons", icon: Truck },
         { id: "nav-retours", label: "Retours", href: "/admin/retours", icon: RotateCcw },
+        { id: "nav-attributions", label: "Attributions", href: "/admin/attributions", icon: Sparkles },
       ],
     },
     {

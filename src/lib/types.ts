@@ -215,3 +215,30 @@ export interface AgencyAlert {
   actionHref: string;
   count?: number;
 }
+
+// Modes & Configuration d'Attribution Automatique
+export type AssignmentMode = 'SMART_AUTO' | 'ROUND_ROBIN' | 'MANUAL';
+
+export interface AssignmentConfig {
+  ordersMode: AssignmentMode;
+  conversationsMode: AssignmentMode;
+  maxCapacityPerCloser: number;
+  autoRedistribute: boolean;
+  redistributeTimeoutMinutes: number;
+  prioritizeUrgent: boolean;
+  notifyOnAssign: boolean;
+  useRoundRobinOnTie: boolean;
+  queueUnassigned: boolean;
+}
+
+export interface AssignmentLog {
+  id: string;
+  timestamp: string;
+  itemType: 'ORDER' | 'CONVERSATION';
+  itemRef: string;
+  assignedToCloserName: string;
+  assignedToCloserId: string;
+  modeUsed: AssignmentMode;
+  reason: string;
+  success: boolean;
+}
