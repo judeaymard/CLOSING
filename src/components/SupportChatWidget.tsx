@@ -52,7 +52,6 @@ const HUMAN_AGENT = {
 };
 
 export default function SupportChatWidget() {
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [chatMode, setChatMode] = useState<"BOT" | "CONNECTING_HUMAN" | "HUMAN_AGENT">("BOT");
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
@@ -180,11 +179,6 @@ export default function SupportChatWidget() {
       setIsTyping(false);
     }, 800);
   };
-
-  // Ne pas afficher le chat sur la page de connexion /partenaire ou la landing page
-  if (pathname === "/partenaire" || pathname === "/") {
-    return null;
-  }
 
   return (
     <div className="fixed bottom-5 right-5 z-50 font-sans">
