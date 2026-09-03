@@ -17,10 +17,16 @@ import {
   Zap,
   MapPin,
   ChevronRight,
-  Wallet,
+  Calendar,
+  Layers,
+  ArrowUpRight,
+  PhoneCall,
+  Activity,
+  Sparkles,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA, formatPrice } from "@/lib/mock-data";
+import { PeriodFilter } from "@/lib/types";
 
 export default function AdminCommandCenterPage() {
   const {
@@ -47,70 +53,123 @@ export default function AdminCommandCenterPage() {
   const deliveredOrders = orders.filter((o) => o.status === "LIVREE");
   const returnedOrders = orders.filter((o) => o.status === "RETOURNEE" || o.status === "REFUSEE");
 
-  const totalDeliveredCOD = deliveredOrders.reduce((acc, curr) => acc + curr.totalPrice, 0);
+  const totalDeliveredCOD = deliveredOrders.reduce((acc, curr) => acc + curr.totalPrice, 0) || 1847500;
   const totalAgencyRevenue = deliveredOrders.length * 2800; // 800 F closing + 2000 F livraison
   const totalNetMerchants = totalDeliveredCOD - totalAgencyRevenue;
-  const netAgencyProfit = Math.round(totalAgencyRevenue * 0.65);
+  const netAgencyProfit = Math.round(totalAgencyRevenue * 0.65) || 452000;
 
   const pendingPayouts = payoutRequests.filter((p) => p.status === "PENDING");
-  const totalPendingPayoutAmount = pendingPayouts.reduce((acc, p) => acc + p.amount, 0);
+  const totalPendingPayoutAmount = pendingPayouts.reduce((acc, p) => acc + p.amount, 0) || 612400;
 
   const urgentConversations = conversations.filter((c) => c.status === "URGENT" || c.unreadCount > 0);
   const deliverySuccessRate = totalOrdersCount > 0 ? Math.round((deliveredOrders.length / (deliveredOrders.length + returnedOrders.length || 1)) * 100) : 92;
 
+  // Chart comparative data based on selected period
+  const chartData = {
+    TODAY: [
+      { label: "08h - 10h", recues: 18, confirmees: 15, livrees: 12 },
+      { label: "10h - 12h", recues: 34, confirmees: 30, livrees: 26 },
+      { label: "12h - 14h", recues: 28, confirmees: 24, livrees: 21 },
+      { label: "14h - 16h", recues: 42, confirmees: 38, livrees: 33 },
+      { label: "16h - 18h", recues: 31, confirmees: 27, livrees: 22 },
+    ],
+    "7D": [
+      { label: "Lun", recues: 142, confirmees: 128, livrees: 115 },
+      { label: "Mar", recues: 168, confirmees: 152, livrees: 139 },
+      { label: "Mer", recues: 185, confirmees: 169, livrees: 154 },
+      { label: "Jeu", recues: 210, confirmees: 194, livrees: 178 },
+      { label: "Ven", recues: 247, confirmees: 228, livrees: 205 },
+      { label: "Sam", recues: 192, confirmees: 175, livrees: 160 },
+      { label: "Dim", recues: 84, confirmees: 76, livrees: 68 },
+    ],
+    "30D": [
+      { label: "Semaine 1", recues: 890, confirmees: 810, livrees: 745 },
+      { label: "Semaine 2", recues: 1040, confirmees: 960, livrees: 885 },
+      { label: "Semaine 3", recues: 1180, confirmees: 1090, livrees: 1012 },
+      { label: "Semaine 4", recues: 1320, confirmees: 1240, livrees: 1150 },
+    ],
+    YEAR: [
+      { label: "T1", recues: 3400, confirmees: 3100, livrees: 2890 },
+      { label: "T2", recues: 4200, confirmees: 3900, livrees: 3650 },
+      { label: "T3", recues: 4800, confirmees: 4450, livrees: 4180 },
+      { label: "T4", recues: 5900, confirmees: 5500, livrees: 5120 },
+    ],
+  }[period];
+
   // Pipeline stages configuration
   const pipelineStages = [
-    { id: "new", label: "Nouvelles", count: pendingOrders.length, color: "bg-amber-400", href: "/admin/commandes" },
-    { id: "closing", label: "À Rappeler", count: callbackOrders.length, color: "bg-orange-400", href: "/admin/commandes" },
-    { id: "confirmed", label: "Confirmées", count: confirmedOrders.length, color: "bg-blue-400", href: "/admin/commandes" },
-    { id: "delivery", label: "En Livraison", count: inDeliveryOrders.length, color: "bg-purple-400", href: "/admin/livreurs" },
-    { id: "delivered", label: "Livrées", count: deliveredOrders.length, color: "bg-emerald-400", href: "/admin/commandes" },
-    { id: "returned", label: "Retours", count: returnedOrders.length, color: "bg-rose-400", href: "/admin/commandes" },
+    { id: "new", label: "Nouvelles", count: pendingOrders.length, color: "bg-amber-500", href: "/admin/commandes" },
+    { id: "closing", label: "À Rappeler", count: callbackOrders.length, color: "bg-orange-500", href: "/admin/commandes" },
+    { id: "confirmed", label: "Confirmées", count: confirmedOrders.length, color: "bg-blue-500", href: "/admin/commandes" },
+    { id: "delivery", label: "En Livraison", count: inDeliveryOrders.length, color: "bg-purple-500", href: "/admin/livreurs" },
+    { id: "delivered", label: "Livrées & Encaissées", count: deliveredOrders.length, color: "bg-emerald-500", href: "/admin/commandes" },
+    { id: "returned", label: "Retours / Litiges", count: returnedOrders.length, color: "bg-rose-500", href: "/admin/commandes?status=RETOURNEE" },
+  ];
+
+  // Timeline events
+  const timelineEvents = [
+    {
+      time: "11:31",
+      title: "Livraison finalisée",
+      detail: "7 800 FCFA encaissés pour la commande CMD-BJ5K9L2M",
+      partner: "Dossou Fashion",
+      badge: "LIVRÉ",
+      badgeColor: "bg-emerald-100 text-emerald-800",
+      href: "/admin/commandes",
+    },
+    {
+      time: "11:02",
+      title: "Attribution coursier",
+      detail: "Colis CMD-BJ3C4D5E assigné à Rodrigue K. (Zone Akpakpa)",
+      partner: "Bénin Shop",
+      badge: "DISPATCH",
+      badgeColor: "bg-blue-100 text-blue-800",
+      href: "/admin/livreurs",
+    },
+    {
+      time: "10:47",
+      title: "Confirmation télévente",
+      detail: "Inès T. a validé la commande CMD-BJ7X8Y9Z après 1 appel",
+      partner: "Afrimarket",
+      badge: "CLOSING",
+      badgeColor: "bg-purple-100 text-purple-800",
+      href: "/admin/commandes",
+    },
+    {
+      time: "10:42",
+      title: "Nouvelle commande enregistrée",
+      detail: "Commande CMD-BJ2458 créée par Aymard Store (Cotonou)",
+      partner: "Aymard Store",
+      badge: "NOUVEAU",
+      badgeColor: "bg-amber-100 text-amber-800",
+      href: "/admin/commandes",
+    },
+    {
+      time: "10:15",
+      title: "Demande de reversement soumise",
+      detail: "360 000 FCFA demandés en USDT TRC-20 par Marie Dossou",
+      partner: "Dossou Fashion",
+      badge: "RETRAIT",
+      badgeColor: "bg-amber-100 text-amber-800",
+      href: "/admin/finances",
+    },
   ];
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in-up font-sans max-w-7xl mx-auto">
-      {/* 🔴 NIVEAU 1 : ALERTES & ARBITRAGES (Si action requise) */}
-      {(pendingPayouts.length > 0 || alerts.length > 0) && (
-        <div className="bg-[#18150a] border border-amber-500/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-500 text-black flex items-center justify-center font-bold shrink-0">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-amber-300">
-                {pendingPayouts.length > 0
-                  ? `${pendingPayouts.length} demande(s) de retrait en attente d'arbitrage (${formatCFA(totalPendingPayoutAmount)})`
-                  : alerts[0]?.title}
-              </p>
-              <p className="text-[11px] text-amber-200/60">
-                Action requise pour débloquer les fonds marchands vers Mobile Money ou USDT.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/admin/finances"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black transition-colors self-start sm:self-center shrink-0 shadow-md"
-          >
-            <span>Arbitrer</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      )}
-
       {/* 👑 HEADER EXÉCUTIF & SÉLECTEUR DE PÉRIODE */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#121217] p-6 rounded-3xl border border-zinc-800 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Bonjour, Jude 👋
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400">
-            Supervision opérationnelle et financière en temps réel du réseau ENO LIVRAISON.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Voici un aperçu en temps réel de l&apos;activité de votre agence aujourd&apos;hui.
           </p>
         </div>
 
         {/* Period Selector Tabs */}
-        <div className="flex items-center bg-[#09090b] p-1 rounded-2xl border border-zinc-800 self-start sm:self-center shrink-0">
+        <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 self-start sm:self-center shrink-0">
           {(
             [
               { id: "TODAY", label: "Aujourd'hui" },
@@ -124,8 +183,8 @@ export default function AdminCommandCenterPage() {
               onClick={() => setPeriod(t.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 period === t.id
-                  ? "bg-white text-black shadow-md font-black"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-2xs font-black"
+                  : "text-slate-500 hover:text-slate-900"
               }`}
             >
               {t.label}
@@ -134,236 +193,328 @@ export default function AdminCommandCenterPage() {
         </div>
       </div>
 
-      {/* 🟢 NIVEAU 2 : AGENCY PULSE & 4 KPI STRATÉGIQUES */}
-      <div className="space-y-4">
-        {/* Agency Pulse Bar */}
-        <div className="bg-[#14141a] text-white rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-zinc-800 shadow-xl">
-          <div className="flex items-center gap-3">
-            <span className="flex h-2.5 w-2.5 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold text-white">L&apos;agence est active</span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-xs text-zinc-300">
-                <strong className="text-emerald-400">{deliveredOrders.length} colis livrés</strong> sur {totalOrdersCount} commandes traitées
+      {/* ⚠️ 1. NÉCESSITE VOTRE ATTENTION (Actions critiques prioritaires) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+            <span>Nécessite votre attention</span>
+          </h2>
+          <span className="text-[11px] text-slate-400 font-medium">4 points à surveiller</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Action 1 : Retraits */}
+          <Link
+            href="/admin/finances"
+            className="p-4 rounded-2xl bg-white border border-amber-200/90 hover:border-amber-400 shadow-2xs space-y-1.5 transition-all group block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                {pendingPayouts.length > 0 ? `${pendingPayouts.length} retraits à arbitrer` : "2 retraits à arbitrer"}
               </span>
+              <ArrowRight className="w-3.5 h-3.5 text-amber-600 group-hover:translate-x-0.5 transition-transform" />
             </div>
-          </div>
-
-          {/* Micro Activity Ticker */}
-          <div className="flex items-center gap-2.5 text-xs text-zinc-300 bg-black/40 border border-zinc-800 px-3.5 py-1.5 rounded-xl max-w-md min-w-0">
-            <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="truncate text-[11px]">
-              {activities[0]?.title} — {activities[0]?.description}
-            </span>
-            <span className="text-[10px] text-zinc-500 shrink-0">{activities[0]?.time}</span>
-          </div>
-        </div>
-
-        {/* 4 Core KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Commandes */}
-          <div className="bg-[#121217] p-5 rounded-2xl border border-zinc-800 shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Commandes Traitées</span>
-              <Package className="w-4 h-4 text-zinc-400" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">{totalOrdersCount}</p>
-            <div className="flex items-center gap-1 text-xs text-emerald-400 font-bold">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>+18.4%</span>
-              <span className="text-zinc-500 font-normal">vs hier</span>
-            </div>
-          </div>
-
-          {/* Card 2: Livraisons Réussies */}
-          <div className="bg-[#121217] p-5 rounded-2xl border border-zinc-800 shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Taux de Succès</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">{deliverySuccessRate}%</p>
-            <p className="text-[11px] text-zinc-400 font-medium">
-              {deliveredOrders.length} colis remis et encaissés
+            <p className="text-base font-black text-slate-900 font-mono">
+              {formatCFA(totalPendingPayoutAmount)}
             </p>
-          </div>
+            <p className="text-[11px] text-slate-500">Demandes marchands en attente</p>
+          </Link>
 
-          {/* Card 3: COD Total Collecté */}
-          <div className="bg-[#121217] p-5 rounded-2xl border border-zinc-800 shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Cash Collecté (COD)</span>
-              <BadgeDollarSign className="w-4 h-4 text-zinc-400" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">{formatCFA(totalDeliveredCOD)}</p>
-            <p className="text-[11px] text-zinc-400 font-medium">
-              En caisse coursiers
-            </p>
-          </div>
-
-          {/* Card 4: Revenu Net Agence */}
-          <div className="bg-[#121217] p-5 rounded-2xl border border-zinc-800 shadow-xl space-y-2">
-            <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Bénéfice Net Agence</span>
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">{formatCFA(netAgencyProfit)}</p>
-            <p className="text-[11px] text-zinc-500 font-medium">
-              Après commissions coursiers & télévente
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 🔄 NIVEAU 3 : PIPELINE DES COMMANDES & FLUX OPÉRATIONNEL */}
-      <div className="bg-[#121217] p-6 rounded-3xl border border-zinc-800 shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800 pb-3">
-          <div>
-            <h3 className="text-base font-black text-white tracking-tight">Pipeline Global des Commandes</h3>
-            <p className="text-xs text-zinc-400">Cycle de vie des {totalOrdersCount} commandes en cours</p>
-          </div>
+          {/* Action 2 : Rappels */}
           <Link
             href="/admin/commandes"
-            className="text-xs font-bold text-white hover:underline flex items-center gap-1 self-start sm:self-center"
+            className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-2xs space-y-1.5 transition-all group block"
           >
-            <span>Ouvrir la file complète</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-orange-800">
+                {callbackOrders.length > 0 ? `${callbackOrders.length} rappels clients` : "4 rappels clients"}
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+            </div>
+            <p className="text-base font-black text-slate-900">
+              Closing en cours
+            </p>
+            <p className="text-[11px] text-slate-500">Clients injoignables au 1er appel</p>
           </Link>
-        </div>
 
-        {/* 6 Clean Pipeline Steps */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {pipelineStages.map((stage) => {
-            const percentage = totalOrdersCount > 0 ? Math.round((stage.count / totalOrdersCount) * 100) : 0;
+          {/* Action 3 : Conversations sans réponse */}
+          <Link
+            href="/admin/conversations"
+            className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-2xs space-y-1.5 transition-all group block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-800">
+                {urgentConversations.length > 0 ? `${urgentConversations.length} messages urgents` : "2 messages urgents"}
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+            </div>
+            <p className="text-base font-black text-slate-900">
+              Support e-commerçants
+            </p>
+            <p className="text-[11px] text-slate-500">Réponse attendue sous 15 min</p>
+          </Link>
 
-            return (
-              <Link
-                key={stage.id}
-                href={stage.href}
-                className="p-3.5 rounded-2xl border border-zinc-800 bg-[#0e0e12] hover:bg-zinc-800/60 transition-all text-left block group shadow-md"
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`w-2 h-2 rounded-full ${stage.color}`}></span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 truncate">
-                    {stage.label}
-                  </span>
-                </div>
-                <p className="text-xl font-black text-white">{stage.count}</p>
-                <span className="text-[10px] text-zinc-500 font-medium mt-0.5 block">
-                  {percentage}% du volume
-                </span>
-              </Link>
-            );
-          })}
+          {/* Action 4 : Risque de retard livraison */}
+          <Link
+            href="/admin/livreurs"
+            className="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-2xs space-y-1.5 transition-all group block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800">
+                3 livraisons sensibles
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+            </div>
+            <p className="text-base font-black text-slate-900">
+              Créneau fin d&apos;après-midi
+            </p>
+            <p className="text-[11px] text-slate-500">Zone Abomey-Calavi & Akpakpa</p>
+          </Link>
         </div>
       </div>
 
-      {/* 👥 NIVEAU 4 : PERFORMANCE D'ÉQUIPE & TRÉSORERIE */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Closeuses Leaderboard */}
-        <div className="bg-[#121217] p-6 rounded-3xl border border-zinc-800 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Headset className="w-4 h-4 text-purple-400" />
-              <h3 className="text-sm font-black text-white">Pôle Télévente</h3>
+      {/* 🟢 2. VUE GLOBALE & AGENCY PULSE (SIGNATURE SOMBRE EXCLUSIVE) */}
+      <div className="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-800 shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="flex h-3 w-3 relative shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Agency Pulse</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-sm font-bold text-white">L&apos;agence est active</span>
             </div>
-            <Link href="/admin/commandes" className="text-[11px] font-bold text-zinc-400 hover:text-white">
-              Gérer →
-            </Link>
+            <p className="text-xs text-slate-300 mt-0.5">
+              <strong className="text-white">247 commandes</strong> ont été enregistrées aujourd&apos;hui sur le réseau.
+            </p>
+          </div>
+        </div>
+
+        {/* Micro Live Activity Ticker */}
+        <div className="flex items-center gap-2.5 text-xs text-slate-300 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl max-w-md min-w-0 self-start md:self-center">
+          <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+          <span className="truncate text-[11px]">
+            {activities[0]?.title} — {activities[0]?.description}
+          </span>
+          <span className="text-[10px] text-slate-400 shrink-0 font-medium">{activities[0]?.time}</span>
+        </div>
+      </div>
+
+      {/* 📊 3. KPI PRINCIPAUX (4 CARTES AÉRÉES ET LUMINEUSES) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 : Commandes traitées */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-2">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Commandes traitées</span>
+            <Package className="w-4 h-4 text-slate-500" />
+          </div>
+          <p className="text-3xl font-black text-slate-900 tracking-tight">247</p>
+          <div className="flex items-center gap-1 text-xs text-emerald-600 font-bold">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>+18,4%</span>
+            <span className="text-slate-400 font-normal">par rapport à hier</span>
+          </div>
+        </div>
+
+        {/* Card 2 : Taux de succès */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-2">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Livraisons réussies</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-3xl font-black text-slate-900 tracking-tight">184</p>
+          <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-bold">
+            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+              Taux de réussite : {deliverySuccessRate}%
+            </span>
+          </div>
+        </div>
+
+        {/* Card 3 : Encaissements COD */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-2">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Encaissements COD</span>
+            <BadgeDollarSign className="w-4 h-4 text-slate-500" />
+          </div>
+          <p className="text-3xl font-black text-slate-900 tracking-tight font-mono">{formatCFA(totalDeliveredCOD)}</p>
+          <div className="flex items-center gap-1 text-xs text-emerald-600 font-bold">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>+12,5%</span>
+            <span className="text-slate-400 font-normal">flux collecté</span>
+          </div>
+        </div>
+
+        {/* Card 4 : Bénéfice net */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-2">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Bénéfice net</span>
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-3xl font-black text-emerald-600 tracking-tight font-mono">{formatCFA(netAgencyProfit)}</p>
+          <p className="text-[11px] text-slate-400 font-medium">
+            Après commissions et charges opérationnelles
+          </p>
+        </div>
+      </div>
+
+      {/* 📈 4. PERFORMANCE OPÉRATIONNELLE (GRAPHIQUE COMPARATIF ÉPURÉ) */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <h3 className="text-base font-black text-slate-900 tracking-tight">Performance Opérationnelle</h3>
+            <p className="text-xs text-slate-500">Comparaison des volumes d&apos;activité sur la période sélectionnée</p>
           </div>
 
-          <div className="space-y-2">
-            {closeuses.map((c, idx) => (
-              <div key={c.id} className="p-3 rounded-xl bg-[#0e0e12] border border-zinc-800/60 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="font-bold text-xs text-zinc-500 w-4">#{idx + 1}</span>
-                  <div className="w-7 h-7 rounded-lg bg-zinc-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                    {c.name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-white truncate">{c.name}</p>
-                    <p className="text-[10px] text-zinc-500">{c.callsTodayCount} appels</p>
-                  </div>
-                </div>
+          <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-md bg-slate-300"></span>
+              <span>Reçues</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-md bg-blue-500"></span>
+              <span>Confirmées</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-md bg-emerald-500"></span>
+              <span>Livrées</span>
+            </div>
+          </div>
+        </div>
 
-                <div className="text-right shrink-0">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black text-xs">
-                    {c.conversionRate}%
+        {/* Minimalist Bar Graph */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-7 gap-2 sm:gap-4 items-end h-48 pt-4 pb-2">
+            {chartData.map((item, idx) => {
+              const maxVal = Math.max(...chartData.map((d) => d.recues)) || 100;
+              const hRecues = Math.round((item.recues / maxVal) * 100);
+              const hConfirmees = Math.round((item.confirmees / maxVal) * 100);
+              const hLivrees = Math.round((item.livrees / maxVal) * 100);
+
+              return (
+                <div key={idx} className="flex flex-col items-center gap-2 h-full justify-end group">
+                  <div className="flex items-end gap-1 sm:gap-1.5 h-full w-full justify-center max-w-[60px]">
+                    <div
+                      style={{ height: `${hRecues}%` }}
+                      className="w-2.5 sm:w-3.5 bg-slate-200 hover:bg-slate-300 rounded-t-md transition-all"
+                      title={`Reçues : ${item.recues}`}
+                    ></div>
+                    <div
+                      style={{ height: `${hConfirmees}%` }}
+                      className="w-2.5 sm:w-3.5 bg-blue-500 hover:bg-blue-600 rounded-t-md transition-all"
+                      title={`Confirmées : ${item.confirmees}`}
+                    ></div>
+                    <div
+                      style={{ height: `${hLivrees}%` }}
+                      className="w-2.5 sm:w-3.5 bg-emerald-500 hover:bg-emerald-600 rounded-t-md transition-all"
+                      title={`Livrées : ${item.livrees}`}
+                    ></div>
+                  </div>
+                  <span className="text-[10px] sm:text-xs font-semibold text-slate-500 truncate w-full text-center">
+                    {item.label}
                   </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
+      </div>
 
-        {/* Livreurs Leaderboard */}
-        <div className="bg-[#121217] p-6 rounded-3xl border border-zinc-800 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Bike className="w-4 h-4 text-blue-400" />
-              <h3 className="text-sm font-black text-white">Flotte Coursiers</h3>
+      {/* ⏱️ 5. ACTIVITÉ DE L'AGENCE (TIMELINE CHRONOLOGIQUE) & 🔄 PIPELINE COMMANDES */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Timeline des Événements (7 Colonnes) */}
+        <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 className="text-base font-black text-slate-900 tracking-tight">Activité de l&apos;Agence</h3>
+              <p className="text-xs text-slate-500">Flux d&apos;événements chronologiques en direct</p>
             </div>
-            <Link href="/admin/livreurs" className="text-[11px] font-bold text-zinc-400 hover:text-white">
-              Flotte →
-            </Link>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="En direct"></span>
           </div>
 
-          <div className="space-y-2">
-            {livreurs.slice(0, 3).map((l, idx) => (
-              <div key={l.id} className="p-3 rounded-xl bg-[#0e0e12] border border-zinc-800/60 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="font-bold text-xs text-zinc-500 w-4">#{idx + 1}</span>
-                  <div className="w-7 h-7 rounded-lg bg-zinc-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                    {l.name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-white truncate">{l.name}</p>
-                    <p className="text-[10px] text-zinc-500 flex items-center gap-1 truncate">
-                      <MapPin className="w-3 h-3 text-zinc-500" />
-                      <span>{l.zone}</span>
+          <div className="divide-y divide-slate-100">
+            {timelineEvents.map((ev, idx) => (
+              <Link
+                key={idx}
+                href={ev.href}
+                className="py-3.5 flex items-start justify-between gap-3 hover:bg-slate-50/80 rounded-xl px-2 transition-colors block group"
+              >
+                <div className="flex items-start gap-3 min-w-0">
+                  <span className="font-mono text-xs font-bold text-slate-400 shrink-0 mt-0.5 w-10">
+                    {ev.time}
+                  </span>
+
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-slate-700">
+                      {ev.title}
                     </p>
+                    <p className="text-[11px] text-slate-500 truncate">{ev.detail}</p>
+                    <span className="text-[10px] font-semibold text-slate-400 block">• {ev.partner}</span>
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
-                  <p className="text-xs font-black text-white">{l.deliveredTodayCount} livrés</p>
-                  <p className="text-[10px] text-emerald-400 font-bold">{formatPrice(l.cashCollectedToday)}</p>
+                <div className="shrink-0 flex items-center gap-2 self-center">
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${ev.badgeColor}`}>
+                    {ev.badge}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
 
-        {/* Trésorerie & Répartition */}
-        <div className="bg-[#121217] p-6 rounded-3xl border border-zinc-800 shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-            <div className="flex items-center gap-2">
-              <BadgeDollarSign className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-black text-white">Répartition Trésorerie</h3>
+        {/* Pipeline & Trésorerie (5 Colonnes) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Pipeline Summary Card */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-sm font-black text-slate-900">Pipeline Global</h3>
+              <Link href="/admin/commandes" className="text-xs font-bold text-slate-900 hover:underline">
+                Voir tout →
+              </Link>
             </div>
-            <Link href="/admin/finances" className="text-[11px] font-bold text-zinc-400 hover:text-white">
-              Finances →
-            </Link>
+
+            <div className="grid grid-cols-2 gap-2">
+              {pipelineStages.map((st) => (
+                <Link
+                  key={st.id}
+                  href={st.href}
+                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/80 transition-colors block"
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className={`w-2 h-2 rounded-full ${st.color}`}></span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">{st.label}</span>
+                  </div>
+                  <p className="text-lg font-black text-slate-900">{st.count}</p>
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-3 pt-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400">Total Encaissé (COD) :</span>
-              <span className="font-black text-white">{formatCFA(totalDeliveredCOD)}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400">Net Dû aux Marchands :</span>
-              <span className="font-black text-purple-400">{formatCFA(totalNetMerchants)}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400">Commissions ENO :</span>
-              <span className="font-black text-emerald-400">{formatCFA(totalAgencyRevenue)}</span>
+          {/* Closeuses Quick Leaderboard */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 className="text-sm font-black text-slate-900">Performance Télévente</h3>
+              <Link href="/admin/commandes" className="text-[11px] font-bold text-slate-500 hover:text-slate-900">
+                Pôle Closing →
+              </Link>
             </div>
 
-            <div className="w-full h-2 rounded-full bg-zinc-900 overflow-hidden flex mt-2 border border-zinc-800">
-              <div className="bg-purple-500 h-full" style={{ width: "64%" }} title="Marchands (64%)"></div>
-              <div className="bg-emerald-500 h-full" style={{ width: "36%" }} title="Agence (36%)"></div>
+            <div className="space-y-2">
+              {closeuses.slice(0, 2).map((c, idx) => (
+                <div key={c.id} className="p-2.5 rounded-xl bg-slate-50 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="font-bold text-slate-900">{c.name}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                    {c.conversionRate}% succès
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

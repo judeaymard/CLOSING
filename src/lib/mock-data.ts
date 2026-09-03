@@ -465,11 +465,11 @@ export function getPartnerProducts(partnerId: string): Product[] {
 }
 
 export function formatCFA(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' F CFA';
+  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 }
 
 export function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' F';
+  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 }
 
 export function generateOrderNumber(): string {

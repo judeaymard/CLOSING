@@ -8,10 +8,15 @@ import {
   LayoutDashboard,
   Package,
   Bike,
-  Boxes,
+  RotateCcw,
   Users,
+  Headset,
   MessageSquare,
+  Bot,
   BadgeDollarSign,
+  TrendingUp,
+  BarChart3,
+  Settings,
   Bell,
   Search,
   ChevronRight,
@@ -20,6 +25,9 @@ import {
   ChevronLeft,
   Menu,
   X,
+  Shield,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import SpotlightSearchModal from "@/components/admin/SpotlightSearchModal";
@@ -65,27 +73,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navSections = [
     {
-      title: "Général",
+      title: "VUE GÉNÉRALE",
       items: [
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       ],
     },
     {
-      title: "Opérations",
+      title: "OPÉRATIONS",
       items: [
         { label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
-        { label: "Flotte Livreurs", href: "/admin/livreurs", icon: Bike },
-        { label: "Stocks Entrepôt", href: "/admin/stocks", icon: Boxes },
+        { label: "Livraisons", href: "/admin/livreurs", icon: Bike },
+        { label: "Retours", href: "/admin/commandes?status=RETOURNEE", icon: RotateCcw },
       ],
     },
     {
-      title: "Équipe & Réseau",
+      title: "ÉQUIPE & RÉSEAU",
       items: [
         { label: "E-commerçants", href: "/admin/partenaires", icon: Users },
+        { label: "Closeuses", href: "/admin/commandes", icon: Headset },
+        { label: "Livreurs", href: "/admin/livreurs", icon: Bike },
       ],
     },
     {
-      title: "Communication",
+      title: "COMMUNICATION",
       items: [
         {
           label: "Conversations",
@@ -94,10 +104,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           badge: urgentConversationsCount > 0 ? urgentConversationsCount : undefined,
           badgeColor: "bg-slate-900 text-white",
         },
+        { label: "Assistant IA", href: "/admin/conversations?mode=bot", icon: Bot },
       ],
     },
     {
-      title: "Finance",
+      title: "FINANCE",
       items: [
         {
           label: "Retraits & Trésorerie",
@@ -106,6 +117,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           badge: pendingPayoutsCount > 0 ? pendingPayoutsCount : undefined,
           badgeColor: "bg-amber-500 text-slate-950 font-black",
         },
+        { label: "Commissions & Revenus", href: "/admin/finances", icon: TrendingUp },
+      ],
+    },
+    {
+      title: "ANALYSES & SYSTÈME",
+      items: [
+        { label: "Performances", href: "/admin", icon: BarChart3 },
+        { label: "Paramètres", href: "/admin/partenaires", icon: Settings },
       ],
     },
   ];
@@ -114,7 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-sans antialiased selection:bg-slate-900 selection:text-white">
-      {/* 🔍 Spotlight Modal */}
+      {/* 🔍 Spotlight Search Modal */}
       <SpotlightSearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
       {/* 🚀 COMPACT & CLEAN SIDEBAR (Desktop) */}
@@ -158,7 +177,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* 2. Compact PDG Badge */}
         {!sidebarCollapsed && (
-          <div className="my-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between shrink-0">
+          <div className="my-2.5 p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
                 JS
@@ -172,7 +191,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        {/* 3. Navigation Links (Compact & Continuous) */}
+        {/* 3. Navigation Links (Hierarchical & Smooth Scroll) */}
         <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pt-1">
           {navSections.map((sec, idx) => (
             <div key={idx} className="space-y-0.5">
@@ -187,7 +206,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   const isActive = pathname === item.href;
                   return (
                     <Link
-                      key={item.href}
+                      key={item.href + item.label}
                       href={item.href}
                       className={`flex items-center justify-between rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                         sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
@@ -219,17 +238,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ))}
         </div>
 
-        {/* 4. Bottom Compact Actions */}
+        {/* 4. Bottom Actions */}
         <div className="pt-2 mt-2 border-t border-slate-200/80 space-y-0.5 shrink-0">
           <Link
             href="/dashboard"
-            className={`flex items-center gap-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors ${
+            className={`flex items-center gap-2 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors ${
               sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
             }`}
-            title="Portail Marchand"
+            title="Accès Portail Marchand"
           >
             <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            {!sidebarCollapsed && <span>Portail Marchand</span>}
+            {!sidebarCollapsed && <span className="text-[11px]">Espace Marchand</span>}
           </Link>
 
           <button
@@ -240,7 +259,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             title="Déconnexion"
           >
             <LogOut className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            {!sidebarCollapsed && <span>Déconnexion</span>}
+            {!sidebarCollapsed && <span className="text-[11px]">Déconnexion</span>}
           </button>
         </div>
       </aside>
@@ -294,7 +313,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     const isActive = pathname === item.href;
                     return (
                       <Link
-                        key={item.href}
+                        key={item.href + item.label}
                         href={item.href}
                         onClick={() => setMobileSidebarOpen(false)}
                         className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold ${
@@ -339,17 +358,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Search Trigger */}
           <button
             onClick={() => setSearchModalOpen(true)}
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/70 text-slate-400 hover:text-slate-600 text-xs font-medium w-72 transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-100/90 hover:bg-slate-200/70 text-slate-400 hover:text-slate-600 text-xs font-medium w-80 transition-all cursor-pointer shadow-2xs"
           >
             <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span className="flex-1 text-left text-[11px]">Rechercher (colis, marchand...)</span>
+            <span className="flex-1 text-left text-[11px]">Rechercher (colis #CMD, marchand, coursier...)</span>
             <kbd className="text-[9px] font-mono font-bold bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 shadow-2xs">
               ⌘K
             </kbd>
           </button>
 
           {/* Right Controls */}
-          <div className="flex items-center gap-2.5 relative">
+          <div className="flex items-center gap-3 relative">
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
               className="relative p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
@@ -363,18 +382,79 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               )}
             </button>
 
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Portail Marchand</span>
-            </Link>
+            {/* Notification Popover Drawer */}
+            {notificationsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-3xl border border-slate-200 shadow-2xl p-4 space-y-3 z-50 animate-fade-in-up">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-xs font-black text-slate-900">Centre d&apos;Alertes Direction</h4>
+                    <span className="px-2 py-0.2 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">
+                      {totalNotifications}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setNotificationsOpen(false)}
+                    className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
+                  {pendingPayoutsCount > 0 && (
+                    <Link
+                      href="/admin/finances"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-start gap-2.5 hover:bg-amber-100/80 transition-colors block"
+                    >
+                      <BadgeDollarSign className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-amber-900">
+                          {pendingPayoutsCount} demande(s) de retrait en attente d&apos;arbitrage
+                        </p>
+                        <p className="text-[11px] text-amber-700">Déblocage des fonds marchands.</p>
+                      </div>
+                    </Link>
+                  )}
+
+                  {urgentConversationsCount > 0 && (
+                    <Link
+                      href="/admin/conversations"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5 hover:bg-slate-100 transition-colors block"
+                    >
+                      <MessageSquare className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">
+                          {urgentConversationsCount} conversation(s) marchands prioritaires
+                        </p>
+                        <p className="text-[11px] text-slate-500">Réponse attendue par les partenaires.</p>
+                      </div>
+                    </Link>
+                  )}
+
+                  {alerts.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={a.actionHref}
+                      onClick={() => setNotificationsOpen(false)}
+                      className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5 hover:bg-slate-100 transition-colors block"
+                    >
+                      <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">{a.title}</p>
+                        <p className="text-[11px] text-slate-500">{a.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
         {/* Page Content Body */}
-        <main className="p-4 sm:p-6 flex-1 mt-12 md:mt-0">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 mt-12 md:mt-0">{children}</main>
       </div>
     </div>
   );
