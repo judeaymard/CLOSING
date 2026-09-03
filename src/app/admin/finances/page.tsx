@@ -137,14 +137,20 @@ export default function AdminFinancesPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 ${
-                        isPending
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                        req.operator.includes("USDT") || req.operator.includes("BINANCE")
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                          : isPending
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
                           : isApproved
                           ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                           : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
                       }`}
                     >
-                      {req.operator}
+                      {req.operator === "USDT_TRC20"
+                        ? "⚡ USDT"
+                        : req.operator === "BINANCE_PAY"
+                        ? "🟡 PAY"
+                        : req.operator}
                     </div>
 
                     <div className="min-w-0">
@@ -153,9 +159,33 @@ export default function AdminFinancesPage() {
                         <span className="text-xs text-emerald-400 font-mono font-bold">
                           {req.amount.toLocaleString("fr-FR")} F CFA
                         </span>
+                        {req.cryptoEstimatedUsdt && (
+                          <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-500/30">
+                            ≈ {req.cryptoEstimatedUsdt} USDT
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-emerald-200/80 mt-0.5">
-                        Vers : <strong>{req.operator} Money ({req.countryCode} {req.phone})</strong> • Demandé à {new Date(req.requestedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                        {req.operator === "USDT_TRC20" ? (
+                          <>
+                            Vers : <strong className="text-amber-300">Wallet USDT (Réseau TRC-20)</strong> •{" "}
+                            <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 text-[11px] text-white">
+                              {req.cryptoAddress || "T9yD14Nj9j7xAB4dbGeiX9h8unkKHX..."}
+                            </span>
+                          </>
+                        ) : req.operator === "BINANCE_PAY" ? (
+                          <>
+                            Vers : <strong className="text-amber-300">Binance Pay ID</strong> •{" "}
+                            <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 text-[11px] text-white">
+                              {req.cryptoAddress || "284910244"}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            Vers : <strong>{req.operator} Money ({req.countryCode} {req.phone})</strong>
+                          </>
+                        )}{" "}
+                        • Demandé à {new Date(req.requestedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                       {req.txReference && (
                         <p className="text-[10px] text-emerald-400 font-mono mt-0.5">

@@ -8,6 +8,7 @@ import {
   LivreurProfile,
   CloseuseProfile,
   PayoutRequest,
+  PayoutOperator,
   UserRole,
   OrderStatus,
 } from "./types";
@@ -55,9 +56,11 @@ interface OperationsContextType {
   markOrderFailed: (orderId: string, reason: string) => void;
   requestPayout: (
     amount: number,
-    operator: 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE',
+    operator: PayoutOperator,
     phone: string,
-    countryCode?: string
+    countryCode?: string,
+    cryptoAddress?: string,
+    cryptoNetwork?: string
   ) => PayoutRequest;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
@@ -267,14 +270,18 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
-  // 7. Demande de Retrait par le Partenaire
+  // 7. Demande de Retrait par le Partenaire (Mobile Money ou Crypto USDT / Binance Pay)
   const requestPayout = (
     amount: number,
-    operator: 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE',
+    operator: PayoutOperator,
     phone: string,
-    countryCode: string = "+229"
+    countryCode: string = "+229",
+    cryptoAddress?: string,
+    cryptoNetwork?: string
   ): PayoutRequest => {
     const partner = partners.find((p) => p.id === activePartnerId) || currentPartner;
+    const estUsdt = Math.round((amount / 600) * 100) / 100;
+
     const newPayout: PayoutRequest = {
       id: `pay-${Date.now()}`,
       partnerId: partner.id,
@@ -283,6 +290,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       operator,
       phone,
       countryCode,
+      cryptoAddress,
+      cryptoNetwork: cryptoNetwork || (operator === "USDT_TRC20" ? "TRC-20 (Tron)" : operator === "BINANCE_PAY" ? "Binance Pay" : undefined),
+      cryptoEstimatedUsdt: operator.includes("USDT") || operator.includes("BINANCE") ? estUsdt : undefined,
       requestedAt: new Date().toISOString(),
       status: "PENDING",
     };

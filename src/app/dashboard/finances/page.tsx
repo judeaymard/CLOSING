@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
+import { PayoutOperator } from "@/lib/types";
 
 const AFRICAN_COUNTRIES = [
   { code: "+229", country: "Bénin", flag: "🇧🇯" },
@@ -31,13 +32,13 @@ const AFRICAN_COUNTRIES = [
   { code: "+242", country: "Congo Brazza", flag: "🇨🇬" },
 ];
 
-type PayoutOperator = "MTN" | "MOOV" | "WAVE" | "ORANGE";
-
-const OPERATORS: { id: PayoutOperator; name: string; tag: string }[] = [
+const OPERATORS: { id: PayoutOperator; name: string; tag: string; isCrypto?: boolean }[] = [
   { id: "MTN", name: "MTN MoMo", tag: "Bénin, CI, Cameroun" },
   { id: "MOOV", name: "Moov Money", tag: "Bénin, CI, Togo, BF" },
   { id: "WAVE", name: "Wave", tag: "Sénégal, CI, Bénin" },
-  { id: "ORANGE", name: "Orange Money", tag: "CI, Sénégal, Mali, BF" },
+  { id: "ORANGE", name: "Orange Money", tag: "CI, Sénégal, Mali, Guinée, RCA" },
+  { id: "USDT_TRC20", name: "USDT (TRC-20)", tag: "Mauritanie, Burundi, International", isCrypto: true },
+  { id: "BINANCE_PAY", name: "Binance Pay", tag: "0% frais • Instantané mondial", isCrypto: true },
 ];
 
 export default function FinancesPage() {
@@ -47,6 +48,7 @@ export default function FinancesPage() {
   const [payoutStep, setPayoutStep] = useState<"FORM" | "PENDING_ADMIN">("FORM");
   const [payoutCountryCode, setPayoutCountryCode] = useState("+229");
   const [payoutPhone, setPayoutPhone] = useState("01 97 36 29 06");
+  const [cryptoAddress, setCryptoAddress] = useState("");
   const [payoutMethod, setPayoutMethod] = useState<PayoutOperator>("MTN");
   const [payoutAmount, setPayoutAmount] = useState("252400");
 
@@ -65,9 +67,19 @@ export default function FinancesPage() {
   const pendingAmount = activePendingPayout ? activePendingPayout.amount : 0;
   const revenuNetDisponible = Math.max(0, initialRevenuNet - pendingAmount);
 
+  const isCryptoMethod = payoutMethod === "USDT_TRC20" || payoutMethod === "BINANCE_PAY";
+  const estimatedUsdt = Math.round((Number(payoutAmount || 0) / 600) * 100) / 100;
+
   const handleRequestPayout = (e: React.FormEvent) => {
     e.preventDefault();
-    requestPayout(Number(payoutAmount), payoutMethod, payoutPhone, payoutCountryCode);
+    requestPayout(
+      Number(payoutAmount),
+      payoutMethod,
+      payoutPhone,
+      payoutCountryCode,
+      cryptoAddress,
+      payoutMethod === "USDT_TRC20" ? "TRC-20 (Tron)" : payoutMethod === "BINANCE_PAY" ? "Binance Pay" : undefined
+    );
     setPayoutStep("PENDING_ADMIN");
   };
 
@@ -127,7 +139,15 @@ export default function FinancesPage() {
                 Retrait de {activePendingPayout.amount.toLocaleString("fr-FR")} F CFA en cours de validation
               </p>
               <p className="text-[11px] text-amber-800/90 mt-0.5 truncate">
-                Destination : <strong>{activePendingPayout.operator} Money ({activePendingPayout.countryCode} {activePendingPayout.phone})</strong> • Demandé à {new Date(activePendingPayout.requestedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                Destination :{" "}
+                <strong>
+                  {activePendingPayout.operator === "USDT_TRC20"
+                    ? `USDT (TRC-20) • ${activePendingPayout.cryptoAddress || "Tron Wallet"} (≈ ${activePendingPayout.cryptoEstimatedUsdt || Math.round(activePendingPayout.amount / 600)} USDT)`
+                    : activePendingPayout.operator === "BINANCE_PAY"
+                    ? `Binance Pay • ${activePendingPayout.cryptoAddress || "Binance ID"} (≈ ${activePendingPayout.cryptoEstimatedUsdt || Math.round(activePendingPayout.amount / 600)} USDT)`
+                    : `${activePendingPayout.operator} Money (${activePendingPayout.countryCode} ${activePendingPayout.phone})`}
+                </strong>{" "}
+                • Demandé à {new Date(activePendingPayout.requestedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
           </div>
@@ -282,43 +302,11 @@ export default function FinancesPage() {
 
             {payoutStep === "FORM" ? (
               <form onSubmit={handleRequestPayout} className="space-y-4">
-                {/* 1. SAISIE DU NUMÉRO MOBILE MONEY */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
-                    <Smartphone className="w-3.5 h-3.5 text-[#0D5940]" />
-                    <span>1. Numéro de compte Mobile Money</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {/* Country prefix selector */}
-                    <select
-                      value={payoutCountryCode}
-                      onChange={(e) => setPayoutCountryCode(e.target.value)}
-                      className="px-2.5 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white shrink-0"
-                    >
-                      {AFRICAN_COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.flag} {c.code} ({c.country})
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Phone number input */}
-                    <input
-                      type="tel"
-                      value={payoutPhone}
-                      onChange={(e) => setPayoutPhone(e.target.value)}
-                      placeholder="01 97 00 00 00"
-                      className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* 2. CHOIX DU MODE DE PAIEMENT */}
+                {/* 1. CHOIX DU MODE DE PAIEMENT */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
                     <Wallet className="w-3.5 h-3.5 text-[#0D5940]" />
-                    <span>2. Mode de paiement</span>
+                    <span>1. Mode de paiement</span>
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {OPERATORS.map((op) => (
@@ -336,16 +324,82 @@ export default function FinancesPage() {
                           <span className={`text-xs font-black ${payoutMethod === op.id ? "text-[#0D5940]" : "text-[#141A17]"}`}>
                             {op.name}
                           </span>
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              payoutMethod === op.id ? "bg-[#0D5940]" : "bg-[#EAE6DD]"
-                            }`}
-                          ></span>
+                          {op.isCrypto ? (
+                            <span className="text-[9px] bg-amber-500/10 text-amber-700 font-extrabold px-1.5 py-0.5 rounded border border-amber-500/20">
+                              Crypto
+                            </span>
+                          ) : (
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                payoutMethod === op.id ? "bg-[#0D5940]" : "bg-[#EAE6DD]"
+                              }`}
+                            ></span>
+                          )}
                         </div>
                         <p className="text-[10px] text-[#787163] mt-0.5">{op.tag}</p>
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* 2. COORDONNÉES DE RÉCEPTION (MOBILE MONEY OU CRYPTO) */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#787163] flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 text-[#0D5940]" />
+                    <span>
+                      {payoutMethod === "USDT_TRC20"
+                        ? "2. Adresse Wallet USDT (Réseau TRC-20)"
+                        : payoutMethod === "BINANCE_PAY"
+                        ? "2. Identifiant Binance Pay / Email"
+                        : "2. Numéro de compte Mobile Money"}
+                    </span>
+                  </label>
+
+                  {isCryptoMethod ? (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={cryptoAddress}
+                        onChange={(e) => setCryptoAddress(e.target.value)}
+                        placeholder={
+                          payoutMethod === "USDT_TRC20"
+                            ? "Ex: T9yD14Nj9j7xAB4dbGeiX9h8unkKHX... (TRC-20)"
+                            : "Ex: 284910244 ou email@binance.com"
+                        }
+                        className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-mono font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                        required
+                      />
+                      <div className="flex items-center justify-between text-[11px] text-[#787163] px-1">
+                        <span>Estimation : <strong className="text-[#0D5940] font-mono font-bold">≈ {estimatedUsdt} USDT</strong></span>
+                        <span className="text-[10px] bg-emerald-50 text-[#0D5940] px-2 py-0.5 rounded font-bold border border-emerald-200">
+                          1 USDT = 600 F CFA
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={payoutCountryCode}
+                        onChange={(e) => setPayoutCountryCode(e.target.value)}
+                        className="px-2.5 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white shrink-0"
+                      >
+                        {AFRICAN_COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.flag} {c.code} ({c.country})
+                          </option>
+                        ))}
+                      </select>
+
+                      <input
+                        type="tel"
+                        value={payoutPhone}
+                        onChange={(e) => setPayoutPhone(e.target.value)}
+                        placeholder="01 97 00 00 00"
+                        className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-xs font-bold text-[#141A17] focus:outline-none focus:border-[#0D5940] focus:bg-white"
+                        required
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. MONTANT DU RETRAIT */}
@@ -444,8 +498,12 @@ export default function FinancesPage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[#787163]">Compte de versement :</span>
-                    <span className="font-bold text-[#141A17]">
-                      {payoutMethod} ({payoutCountryCode} {payoutPhone})
+                    <span className="font-bold text-[#141A17] font-mono text-[11px] truncate max-w-[200px]">
+                      {payoutMethod === "USDT_TRC20"
+                        ? `USDT TRC-20 (${cryptoAddress || "Adresse Tron"}) ≈ ${estimatedUsdt} $`
+                        : payoutMethod === "BINANCE_PAY"
+                        ? `Binance Pay (${cryptoAddress || "ID"}) ≈ ${estimatedUsdt} $`
+                        : `${payoutMethod} (${payoutCountryCode} ${payoutPhone})`}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -457,7 +515,7 @@ export default function FinancesPage() {
                 </div>
 
                 <p className="text-[11px] text-[#787163] leading-relaxed">
-                  Dès que l&apos;admin approuve la demande, les fonds sont crédités directement sur votre compte Mobile Money.
+                  Dès que l&apos;administrateur approuve la demande, les fonds sont virés directement sur votre compte {isCryptoMethod ? "Crypto (USDT)" : "Mobile Money"}.
                 </p>
 
                 <button

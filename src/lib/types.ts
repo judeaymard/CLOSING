@@ -84,15 +84,21 @@ export interface CloseuseProfile {
   conversionRate: number;
 }
 
+// Opérateurs de Retrait (Mobile Money & Crypto)
+export type PayoutOperator = 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE' | 'USDT_TRC20' | 'BINANCE_PAY';
+
 // Demande de Retrait Financier
 export interface PayoutRequest {
   id: string;
   partnerId: string;
   partnerName: string;
   amount: number;
-  operator: 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE';
+  operator: PayoutOperator;
   phone: string;
   countryCode: string;
+  cryptoAddress?: string;
+  cryptoNetwork?: string;
+  cryptoEstimatedUsdt?: number;
   requestedAt: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   approvedAt?: string;
