@@ -52,7 +52,9 @@ export default function FinancesPage() {
   const totalOrdersCount = 77;
   const caTotal = 358800;
   const commissions = 106400; // 38 * 2800 F
-  const revenuNet = 252400; // 358800 - 106400
+  const initialRevenuNet = caTotal - commissions; // 252 400 F
+  const pendingAmount = submittedPayout ? Number(submittedPayout.amount) : 0;
+  const revenuNetDisponible = Math.max(0, initialRevenuNet - pendingAmount);
 
   const handleRequestPayout = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,10 +104,15 @@ export default function FinancesPage() {
             setShowPayoutModal(true);
             setPayoutStep("FORM");
           }}
-          className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 active:scale-95 shrink-0 self-start sm:self-auto"
+          disabled={revenuNetDisponible <= 0}
+          className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 shrink-0 self-start sm:self-auto ${
+            revenuNetDisponible <= 0
+              ? "bg-[#FAF9F5] border border-[#EAE6DD] text-[#787163] cursor-not-allowed"
+              : "bg-[#0D5940] hover:bg-[#093D2C] text-white active:scale-95"
+          }`}
         >
           <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
-          <span>Demande de retrait</span>
+          <span>{revenuNetDisponible <= 0 ? "Solde en cours de retrait" : "Demande de retrait"}</span>
           <ArrowUpRight className="w-4 h-4 shrink-0" />
         </button>
       </div>
@@ -142,11 +149,13 @@ export default function FinancesPage() {
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-1.5 truncate">
-              <span className="text-2xl sm:text-3xl font-black text-[#141A17]">{revenuNet.toLocaleString("fr-FR")}</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#141A17]">{revenuNetDisponible.toLocaleString("fr-FR")}</span>
               <span className="text-xs font-bold text-[#0D5940] uppercase">F CFA</span>
             </div>
             <p className="text-[11px] text-[#5C5649] mt-1 leading-normal truncate">
-              Prêt pour virement MoMo immédiat
+              {pendingAmount > 0
+                ? `⏳ ${pendingAmount.toLocaleString("fr-FR")} F en attente admin`
+                : "Prêt pour virement MoMo immédiat"}
             </p>
           </div>
         </div>
@@ -348,7 +357,7 @@ export default function FinancesPage() {
                       3. Montant du retrait
                     </label>
                     <span className="text-[11px] text-[#787163]">
-                      Disponible : <strong className="text-[#0D5940]">252 400 F</strong>
+                      Disponible : <strong className="text-[#0D5940]">{revenuNetDisponible.toLocaleString("fr-FR")} F</strong>
                     </span>
                   </div>
 
@@ -356,7 +365,7 @@ export default function FinancesPage() {
                     <input
                       type="number"
                       value={payoutAmount}
-                      max={revenuNet}
+                      max={revenuNetDisponible}
                       min={1000}
                       onChange={(e) => setPayoutAmount(e.target.value)}
                       className="w-full px-4 py-2.5 bg-[#FAF9F5] border border-[#EAE6DD] rounded-xl text-lg font-black text-[#0D5940] focus:outline-none focus:border-[#0D5940] focus:bg-white"
@@ -385,7 +394,7 @@ export default function FinancesPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPayoutAmount(revenuNet.toString())}
+                      onClick={() => setPayoutAmount(revenuNetDisponible.toString())}
                       className="px-2.5 py-1 rounded-lg bg-white border border-[#0D5940] text-[11px] font-bold text-[#0D5940]"
                     >
                       Tout retirer

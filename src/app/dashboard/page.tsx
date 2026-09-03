@@ -64,7 +64,9 @@ export default function DashboardOverviewPage() {
   const totalDeliveredOrders = 38;
   const caTotalBrut = 358800;
   const totalFraisLogistique = 106400; // 38 livraisons * 2800 F
-  const soldeNetDisponible = caTotalBrut - totalFraisLogistique; // 252 400 F
+  const initialNet = caTotalBrut - totalFraisLogistique; // 252 400 F
+  const pendingAmount = submittedPayout ? Number(submittedPayout.amount) : 0;
+  const soldeNetDisponible = Math.max(0, initialNet - pendingAmount);
 
   const partnerProducts = products.filter((p) => p.partnerId === currentPartner.id);
   const totalStockWarehouse = partnerProducts.reduce((acc, p) => acc + p.remainingStock, 0);
@@ -157,9 +159,16 @@ export default function DashboardOverviewPage() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 min-w-0">
           {/* Solde & Intitulé */}
           <div className="space-y-1.5 sm:space-y-2 min-w-0">
-            <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#787163]">
-              Solde Net Encaissé • Prêt pour virement immédiat
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#787163]">
+                Solde Net Disponible • Prêt pour retrait
+              </p>
+              {pendingAmount > 0 && (
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full animate-pulse">
+                  ⏳ {pendingAmount.toLocaleString("fr-FR")} F en attente admin
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
               <span className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-[#141A17] tracking-tight">
                 {soldeNetDisponible.toLocaleString("fr-FR")}
@@ -169,7 +178,9 @@ export default function DashboardOverviewPage() {
               </span>
             </div>
             <p className="text-xs text-[#5C5649] leading-relaxed">
-              Revenu net après déduction transparente des frais ENO (2 800 F / colis livré).
+              {pendingAmount > 0
+                ? `Demande de retrait de ${pendingAmount.toLocaleString("fr-FR")} F CFA en cours de validation. Solde restant : ${soldeNetDisponible.toLocaleString("fr-FR")} F CFA.`
+                : "Revenu net après déduction transparente des frais ENO (2 800 F / colis livré)."}
             </p>
           </div>
 
@@ -180,10 +191,15 @@ export default function DashboardOverviewPage() {
                 setShowPayoutModal(true);
                 setPayoutStep("FORM");
               }}
-              className="px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-[#0D5940] hover:bg-[#093D2C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2.5"
+              disabled={soldeNetDisponible <= 0}
+              className={`px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2.5 ${
+                soldeNetDisponible <= 0
+                  ? "bg-[#FAF9F5] border border-[#EAE6DD] text-[#787163] cursor-not-allowed"
+                  : "bg-[#0D5940] hover:bg-[#093D2C] text-white active:scale-95"
+              }`}
             >
               <Smartphone className="w-4 h-4 text-[#C5A059] shrink-0" />
-              <span>Demande de retrait</span>
+              <span>{soldeNetDisponible <= 0 ? "Solde en cours de retrait" : "Demande de retrait"}</span>
               <ArrowUpRight className="w-4 h-4 shrink-0" />
             </button>
           </div>
@@ -206,9 +222,13 @@ export default function DashboardOverviewPage() {
           </div>
 
           <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#EAE6DD]/60 flex flex-col justify-between h-full min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">Compte de Réception</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#787163] truncate">
+              {pendingAmount > 0 ? "En Attente de Virement" : "Compte de Réception"}
+            </p>
             <p className="text-base sm:text-lg font-bold text-[#141A17] mt-1 truncate">
-              {payoutMethod} • {payoutCountryCode} {payoutPhone}
+              {pendingAmount > 0
+                ? `${pendingAmount.toLocaleString("fr-FR")} F CFA (${submittedPayout?.operator})`
+                : `${payoutMethod} • ${payoutCountryCode} ${payoutPhone}`}
             </p>
           </div>
         </div>
