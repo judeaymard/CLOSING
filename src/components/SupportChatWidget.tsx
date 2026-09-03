@@ -61,11 +61,6 @@ export default function SupportChatWidget() {
   const [unreadCount, setUnreadCount] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Ne pas afficher le chat sur la page de connexion /partenaire ou la landing page
-  if (pathname === "/partenaire" || pathname === "/") {
-    return null;
-  }
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -185,6 +180,11 @@ export default function SupportChatWidget() {
       setIsTyping(false);
     }, 800);
   };
+
+  // Ne pas afficher le chat sur la page de connexion /partenaire ou la landing page
+  if (pathname === "/partenaire" || pathname === "/") {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-5 right-5 z-50 font-sans">
