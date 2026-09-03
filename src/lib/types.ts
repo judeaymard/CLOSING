@@ -58,6 +58,9 @@ export interface Order {
   deliveryTimeSlot?: string;
 }
 
+// Statuts opérationnels des livreurs
+export type LivreurStatus = 'AVAILABLE' | 'IN_TRANSIT' | 'PAUSED' | 'OFFLINE' | 'UNAVAILABLE';
+
 // Profil Livreur
 export interface LivreurProfile {
   id: string;
@@ -65,14 +68,25 @@ export interface LivreurProfile {
   email: string;
   phone: string;
   zone: string;
+  secondaryZones?: string[];
   avatarUrl?: string;
   vehicle: string;
+  licensePlate?: string;
   isActive: boolean;
+  availabilityStatus?: LivreurStatus;
   mustChangePassword?: boolean;
   temporaryCode?: string;
   assignedOrdersCount: number;
+  maxActiveCapacity?: number;
   deliveredTodayCount: number;
+  deliveredWeekCount?: number;
+  deliveredMonthCount?: number;
+  failedTodayCount?: number;
   cashCollectedToday: number;
+  commissionPerDelivery?: number;
+  successRate?: number;
+  avgDeliveryTimeMinutes?: number;
+  lastActivityAt?: string;
 }
 
 // Profil Closeuse

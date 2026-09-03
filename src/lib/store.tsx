@@ -31,6 +31,7 @@ import {
   AssignmentConfig,
   AssignmentLog,
   AssignmentMode,
+  LivreurStatus,
 } from "./types";
 
 interface OperationsContextType {
@@ -84,7 +85,21 @@ interface OperationsContextType {
     cryptoAddress?: string,
     cryptoNetwork?: string
   ) => PayoutRequest;
-  addLivreur: (data: { name: string; email: string; phone: string; zone: string; vehicle: string }) => LivreurProfile;
+  addLivreur: (data: {
+    name: string;
+    email: string;
+    phone: string;
+    zone: string;
+    secondaryZones?: string[];
+    vehicle: string;
+    licensePlate?: string;
+    maxActiveCapacity?: number;
+    commissionPerDelivery?: number;
+    availabilityStatus?: LivreurStatus;
+  }) => LivreurProfile;
+  updateLivreurAvailability: (livreurId: string, status: LivreurStatus) => void;
+  updateLivreur: (livreurId: string, data: Partial<LivreurProfile>) => void;
+  reassignLivreurOrders: (fromLivreurId: string, toLivreurId: string) => void;
   addCloseuse: (data: { name: string; email: string; phone: string }) => CloseuseProfile;
   changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
@@ -524,23 +539,87 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     return newReq;
   };
 
-  const addLivreur = (data: { name: string; email: string; phone: string; zone: string; vehicle: string }): LivreurProfile => {
+  const addLivreur = (data: {
+    name: string;
+    email: string;
+    phone: string;
+    zone: string;
+    secondaryZones?: string[];
+    vehicle: string;
+    licensePlate?: string;
+    maxActiveCapacity?: number;
+    commissionPerDelivery?: number;
+    availabilityStatus?: LivreurStatus;
+  }): LivreurProfile => {
     const newL: LivreurProfile = {
       id: `liv-${Date.now()}`,
       name: data.name,
       email: data.email,
       phone: data.phone,
       zone: data.zone,
+      secondaryZones: data.secondaryZones || [],
       vehicle: data.vehicle,
+      licensePlate: data.licensePlate || "RB-0000-XX",
       isActive: true,
+      availabilityStatus: data.availabilityStatus || "AVAILABLE",
       mustChangePassword: true,
       temporaryCode: Math.floor(100000 + Math.random() * 900000).toString(),
       assignedOrdersCount: 0,
+      maxActiveCapacity: data.maxActiveCapacity || 8,
       deliveredTodayCount: 0,
+      deliveredWeekCount: 0,
+      deliveredMonthCount: 0,
+      failedTodayCount: 0,
       cashCollectedToday: 0,
+      commissionPerDelivery: data.commissionPerDelivery || 1500,
+      successRate: 100,
+      avgDeliveryTimeMinutes: 30,
+      lastActivityAt: "À l'instant",
     };
     setLivreurs((prev) => [...prev, newL]);
     return newL;
+  };
+
+  const updateLivreurAvailability = (livreurId: string, status: LivreurStatus) => {
+    setLivreurs((prev) =>
+      prev.map((l) => (l.id === livreurId ? { ...l, availabilityStatus: status } : l))
+    );
+  };
+
+  const updateLivreur = (livreurId: string, data: Partial<LivreurProfile>) => {
+    setLivreurs((prev) =>
+      prev.map((l) => (l.id === livreurId ? { ...l, ...data } : l))
+    );
+  };
+
+  const reassignLivreurOrders = (fromLivreurId: string, toLivreurId: string) => {
+    const targetLivreur = livreurs.find((l) => l.id === toLivreurId);
+    if (!targetLivreur) return;
+
+    let count = 0;
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.assignedLivreurId === fromLivreurId && (o.status === "EN_COURS" || o.status === "CONFIRMEE")) {
+          count++;
+          return {
+            ...o,
+            assignedLivreurId: targetLivreur.id,
+            assignedLivreurName: targetLivreur.name,
+            updatedAt: new Date().toISOString(),
+            comment: `Réassigné à ${targetLivreur.name} (${targetLivreur.zone})`,
+          };
+        }
+        return o;
+      })
+    );
+
+    setLivreurs((prev) =>
+      prev.map((l) => {
+        if (l.id === fromLivreurId) return { ...l, assignedOrdersCount: 0 };
+        if (l.id === toLivreurId) return { ...l, assignedOrdersCount: l.assignedOrdersCount + count };
+        return l;
+      })
+    );
   };
 
   const addCloseuse = (data: { name: string; email: string; phone: string }): CloseuseProfile => {
@@ -659,6 +738,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         markOrderFailed,
         requestPayout,
         addLivreur,
+        updateLivreurAvailability,
+        updateLivreur,
+        reassignLivreurOrders,
         addCloseuse,
         changePassword,
         approvePayout,
