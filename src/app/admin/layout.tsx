@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -16,8 +16,9 @@ import {
   BadgeDollarSign,
   TrendingUp,
   BarChart3,
-  Settings,
+  FileText,
   Bell,
+  Settings,
   Search,
   ChevronRight,
   LogOut,
@@ -69,9 +70,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/livreurs") return { title: "Flotte Coursiers", subtitle: "Livreurs et caisse terrain" };
     if (pathname === "/admin/conversations") return { title: "Communication Hub", subtitle: "Support e-commerçants" };
     if (pathname === "/admin/assistant-ia") return { title: "Assistant IA", subtitle: "Automatisation du support" };
-    if (pathname === "/admin/finances/commissions") return { title: "Commissions & Revenus", subtitle: "Rentabilité agence" };
-    if (pathname.startsWith("/admin/finances")) return { title: "Retraits & Trésorerie", subtitle: "Arbitrage marchands" };
+    if (pathname === "/admin/finances") return { title: "Retraits & Trésorerie", subtitle: "Arbitrage marchands" };
+    if (pathname === "/admin/commissions") return { title: "Commissions & Revenus", subtitle: "Rentabilité agence" };
     if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
+    if (pathname === "/admin/rapports") return { title: "Rapports & Exports", subtitle: "Téléchargement de données" };
+    if (pathname === "/admin/notifications") return { title: "Centre de Notifications", subtitle: "Alertes et signaux" };
     if (pathname === "/admin/parametres") return { title: "Paramètres", subtitle: "Configuration plateforme" };
     return { title: "Espace Direction", subtitle: "Supervision des opérations" };
   };
@@ -80,58 +83,72 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       title: "VUE GÉNÉRALE",
       items: [
-        { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+        { id: "nav-dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       ],
     },
     {
       title: "OPÉRATIONS",
       items: [
-        { id: "commandes", label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
-        { id: "livraisons", label: "Livraisons", href: "/admin/livraisons", icon: Truck },
-        { id: "retours", label: "Retours", href: "/admin/retours", icon: RotateCcw },
+        { id: "nav-commandes", label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
+        { id: "nav-livraisons", label: "Livraisons", href: "/admin/livraisons", icon: Truck },
+        { id: "nav-retours", label: "Retours", href: "/admin/retours", icon: RotateCcw },
       ],
     },
     {
       title: "ÉQUIPE & RÉSEAU",
       items: [
-        { id: "partenaires", label: "E-commerçants", href: "/admin/partenaires", icon: Users },
-        { id: "closeuses", label: "Closeuses", href: "/admin/closeuses", icon: Headset },
-        { id: "livreurs", label: "Livreurs", href: "/admin/livreurs", icon: Bike },
+        { id: "nav-partenaires", label: "E-commerçants", href: "/admin/partenaires", icon: Users },
+        { id: "nav-closeuses", label: "Closeuses", href: "/admin/closeuses", icon: Headset },
+        { id: "nav-livreurs", label: "Livreurs", href: "/admin/livreurs", icon: Bike },
       ],
     },
     {
       title: "COMMUNICATION",
       items: [
         {
-          id: "conversations",
+          id: "nav-conversations",
           label: "Conversations",
           href: "/admin/conversations",
           icon: MessageSquare,
           badge: urgentConversationsCount > 0 ? urgentConversationsCount : undefined,
           badgeColor: "bg-slate-900 text-white",
         },
-        { id: "assistant-ia", label: "Assistant IA", href: "/admin/assistant-ia", icon: Bot },
+        { id: "nav-assistant-ia", label: "Assistant IA", href: "/admin/assistant-ia", icon: Bot },
       ],
     },
     {
       title: "FINANCE",
       items: [
         {
-          id: "retraits",
+          id: "nav-finances",
           label: "Retraits & Trésorerie",
           href: "/admin/finances",
           icon: BadgeDollarSign,
           badge: pendingPayoutsCount > 0 ? pendingPayoutsCount : undefined,
           badgeColor: "bg-amber-500 text-slate-950 font-black",
         },
-        { id: "commissions", label: "Commissions & Revenus", href: "/admin/finances/commissions", icon: TrendingUp },
+        { id: "nav-commissions", label: "Commissions & Revenus", href: "/admin/commissions", icon: TrendingUp },
       ],
     },
     {
-      title: "ANALYSES & SYSTÈME",
+      title: "ANALYSES",
       items: [
-        { id: "analyses", label: "Performances", href: "/admin/analyses", icon: BarChart3 },
-        { id: "parametres", label: "Paramètres", href: "/admin/parametres", icon: Settings },
+        { id: "nav-analyses", label: "Performances", href: "/admin/analyses", icon: BarChart3 },
+        { id: "nav-rapports", label: "Rapports", href: "/admin/rapports", icon: FileText },
+      ],
+    },
+    {
+      title: "SYSTÈME",
+      items: [
+        {
+          id: "nav-notifications",
+          label: "Notifications",
+          href: "/admin/notifications",
+          icon: Bell,
+          badge: totalNotifications > 0 ? totalNotifications : undefined,
+          badgeColor: "bg-rose-500 text-white font-bold",
+        },
+        { id: "nav-parametres", label: "Paramètres", href: "/admin/parametres", icon: Settings },
       ],
     },
   ];
@@ -143,7 +160,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* 🔍 Spotlight Search Modal */}
       <SpotlightSearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
-      {/* 🚀 COMPACT & CLEAN SIDEBAR (Desktop) */}
+      {/* 🚀 COMPACT & INDEPENDENT SIDEBAR (Desktop) */}
       <aside
         className={`hidden md:flex flex-col bg-white border-r border-slate-200/90 shrink-0 h-screen sticky top-0 transition-all duration-200 z-30 shadow-[1px_0_4px_rgba(0,0,0,0.02)] ${
           sidebarCollapsed ? "w-16 p-2" : "w-56 lg:w-60 p-3.5"
@@ -198,53 +215,49 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        {/* 3. Navigation Links (Each item 100% independent) */}
+        {/* 3. Navigation Links (Each item 100% strictly independent) */}
         <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pt-1">
-          {navSections.map((sec, secIdx) => (
-            <div key={secIdx} className="space-y-0.5">
+          {navSections.map((sec) => (
+            <div key={sec.title} className="space-y-1">
               {!sidebarCollapsed && (
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2 py-0.5 block">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-0.5 block">
                   {sec.title}
                 </span>
               )}
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {sec.items.map((item) => {
                   const Icon = item.icon;
-                  // Exact match logic so no two links ever share active state
-                  const isActive =
-                    item.href === "/admin"
-                      ? pathname === "/admin"
-                      : item.href === "/admin/finances"
-                      ? pathname === "/admin/finances"
-                      : pathname === item.href || (pathname.startsWith(item.href + "/") && !item.href.includes("?"));
+                  // Exact match ONLY: guarantees no other item is ever active
+                  const isActive = pathname === item.href;
 
                   return (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className={`flex items-center justify-between rounded-xl text-xs font-semibold transition-all my-0.5 cursor-pointer block ${
-                        sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
-                      } ${
-                        isActive
-                          ? "bg-slate-900 text-white font-bold shadow-2xs"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
-                      }`}
-                      title={sidebarCollapsed ? item.label : undefined}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon
-                          className={`w-4 h-4 shrink-0 ${
-                            isActive ? "text-white" : "text-slate-400"
-                          }`}
-                        />
-                        {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                      </div>
-                      {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
-                        <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${item.badgeColor}`}>
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
+                    <div key={item.id} className="block">
+                      <Link
+                        href={item.href}
+                        className={`flex items-center justify-between rounded-xl text-xs font-semibold transition-all cursor-pointer block ${
+                          sidebarCollapsed ? "p-2 justify-center" : "px-3 py-2"
+                        } ${
+                          isActive
+                            ? "bg-slate-900 text-white font-bold shadow-xs"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        }`}
+                        title={sidebarCollapsed ? item.label : undefined}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon
+                            className={`w-4 h-4 shrink-0 ${
+                              isActive ? "text-white" : "text-slate-400"
+                            }`}
+                          />
+                          {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                        </div>
+                        {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+                          <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${item.badgeColor}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
                   );
                 })}
               </div>
@@ -253,11 +266,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* 4. Bottom Actions */}
-        <div className="pt-2 mt-2 border-t border-slate-200/80 space-y-0.5 shrink-0">
+        <div className="pt-2 mt-2 border-t border-slate-200/80 space-y-1 shrink-0">
           <Link
             href="/dashboard"
-            className={`flex items-center gap-2 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors ${
-              sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
+            className={`flex items-center gap-2 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors ${
+              sidebarCollapsed ? "p-2 justify-center" : "px-3 py-1.5"
             }`}
             title="Accès Portail Marchand"
           >
@@ -267,8 +280,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <button
             onClick={() => router.push("/partenaire")}
-            className={`flex items-center gap-2 w-full rounded-lg text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer ${
-              sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
+            className={`flex items-center gap-2 w-full rounded-xl text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer ${
+              sidebarCollapsed ? "p-2 justify-center" : "px-3 py-1.5"
             }`}
             title="Déconnexion"
           >
@@ -318,25 +331,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             </div>
 
-            {navSections.map((sec, secIdx) => (
-              <div key={secIdx} className="space-y-1">
+            {navSections.map((sec) => (
+              <div key={sec.title} className="space-y-1">
                 <span className="text-[9px] font-bold uppercase text-slate-400 px-2 block">{sec.title}</span>
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {sec.items.map((item) => {
                     const Icon = item.icon;
-                    const isActive =
-                      item.href === "/admin"
-                        ? pathname === "/admin"
-                        : item.href === "/admin/finances"
-                        ? pathname === "/admin/finances"
-                        : pathname === item.href || (pathname.startsWith(item.href + "/") && !item.href.includes("?"));
+                    const isActive = pathname === item.href;
 
                     return (
                       <Link
                         key={item.id}
                         href={item.href}
                         onClick={() => setMobileSidebarOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold my-0.5 ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold ${
                           isActive ? "bg-slate-900 text-white font-bold" : "text-slate-600 hover:bg-slate-100"
                         }`}
                       >
