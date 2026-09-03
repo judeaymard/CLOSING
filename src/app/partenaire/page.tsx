@@ -372,11 +372,13 @@ function AuthForm() {
 
           {/* 🔘 SECTION BAS DE FORMULAIRE (DIFFÉRENCIÉE SELON RÔLE) */}
           {role === "agence" ? (
-            <div className="pt-4 text-center">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0f291e] text-emerald-300 text-xs font-bold border border-emerald-800/80 shadow-xs">
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Accès réservé à l&apos;équipe Eno Livraison</span>
-              </span>
+            <div className="pt-5 pb-1 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-emerald-950 shadow-2xs">
+                <Shield className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+                <span className="text-xs font-semibold text-slate-700 tracking-tight">
+                  Accès réservé à l&apos;équipe <strong className="font-extrabold text-[#0f291e]">ENO LIVRAISON</strong>
+                </span>
+              </div>
             </div>
           ) : (
             <>
