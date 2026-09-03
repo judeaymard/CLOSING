@@ -1,905 +1,643 @@
-"use client";
+﻿"use client";
 
-import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Store,
   Phone,
-  Mail,
-  MapPin,
-  Package,
-  CheckCircle,
+  MessageSquare,
+  CheckCircle2,
   Clock,
+  AlertTriangle,
+  RotateCcw,
   BadgeDollarSign,
-  Plus,
-  Boxes,
-  PhoneCall,
-  Search,
+  TrendingUp,
+  Package,
   Check,
   X,
-  AlertCircle,
-  TrendingUp,
-  UserCheck,
-  Send,
+  ChevronRight,
+  MoreVertical,
+  Plus,
+  Building2,
+  ExternalLink,
+  Ban,
+  Activity,
+  Calendar,
+  Layers,
   Sparkles,
+  ShieldCheck,
+  Mail,
+  MapPin,
+  Globe,
+  Wallet,
 } from "lucide-react";
-import {
-  partners as initialPartners,
-  products as initialProducts,
-  orders as initialOrders,
-  formatCFA,
-} from "@/lib/mock-data";
-import { ORDER_STATUS_CONFIG, OrderStatus, Product, Order } from "@/lib/types";
-
-export default function DedicatedPartnerPage() {
-  const params = useParams();
+import { useOperations } from "@/lib/store";
+import { formatCFA } from "@/lib/mock-data";
+import { Partner, PartnerStatus, Order, PayoutRequest } from "@/lib/types";
+export default function AdminPartnerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const router = useRouter();
-  const partnerId = (params?.id as string) || "p1";
+  const {
+    partners,
+    orders,
+    payoutRequests,
+    conversations,
+    updatePartner,
+    suspendPartner,
+    reactivatePartner,
+  } = useOperations();
 
-  const [partnersList, setPartnersList] = useState(initialPartners);
-  const [productList, setProductList] = useState<Product[]>(initialProducts);
-  const [orderList, setOrderList] = useState<Order[]>(initialOrders);
+  const partner = partners.find((p) => p.id === resolvedParams.id) || partners[0];
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState<"commandes" | "stocks" | "finances" | "profil">("commandes");
-  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("ALL");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [timeRange, setTimeRange] = useState<"7D" | "30D" | "90D">("7D");
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [copiedPhone, setCopiedPhone] = useState(false);
 
-  // Modals
-  const [showAddProductModal, setShowAddProductModal] = useState(false);
-  const [newProductName, setNewProductName] = useState("");
-  const [newProductPrice, setNewProductPrice] = useState("");
-  const [newProductStock, setNewProductStock] = useState("");
-
-  const [showRestockModal, setShowRestockModal] = useState<Product | null>(null);
-  const [restockQty, setRestockQty] = useState("");
-
-  const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [payoutAmount, setPayoutAmount] = useState("");
-  const [payoutSuccess, setPayoutSuccess] = useState(false);
-
-  const partner = partnersList.find((p) => p.id === partnerId) || partnersList[0];
-  const partnerOrders = orderList.filter((o) => o.partnerId === partner.id);
-  const partnerProducts = productList.filter((p) => p.partnerId === partner.id);
-
-  // Stats
-  const deliveredOrders = partnerOrders.filter((o) => o.status === "LIVREE");
-  const pendingOrders = partnerOrders.filter(
-    (o) => o.status === "A_RAPPELER" || o.status === "EN_ATTENTE" || o.status === "EN_COURS"
-  );
-  const totalRevenue = deliveredOrders.reduce((sum, o) => sum + o.totalPrice, 0);
-  const totalCommissions = deliveredOrders.length * 2800; // 800F closing + 2000F delivery
-  const netPayable = Math.max(0, totalRevenue - totalCommissions);
-
-  // Add Product Handler
-  const handleAddProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProductName || !newProductPrice || !newProductStock) return;
-
-    const newProd: Product = {
-      id: `prod_${Date.now()}`,
-      name: newProductName.toUpperCase(),
-      price: parseInt(newProductPrice),
-      initialStock: parseInt(newProductStock),
-      remainingStock: parseInt(newProductStock),
-      deliveredCount: 0,
-      partnerId: partner.id,
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-
-    setProductList((prev) => [...prev, newProd]);
-    setShowAddProductModal(false);
-    setNewProductName("");
-    setNewProductPrice("");
-    setNewProductStock("");
-  };
-
-  // Restock Handler
-  const handleRestock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!showRestockModal || !restockQty) return;
-
-    const qty = parseInt(restockQty);
-    setProductList((prev) =>
-      prev.map((p) =>
-        p.id === showRestockModal.id
-          ? {
-              ...p,
-              initialStock: p.initialStock + qty,
-              remainingStock: p.remainingStock + qty,
-            }
-          : p
-      )
-    );
-    setShowRestockModal(null);
-    setRestockQty("");
-  };
-
-  // Order status updater
-  const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
-    setOrderList((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-    );
-  };
-
-  const filteredOrders = partnerOrders.filter((o) => {
-    const matchesStatus = orderStatusFilter === "ALL" || o.status === orderStatusFilter;
-    const matchesSearch =
-      o.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.clientPhone.includes(searchTerm) ||
-      o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-
-  return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* 🔙 TOP BREADCRUMB & SWITCHER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-emerald-900/60">
-        <Link
-          href="/admin/partenaires"
-          className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300/80 hover:text-emerald-300 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Retour à la liste de toutes les boutiques
+  if (!partner) {
+    return (
+      <div className="p-8 text-center bg-white rounded-3xl border border-slate-200">
+        <p className="text-sm font-bold text-slate-900">Boutique partenaire introuvable.</p>
+        <Link href="/admin/partenaires" className="text-xs text-slate-500 hover:underline mt-2 inline-block">
+          ← Retour à la liste des e-commerçants
         </Link>
+      </div>
+    );
+  }
 
-        {/* Quick Boutique Switcher */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-emerald-300/70 font-semibold">Changer de boutique :</span>
-          <select
-            value={partner.id}
-            onChange={(e) => router.push(`/admin/partenaires/${e.target.value}`)}
-            className="px-3 py-1.5 bg-emerald-950 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-[#16a34a]"
-          >
-            {partnersList
-              .filter((p) => p.isApproved)
-              .map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.companyName} ({p.fullName})
-                </option>
-              ))}
-          </select>
-        </div>
+  // Merchant orders
+  const merchantOrders = orders.filter(
+    (o) => o.partnerId === partner.id || o.partnerName === partner.companyName
+  );
+
+  // Merchant payouts
+  const merchantPayouts = payoutRequests.filter(
+    (p) => p.partnerId === partner.id || p.partnerName.toLowerCase().includes(partner.companyName.toLowerCase())
+  );
+
+  // Merchant active alerts
+  const pendingPayoutTotal = merchantPayouts
+    .filter((p) => p.status === "PENDING")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const isLowDeliveryRate = (partner.deliverySuccessRate || 92) < 70;
+  const isHighBalanceDue = (partner.availableBalance || 0) > 3000000;
+
+  // 7-day activity mock data
+  const weekActivity = [
+    { day: "Lun", orders: 18, delivered: 16 },
+    { day: "Mar", orders: 22, delivered: 20 },
+    { day: "Mer", orders: 15, delivered: 14 },
+    { day: "Jeu", orders: 25, delivered: 23 },
+    { day: "Ven", orders: 20, delivered: 18 },
+    { day: "Sam", orders: 28, delivered: 26 },
+    { day: "Dim", orders: partner.ordersCountToday || 24, delivered: 22 },
+  ];
+  const maxDayCount = Math.max(...weekActivity.map((w) => w.orders), 1);
+
+  // Timeline events
+  const timelineEvents = [
+    { time: "Aujourd'hui — 18:42", text: "Nouvelle commande CMD-1048 enregistrée", icon: Package },
+    { time: "Aujourd'hui — 18:35", text: "Commande CMD-1041 livrée & 38 000 FCFA encaissés", icon: CheckCircle2 },
+    { time: "Aujourd'hui — 17:20", text: "Demande de retrait de 250 000 FCFA soumise", icon: Wallet },
+    { time: "Hier — 14:10", text: "Commande CMD-1032 confirmée par la closeuse", icon: CheckCircle2 },
+    { time: "28 août — 09:30", text: "Règlement Mobile Money validé de 1 200 000 FCFA", icon: BadgeDollarSign },
+  ];
+
+  const handleCopyPhone = () => {
+    navigator.clipboard.writeText(partner.phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
+  const handleConfirmSuspension = () => {
+    suspendPartner(partner.id, suspendReason.trim() || "Suspension administrative par la direction.");
+    setShowSuspendModal(false);
+    setSuspendReason("");
+  };
+
+  const getStatusBadge = (status?: PartnerStatus) => {
+    switch (status) {
+      case "PENDING_VERIFICATION":
+        return { label: "À vérifier", color: "bg-amber-100 text-amber-800 border-amber-200", dot: "bg-amber-500" };
+      case "ONBOARDING":
+        return { label: "En onboarding", color: "bg-blue-100 text-blue-800 border-blue-200", dot: "bg-blue-500" };
+      case "INACTIVE":
+        return { label: "Inactif", color: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" };
+      case "SUSPENDED":
+        return { label: "Suspendu", color: "bg-rose-100 text-rose-800 border-rose-200", dot: "bg-rose-500" };
+      case "ACTIVE":
+      default:
+        return { label: "Actif", color: "bg-emerald-100 text-emerald-800 border-emerald-200", dot: "bg-emerald-500" };
+    }
+  };
+
+  const badge = getStatusBadge(partner.status);
+  return (
+    <div className="space-y-6 animate-fade-in-up font-sans max-w-7xl mx-auto">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+        <Link href="/admin/partenaires" className="flex items-center gap-1 hover:text-slate-900 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>E-commerçants</span>
+        </Link>
+        <ChevronRight className="w-3 h-3 text-slate-300" />
+        <span className="text-slate-900 font-bold">{partner.companyName}</span>
       </div>
 
-      {/* 🏪 DEDICATED STORE HERO HEADER */}
-      <div className="bg-gradient-to-r from-[#091b14] via-[#0d261c] to-[#091b14] border-2 border-emerald-900/60 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-          {/* Store Info */}
-          <div className="flex items-start sm:items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#16a34a] flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-emerald-600/20 shrink-0">
-              {partner.companyName.charAt(0)}
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  {partner.companyName}
-                </h1>
-                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  Boutique Partenaire Active
-                </span>
-              </div>
-
-              <p className="text-xs text-emerald-200/80 font-medium">
-                Gérant : <span className="text-white font-bold">{partner.fullName}</span> • Inscrit depuis le{" "}
-                {partner.createdAt}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-300/70 pt-1">
-                <a
-                  href={`tel:${partner.phone}`}
-                  className="flex items-center gap-1.5 text-emerald-200 hover:text-emerald-300 font-semibold"
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#25d366]" />
-                  <span>{partner.phone}</span>
-                </a>
-                <span className="flex items-center gap-1.5 text-emerald-200">
-                  <Mail className="w-3.5 h-3.5 text-[#22c55e]" />
-                  <span>{partner.email}</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-200">
-                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{partner.address}</span>
-                </span>
-              </div>
-            </div>
+      {/* 👑 EXECUTIVE HEADER */}
+      <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-xs">
+            {partner.companyName.charAt(0)}
           </div>
-
-          {/* Header Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowAddProductModal(true)}
-              className="px-5 py-3 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Nouveau Produit</span>
-            </button>
-
-            <a
-              href={`https://wa.me/${partner.phone.replace(/[^0-9]/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-3 rounded-2xl bg-[#25d366] hover:bg-emerald-600 text-white text-xs font-bold shadow-md transition-all flex items-center gap-2"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>WhatsApp</span>
-            </a>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {partner.companyName}
+              </h1>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border flex items-center gap-1 ${badge.color}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}></span>
+                <span>{badge.label}</span>
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
+              <span className="font-semibold text-slate-700">{partner.fullName}</span>
+              <span>•</span>
+              <span className="font-mono">{partner.phone}</span>
+              <span>•</span>
+              <span>Inscrit le {partner.createdAt}</span>
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* 📊 4 KPI CARDS DEDICATED TO THIS PARTNER */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Commandes */}
-        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-emerald-200/70">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Commandes Totales</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Package className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-white">{partnerOrders.length}</p>
-          <p className="text-[10px] text-emerald-300/60">
-            {pendingOrders.length} en cours / closing
-          </p>
-        </div>
-
-        {/* Livrées avec succès */}
-        <div className="bg-[#091b14] border border-emerald-800/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-emerald-200/70">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Livrées & Encaissées</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <CheckCircle className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-emerald-400">{deliveredOrders.length}</p>
-          <p className="text-[10px] text-emerald-300/60">
-            Taux de succès :{" "}
-            {partnerOrders.length > 0
-              ? Math.round((deliveredOrders.length / partnerOrders.length) * 100)
-              : 0}
-            %
-          </p>
-        </div>
-
-        {/* Commissions Agence ENO */}
-        <div className="bg-[#091b14] border border-emerald-700/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-emerald-200/70">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Commissions Agence</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center">
-              <BadgeDollarSign className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-[#22c55e]">{formatCFA(totalCommissions)}</p>
-          <p className="text-[10px] text-emerald-300/60">2 800 F / colis livré</p>
-        </div>
-
-        {/* Solde Net à Reverser */}
-        <div className="bg-[#091b14] border border-amber-900/40 rounded-3xl p-5 shadow-xl space-y-2">
-          <div className="flex items-center justify-between text-emerald-200/70">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Solde Net Partenaire</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-amber-400">{formatCFA(netPayable)}</p>
+        {/* Top Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => {
-              setPayoutAmount(netPayable.toString());
-              setShowPayoutModal(true);
-              setPayoutSuccess(false);
-            }}
-            className="text-[10px] font-extrabold text-emerald-400 hover:underline"
+            onClick={() => router.push(`/admin/conversations?partner=${partner.id}`)}
+            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            Effectuer un reversement MoMo →
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Contacter</span>
           </button>
+
+          <a
+            href={`tel:${partner.phone.replace(/\s+/g, "")}`}
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <Phone className="w-3.5 h-3.5" />
+            <span>Appeler</span>
+          </a>
+
+          {partner.status === "SUSPENDED" ? (
+            <button
+              onClick={() => reactivatePartner(partner.id)}
+              className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors cursor-pointer"
+            >
+              Réactiver
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowSuspendModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 transition-colors cursor-pointer"
+            >
+              Suspendre
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 🧭 NAVIGATION TABS */}
-      <div className="flex items-center gap-2 border-b border-emerald-900/60 pb-3 overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("commandes")}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-            activeTab === "commandes"
-              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
-              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
-          }`}
-        >
-          <PhoneCall className="w-4 h-4" />
-          <span>Commandes & Closing ({partnerOrders.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("stocks")}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-            activeTab === "stocks"
-              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
-              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
-          }`}
-        >
-          <Boxes className="w-4 h-4" />
-          <span>Stocks & Produits ({partnerProducts.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("finances")}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-            activeTab === "finances"
-              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
-              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
-          }`}
-        >
-          <BadgeDollarSign className="w-4 h-4" />
-          <span>Finances & Reversements</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("profil")}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-            activeTab === "profil"
-              ? "bg-[#16a34a] text-white shadow-lg shadow-emerald-600/20"
-              : "bg-emerald-950/40 text-emerald-200/70 hover:text-white"
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          <span>Profil & Paramètres</span>
-        </button>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TAB 1: COMMANDES & CLOSING DE CETTE BOUTIQUE */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {activeTab === "commandes" && (
-        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-black text-white">
-                Commandes de {partner.companyName}
-              </h3>
-              <p className="text-xs text-emerald-300/70 mt-0.5">
-                Traitement des appels de confirmation et suivi de livraison en direct par ENO LIVRAISON.
-              </p>
+      {/* ⚠️ SECTION ALERTES D'ATTENTION */}
+      {(isHighBalanceDue || isLowDeliveryRate || partner.status === "SUSPENDED" || pendingPayoutTotal > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          {isHighBalanceDue && (
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-2.5 text-amber-950">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <span className="font-bold block">Solde important à reverser ({formatCFA(partner.availableBalance || 0)})</span>
+                <span className="text-[11px] text-amber-800">Un virement périodique est recommandé pour ce partenaire.</span>
+              </div>
             </div>
+          )}
 
-            {/* Filter pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-              {["ALL", "A_RAPPELER", "EN_ATTENTE", "LIVREE", "CONFIRMEE"].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setOrderStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold uppercase transition-all ${
-                    orderStatusFilter === st
-                      ? "bg-[#16a34a] text-white"
-                      : "bg-emerald-950/60 text-emerald-300/70 hover:text-white"
-                  }`}
-                >
-                  {st === "ALL" ? "Toutes" : st.replace("_", " ")}
-                </button>
-              ))}
+          {pendingPayoutTotal > 0 && (
+            <div className="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 flex items-center gap-2.5 text-purple-950">
+              <BadgeDollarSign className="w-4 h-4 text-purple-600 shrink-0" />
+              <div>
+                <span className="font-bold block">Demande de retrait en cours ({formatCFA(pendingPayoutTotal)})</span>
+                <Link href="/admin/finances" className="text-[11px] text-purple-800 underline font-bold">
+                  Consulter et valider dans Trésorerie →
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Search bar */}
-          <div className="relative max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/60" />
-            <input
-              type="text"
-              placeholder="Rechercher par client, téléphone ou N°..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/50 border border-emerald-900 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a]"
-            />
-          </div>
-
-          {/* Orders Table */}
-          {filteredOrders.length === 0 ? (
-            <div className="py-12 text-center text-emerald-300/60 text-xs">
-              Aucune commande trouvée pour cette sélection.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-emerald-900/60 text-emerald-300/70 uppercase text-[10px] tracking-wider">
-                    <th className="py-3 px-4 font-bold">N° Commande</th>
-                    <th className="py-3 px-4 font-bold">Client</th>
-                    <th className="py-3 px-4 font-bold">Téléphone</th>
-                    <th className="py-3 px-4 font-bold">Adresse / Zone</th>
-                    <th className="py-3 px-4 font-bold">Produit</th>
-                    <th className="py-3 px-4 font-bold">Prix Total</th>
-                    <th className="py-3 px-4 font-bold">Statut</th>
-                    <th className="py-3 px-4 font-bold text-right">Action Closing</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-emerald-900/40 font-medium">
-                  {filteredOrders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-emerald-950/30 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#22c55e]">
-                        {ord.orderNumber}
-                      </td>
-                      <td className="py-3.5 px-4 text-white font-bold">{ord.clientName}</td>
-                      <td className="py-3.5 px-4 text-emerald-200 font-mono">{ord.clientPhone}</td>
-                      <td className="py-3.5 px-4 text-emerald-300/70">{ord.address}</td>
-                      <td className="py-3.5 px-4 text-emerald-200">{ord.products}</td>
-                      <td className="py-3.5 px-4 text-white font-bold">
-                        {ord.totalPrice.toLocaleString("fr-FR")} F
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            ORDER_STATUS_CONFIG[ord.status]?.bg || "bg-emerald-950"
-                          } ${ORDER_STATUS_CONFIG[ord.status]?.color || "text-emerald-300"}`}
-                        >
-                          {ORDER_STATUS_CONFIG[ord.status]?.label || ord.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center gap-1.5">
-                          <a
-                            href={`tel:${ord.clientPhone}`}
-                            className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white"
-                            title="Appeler le client"
-                          >
-                            <PhoneCall className="w-3.5 h-3.5" />
-                          </a>
-                          <select
-                            value={ord.status}
-                            onChange={(e) =>
-                              updateOrderStatus(ord.id, e.target.value as OrderStatus)
-                            }
-                            className="px-2 py-1 bg-emerald-950 border border-emerald-800 rounded-lg text-[11px] text-white focus:outline-none focus:border-[#16a34a]"
-                          >
-                            <option value="A_RAPPELER">A Rappeler</option>
-                            <option value="CONFIRMEE">Confirmée</option>
-                            <option value="EN_COURS">En cours de livraison</option>
-                            <option value="LIVREE">Livrée (Encaissée)</option>
-                            <option value="REFUSEE">Refusée</option>
-                            <option value="ANNULEE">Annulée</option>
-                          </select>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {partner.status === "SUSPENDED" && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-950 col-span-1 sm:col-span-2">
+              <Ban className="w-4 h-4 text-rose-600 shrink-0" />
+              <div>
+                <span className="font-bold block">Boutique actuellement suspendue</span>
+                <span className="text-[11px] text-rose-800">{partner.suspensionReason || "Opérations temporairement bloquées par la direction."}</span>
+              </div>
             </div>
           )}
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TAB 2: STOCKS & PRODUITS DE CETTE BOUTIQUE */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {activeTab === "stocks" && (
-        <div className="space-y-6">
-          <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-black text-white">
-                Catalogue & Entrepôt de {partner.companyName}
-              </h3>
-              <p className="text-xs text-emerald-300/70 mt-0.5">
-                Produits confiés, niveau des stocks et réapprovisionnements en temps réel.
-              </p>
-            </div>
+      {/* 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* LEFT COLUMN (8 COLS) */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* 1. VUE D'ENSEMBLE */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2.5">
+              Vue d&apos;ensemble & Volume Opérationnel
+            </h3>
 
-            <button
-              onClick={() => setShowAddProductModal(true)}
-              className="px-5 py-2.5 rounded-2xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 self-start sm:self-auto"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Ajouter un autre produit pour cette boutique</span>
-            </button>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Colis Auj.</span>
+                <span className="text-base font-black text-slate-900">{partner.ordersCountToday || 24}</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Colis ce mois</span>
+                <span className="text-base font-black text-slate-900">{partner.ordersCountMonth || 412}</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Taux Confirmation</span>
+                <span className="text-base font-black text-slate-900">{partner.confirmationRate || 88.5}%</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Taux Livraison</span>
+                <span className="text-base font-black text-emerald-700">{partner.deliverySuccessRate || 94.2}%</span>
+              </div>
+            </div>
           </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {partnerProducts.map((prod) => (
-              <div
-                key={prod.id}
-                className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-4 flex flex-col justify-between hover:border-emerald-700 transition-all"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-bold text-[#22c55e] uppercase">
-                        Produit e-commerce
-                      </span>
-                      <h4 className="text-base font-black text-white">{prod.name}</h4>
-                    </div>
-                    <span className="px-3 py-1 rounded-xl bg-emerald-950 border border-emerald-800 text-white font-bold text-xs">
-                      {formatCFA(prod.price)}
-                    </span>
-                  </div>
+          {/* 2. PERFORMANCE DE LA BOUTIQUE */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+                Performance de la Boutique
+              </h3>
 
-                  {/* Stock Levels */}
-                  <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-emerald-950/50 border border-emerald-900/60 text-center">
-                    <div>
-                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Initial</p>
-                      <p className="text-sm font-black text-white mt-0.5">{prod.initialStock}</p>
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-[10px] font-bold">
+                {(["7D", "30D", "90D"] as const).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setTimeRange(r)}
+                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                      timeRange === r ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-500 hover:text-slate-900"
+                    }`}
+                  >
+                    {r === "7D" ? "7 jours" : r === "30D" ? "30 jours" : "90 jours"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Panier Moyen</span>
+                <span className="text-sm font-black font-mono text-slate-900">26 500 FCFA</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Taux de Retour</span>
+                <span className="text-sm font-black font-mono text-slate-900">4,1 %</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] text-slate-400 font-medium block">Délai Moyen</span>
+                <span className="text-sm font-black font-mono text-purple-700">3h 45m</span>
+              </div>
+            </div>
+
+            {/* 7-Day Histogram */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="text-xs font-bold text-slate-700 block">Flux des 7 derniers jours</span>
+              <div className="grid grid-cols-7 gap-2 items-end h-24 pt-2">
+                {weekActivity.map((w, idx) => {
+                  const barHeight = Math.round((w.orders / maxDayCount) * 100);
+                  return (
+                    <div key={idx} className="flex flex-col items-center gap-1.5 h-full justify-end">
+                      <span className="text-[9px] font-mono text-slate-400 font-bold">{w.orders}</span>
+                      <div className="w-full bg-slate-100 rounded-lg h-16 flex items-end overflow-hidden">
+                        <div
+                          style={{ height: `${barHeight}%` }}
+                          className="w-full bg-slate-900 rounded-lg transition-all"
+                        ></div>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">{w.day}</span>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          {/* 3. PARCOURS D'ONBOARDING */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3 text-xs">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+                Progression d&apos;Intégration (Onboarding)
+              </h3>
+              <span className="font-bold text-slate-900 text-xs">
+                Étape {partner.onboardingStep || 6} / 6
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-[10px]">
+              {[
+                { step: 1, label: "Compte créé", done: true },
+                { step: 2, label: "Boutique connectée", done: (partner.onboardingStep || 6) >= 2 },
+                { step: 3, label: "Conditions acceptées", done: (partner.onboardingStep || 6) >= 3 },
+                { step: 4, label: "Paiement configuré", done: (partner.onboardingStep || 6) >= 4 },
+                { step: 5, label: "1ère commande", done: (partner.onboardingStep || 6) >= 5 },
+                { step: 6, label: "Compte activé", done: (partner.onboardingStep || 6) >= 6 },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                    item.done
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                      : "bg-slate-50 border-slate-200 text-slate-400"
+                  }`}
+                >
+                  <span className="font-bold block">{item.step}. {item.label}</span>
+                  <span className="text-[9px] font-black">{item.done ? "✓ Complété" : "En attente"}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. COMMANDES RÉCENTES DE LA BOUTIQUE */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+                Commandes Récentes ({merchantOrders.length})
+              </h3>
+              <Link
+                href={`/admin/commandes?merchant=${partner.id}`}
+                className="text-xs text-slate-900 font-bold hover:underline flex items-center gap-0.5"
+              >
+                <span>Voir toutes les commandes</span>
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {merchantOrders.length === 0 ? (
+              <p className="text-xs text-slate-400 py-6 text-center">Aucune commande enregistrée pour cette boutique.</p>
+            ) : (
+              <div className="divide-y divide-slate-100 text-xs">
+                {merchantOrders.slice(0, 5).map((ord) => (
+                  <div
+                    key={ord.id}
+                    onClick={() => router.push(`/admin/commandes/${ord.id}`)}
+                    className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 rounded-xl px-2 transition-colors cursor-pointer"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-900 hover:underline">
+                          {ord.orderNumber}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-medium">{ord.city}</span>
+                      </div>
+                      <p className="text-slate-600 text-[11px]">{ord.clientName} • {ord.products}</p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="font-mono font-bold text-slate-900 block">{formatCFA(ord.totalPrice)}</span>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        {ord.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 5. RETRAITS RÉCENTS */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+                Demandes de Retrait & Règlements
+              </h3>
+              <Link
+                href="/admin/finances"
+                className="text-xs text-slate-900 font-bold hover:underline flex items-center gap-0.5"
+              >
+                <span>Module Trésorerie</span>
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {merchantPayouts.length === 0 ? (
+              <p className="text-xs text-slate-400 py-4 text-center">Aucun retrait récent enregistré.</p>
+            ) : (
+              <div className="divide-y divide-slate-100 text-xs">
+                {merchantPayouts.map((p) => (
+                  <div key={p.id} className="py-2.5 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Restant</p>
-                      <p className="text-sm font-black text-emerald-400 mt-0.5">
-                        {prod.remainingStock}
+                      <span className="font-mono font-bold text-slate-900">{formatCFA(p.amount)}</span>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {p.operator} • {p.phone} • {p.requestedAt}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-emerald-300/60 font-bold uppercase">Livrés</p>
-                      <p className="text-sm font-black text-[#22c55e] mt-0.5">{prod.deliveredCount}</p>
-                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      p.status === "APPROVED"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : p.status === "PENDING"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-rose-100 text-rose-800"
+                    }`}>
+                      {p.status === "APPROVED" ? "Payé" : p.status === "PENDING" ? "En attente" : "Refusé"}
+                    </span>
                   </div>
-
-                  {/* Stock Progress bar */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-emerald-300/70 font-semibold">
-                      <span>Stock disponible</span>
-                      <span>
-                        {Math.round((prod.remainingStock / prod.initialStock) * 100)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-emerald-950">
-                      <div
-                        className="bg-[#16a34a] h-full rounded-full"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (prod.remainingStock / prod.initialStock) * 100
-                          )}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-emerald-900/60 flex items-center justify-between">
-                  <span className="text-[11px] text-emerald-400/60 font-mono">ID: {prod.id}</span>
-                  <button
-                    onClick={() => {
-                      setShowRestockModal(prod);
-                      setRestockQty("");
-                    }}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-emerald-200 text-xs font-bold flex items-center gap-1.5 border border-emerald-900/60"
-                  >
-                    <Plus className="w-3.5 h-3.5 text-[#22c55e]" />
-                    <span>Réapprovisionner</span>
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TAB 3: FINANCES & REVERSEMENTS DE CETTE BOUTIQUE */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {activeTab === "finances" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* CA Total */}
-            <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-2">
-              <p className="text-xs font-bold text-emerald-300/70 uppercase">Chiffre d&apos;Affaires Brut (COD)</p>
-              <p className="text-3xl font-black text-white">{formatCFA(totalRevenue)}</p>
-              <p className="text-[11px] text-emerald-300/60">Total encaissé lors des livraisons</p>
-            </div>
-
-            {/* Commissions ENO */}
-            <div className="bg-[#091b14] border border-emerald-700/40 rounded-3xl p-6 shadow-xl space-y-2">
-              <p className="text-xs font-bold text-[#22c55e] uppercase">Commissions Retenues ENO</p>
-              <p className="text-3xl font-black text-[#22c55e]">{formatCFA(totalCommissions)}</p>
-              <p className="text-[11px] text-emerald-300/60">
-                800 F (Closing) + 2 000 F (Livraison) = 2 800 F / colis
-              </p>
-            </div>
-
-            {/* Net Partenaire */}
-            <div className="bg-[#091b14] border border-emerald-600/40 rounded-3xl p-6 shadow-xl space-y-2 flex flex-col justify-between">
-              <div>
-                <p className="text-xs font-bold text-emerald-400 uppercase">Net Reversible au Partenaire</p>
-                <p className="text-3xl font-black text-emerald-400">{formatCFA(netPayable)}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setPayoutAmount(netPayable.toString());
-                  setShowPayoutModal(true);
-                  setPayoutSuccess(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-2"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Virer par MTN / Moov MoMo</span>
-              </button>
-            </div>
+            )}
           </div>
 
-          {/* Breakdown Table */}
-          <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 shadow-xl space-y-4">
-            <h4 className="text-sm font-black text-white">Détail des commissions par commande livrée</h4>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-emerald-900/60 text-emerald-300/70 uppercase text-[10px]">
-                    <th className="py-3 px-4">Commande</th>
-                    <th className="py-3 px-4">Client</th>
-                    <th className="py-3 px-4">Montant Encaissé</th>
-                    <th className="py-3 px-4">Frais Closing</th>
-                    <th className="py-3 px-4">Frais Livraison</th>
-                    <th className="py-3 px-4 text-right">Net Reversé Partenaire</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-emerald-900/40 font-medium">
-                  {deliveredOrders.map((ord) => {
-                    const net = ord.totalPrice - 2800;
-                    return (
-                      <tr key={ord.id} className="hover:bg-emerald-950/30">
-                        <td className="py-3 px-4 font-mono text-[#22c55e] font-bold">
-                          {ord.orderNumber}
-                        </td>
-                        <td className="py-3 px-4 text-white font-bold">{ord.clientName}</td>
-                        <td className="py-3 px-4 text-white">{formatCFA(ord.totalPrice)}</td>
-                        <td className="py-3 px-4 text-emerald-300/70">800 F CFA</td>
-                        <td className="py-3 px-4 text-emerald-300/70">2 000 F CFA</td>
-                        <td className="py-3 px-4 text-right font-black text-emerald-400">
-                          {formatCFA(net)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {/* 6. HISTORIQUE D'ACTIVITÉ */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2.5">
+              Historique des Activités
+            </h3>
+
+            <div className="space-y-3 pt-1 text-xs">
+              {timelineEvents.map((ev, idx) => {
+                const Icon = ev.icon;
+                return (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="w-3.5 h-3.5 text-slate-700" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-slate-900">{ev.text}</p>
+                      <span className="text-[10px] text-slate-400 font-mono">{ev.time}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
-      )}
+        {/* RIGHT COLUMN (4 COLS) */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* 1. FINANCES DU MARCHAND */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Trésorerie & Règlements
+            </span>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TAB 4: PROFIL & PARAMÈTRES DE CETTE BOUTIQUE */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {activeTab === "profil" && (
-        <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl p-6 sm:p-8 shadow-xl max-w-2xl space-y-6">
-          <h3 className="text-base font-black text-white">Coordonnées de l&apos;e-commerçant</h3>
-
-          <div className="space-y-4 text-xs font-medium">
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
-              <span className="text-emerald-300/70">Nom de la boutique</span>
-              <span className="font-bold text-white text-sm">{partner.companyName}</span>
+            {/* Solde Card */}
+            <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-1">
+              <span className="text-[10px] text-slate-400 block">Solde disponible à reverser</span>
+              <span className="text-xl font-black font-mono text-emerald-400">
+                {formatCFA(partner.availableBalance || 0)}
+              </span>
+              <div className="flex justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800">
+                <span>En attente : {formatCFA(partner.pendingBalance || 0)}</span>
+                <span>Dernier virement : {partner.lastPayoutDate || "Récemment"}</span>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
-              <span className="text-emerald-300/70">Nom du gérant</span>
-              <span className="font-bold text-white text-sm">{partner.fullName}</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
-              <span className="text-emerald-300/70">WhatsApp / Téléphone</span>
-              <span className="font-bold text-[#25d366] text-sm">{partner.phone}</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
-              <span className="text-emerald-300/70">Adresse email</span>
-              <span className="font-bold text-[#22c55e] text-sm">{partner.email}</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 flex items-center justify-between">
-              <span className="text-emerald-300/70">Ville / Zone de stockage</span>
-              <span className="font-bold text-white text-sm">{partner.address}</span>
-            </div>
-
-            {partner.notes && (
-              <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-900/60 space-y-1">
-                <span className="text-emerald-300/70 text-[11px] font-bold uppercase">
-                  Notes & Accords de partenariat
+            {/* Breakdown */}
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between text-slate-500">
+                <span>Volume total traité (GMV) :</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCFA(partner.gmvProcessed || 18450000)}
                 </span>
-                <p className="text-emerald-100 text-xs">{partner.notes}</p>
               </div>
-            )}
+              <div className="flex justify-between text-slate-500">
+                <span>Frais de livraison déduits :</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCFA(1240000)}
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <span>Commission closing agence :</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCFA(925000)}
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-700 pt-2 border-t border-slate-100 font-bold">
+                <span>Net cumulé reversé :</span>
+                <span className="font-mono font-black text-emerald-600">
+                  {formatCFA(16285000)}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* ➕ MODAL : AJOUTER UN NOUVEAU PRODUIT */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {showAddProductModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl relative">
-            <div className="flex items-center justify-between pb-3 border-b border-emerald-900/60">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-[#22c55e] flex items-center justify-center font-bold">
-                  <Plus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black text-white">Nouveau Produit Déposé</h3>
-                  <p className="text-[11px] text-emerald-300/70">Pour {partner.companyName}</p>
-                </div>
+          {/* 2. PARAMÈTRES COMMERCIAUX */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3 text-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Paramètres Commerciaux
+            </span>
+
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Tarif Livraison Client :</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCFA(partner.deliveryFeeDefault || 2000)}
+                </span>
               </div>
-              <button
-                onClick={() => setShowAddProductModal(false)}
-                className="text-emerald-300/70 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Commission Agence :</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCFA(partner.agencyCommissionDefault || 800)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Mode de Reversement :</span>
+                <span className="font-bold text-slate-800">Mobile Money / USDT</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. CONTACT DIRECT */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3 text-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Coordonnées de la Boutique
+            </span>
+
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+              <div>
+                <p className="font-bold text-slate-900">{partner.fullName}</p>
+                <p className="font-mono text-slate-600">{partner.phone}</p>
+                <p className="text-[10px] text-slate-400">{partner.email}</p>
+              </div>
+              <div className="pt-2 border-t border-slate-200/60">
+                <span className="text-[10px] text-slate-400 block">Adresse de ramassage :</span>
+                <span className="font-medium text-slate-800">{partner.address}</span>
+              </div>
             </div>
 
-            <form onSubmit={handleAddProduct} className="space-y-4 text-xs font-medium">
-              <div className="space-y-1.5">
-                <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
-                  Nom du produit
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: SERUM ANTI-TACHES 50ML"
-                  value={newProductName}
-                  onChange={(e) => setNewProductName(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
-                    Prix de vente (F CFA)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="Ex: 8500"
-                    value={newProductPrice}
-                    onChange={(e) => setNewProductPrice(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-emerald-200/80 font-bold uppercase text-[10px]">
-                    Quantité déposée
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="Ex: 50"
-                    value={newProductStock}
-                    onChange={(e) => setNewProductStock(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white focus:outline-none focus:border-[#16a34a]"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3 flex items-center justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setShowAddProductModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-950 text-emerald-200 font-bold"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold shadow-md"
-                >
-                  Enregistrer le produit
-                </button>
-              </div>
-            </form>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={handleCopyPhone}
+                className="py-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 hover:bg-slate-50 cursor-pointer text-center"
+              >
+                {copiedPhone ? "Copié !" : "Copier Tel"}
+              </button>
+              <a
+                href={`tel:${partner.phone.replace(/\s+/g, "")}`}
+                className="py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold cursor-pointer text-center"
+              >
+                Appeler
+              </a>
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 📦 MODAL : RÉAPPROVISIONNER STOCK */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {showRestockModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
-            <h3 className="text-sm font-black text-white">
-              Réapprovisionner {showRestockModal.name}
-            </h3>
-            <p className="text-xs text-emerald-300/70">
-              Stock actuel en rayon : <span className="text-white font-bold">{showRestockModal.remainingStock} pcs</span>
-            </p>
-
-            <form onSubmit={handleRestock} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-emerald-200/80 uppercase">
-                  Quantité d&apos;unités ajoutées
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  placeholder="Ex: 50"
-                  value={restockQty}
-                  onChange={(e) => setRestockQty(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white text-sm focus:outline-none focus:border-[#16a34a]"
-                />
+      {/* ⚠️ MODAL DE SUSPENSION SÉCURISÉE */}
+      {showSuspendModal && (
+        <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in-up">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
+                <Ban className="w-5 h-5" />
               </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowRestockModal(null)}
-                  className="px-4 py-2 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold"
-                >
-                  Ajouter au stock
-                </button>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Suspendre {partner.companyName} ?</h3>
+                <p className="text-xs text-slate-500">Cette action bloquera la création de nouveaux colis.</p>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 💸 MODAL : REVERSEMENT MOBILE MONEY */}
-      {/* ══════════════════════════════════════════════════════ */}
-      {showPayoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#091b14] border border-emerald-900 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
-            <h3 className="text-sm font-black text-white">
-              Virement Mobile Money pour {partner.companyName}
-            </h3>
+            <div className="space-y-1 text-xs">
+              <label className="font-bold text-slate-700 block">Motif de la suspension *</label>
+              <textarea
+                rows={3}
+                placeholder="Indiquez le motif précis de la décision..."
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
+              />
+            </div>
 
-            {payoutSuccess ? (
-              <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-bold space-y-2 text-center">
-                <CheckCircle className="w-8 h-8 mx-auto text-emerald-400" />
-                <p>
-                  Virement de {formatCFA(parseInt(payoutAmount) || 0)} effectué avec succès au numéro {partner.phone} !
-                </p>
-                <button
-                  onClick={() => setShowPayoutModal(false)}
-                  className="mt-2 px-4 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"
-                >
-                  Fermer
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-xs text-emerald-200/80">
-                  Numéro bénéficiaire : <span className="font-bold text-white">{partner.phone}</span> ({partner.fullName})
-                </p>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-emerald-300/70 uppercase">
-                    Montant à transférer (F CFA)
-                  </label>
-                  <input
-                    type="number"
-                    value={payoutAmount}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-white font-mono font-bold text-sm focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowPayoutModal(false)}
-                    className="px-4 py-2 rounded-xl bg-emerald-950 text-emerald-200 text-xs font-bold"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutSuccess(true)}
-                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Confirmer le transfert</span>
-                  </button>
-                </div>
-              </div>
-            )}
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 text-xs">
+              <button
+                type="button"
+                onClick={() => setShowSuspendModal(false)}
+                className="px-4 py-2.5 rounded-xl text-slate-500 font-bold cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSuspension}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs cursor-pointer"
+              >
+                Confirmer la Suspension
+              </button>
+            </div>
           </div>
         </div>
       )}

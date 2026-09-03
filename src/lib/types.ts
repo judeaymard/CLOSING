@@ -144,6 +144,9 @@ export interface PayoutRequest {
   txReference?: string;
 }
 
+// Statuts des E-commerçants
+export type PartnerStatus = 'ACTIVE' | 'PENDING_VERIFICATION' | 'ONBOARDING' | 'INACTIVE' | 'SUSPENDED';
+
 // Partenaire (E-commerçant)
 export interface Partner {
   id: string;
@@ -155,9 +158,25 @@ export interface Partner {
   city?: string;
   isActive: boolean;
   isApproved: boolean;
+  status?: PartnerStatus;
   avatarUrl?: string;
   createdAt: string;
   notes?: string;
+  category?: string;
+  websiteUrl?: string;
+  deliveryFeeDefault?: number;
+  agencyCommissionDefault?: number;
+  onboardingStep?: number;
+  availableBalance?: number;
+  pendingBalance?: number;
+  lastActivityAt?: string;
+  deliverySuccessRate?: number;
+  confirmationRate?: number;
+  ordersCountToday?: number;
+  ordersCountMonth?: number;
+  gmvProcessed?: number;
+  lastPayoutDate?: string;
+  suspensionReason?: string;
 }
 
 // Produit (Stock)

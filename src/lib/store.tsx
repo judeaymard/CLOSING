@@ -115,6 +115,10 @@ interface OperationsContextType {
   }) => CloseuseProfile;
   updateCloseuse: (closeuseId: string, data: Partial<CloseuseProfile>) => void;
   reassignCloseuseOrders: (fromCloseuseId: string, toCloseuseId: string) => void;
+  addPartner: (data: Partial<Partner>) => Partner;
+  updatePartner: (partnerId: string, data: Partial<Partner>) => void;
+  suspendPartner: (partnerId: string, reason: string) => void;
+  reactivatePartner: (partnerId: string) => void;
   changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
@@ -711,6 +715,76 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
+  const addPartner = (data: Partial<Partner>): Partner => {
+    const newP: Partner = {
+      id: `p-${Date.now()}`,
+      fullName: data.fullName || "Propriétaire",
+      companyName: data.companyName || "Nouvelle Boutique",
+      email: data.email || "contact@boutique.bj",
+      phone: data.phone || "+229 01 00 00 00",
+      address: data.address || "Cotonou, Bénin",
+      city: data.city || "Cotonou",
+      isActive: true,
+      isApproved: true,
+      status: data.status || "ACTIVE",
+      category: data.category || "Généraliste",
+      websiteUrl: data.websiteUrl || "",
+      deliveryFeeDefault: data.deliveryFeeDefault || 2000,
+      agencyCommissionDefault: data.agencyCommissionDefault || 800,
+      onboardingStep: data.onboardingStep || 1,
+      availableBalance: 0,
+      pendingBalance: 0,
+      ordersCountToday: 0,
+      ordersCountMonth: 0,
+      gmvProcessed: 0,
+      confirmationRate: 0,
+      deliverySuccessRate: 0,
+      lastPayoutDate: "Nouveau",
+      lastActivityAt: "À l'instant",
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+    setPartners((prev) => [...prev, newP]);
+    return newP;
+  };
+
+  const updatePartner = (partnerId: string, data: Partial<Partner>) => {
+    setPartners((prev) =>
+      prev.map((p) => (p.id === partnerId ? { ...p, ...data } : p))
+    );
+  };
+
+  const suspendPartner = (partnerId: string, reason: string) => {
+    setPartners((prev) =>
+      prev.map((p) =>
+        p.id === partnerId
+          ? {
+              ...p,
+              isActive: false,
+              status: "SUSPENDED",
+              suspensionReason: reason,
+              lastActivityAt: `Suspendu le ${new Date().toLocaleDateString("fr-FR")}`,
+            }
+          : p
+      )
+    );
+  };
+
+  const reactivatePartner = (partnerId: string) => {
+    setPartners((prev) =>
+      prev.map((p) =>
+        p.id === partnerId
+          ? {
+              ...p,
+              isActive: true,
+              status: "ACTIVE",
+              suspensionReason: undefined,
+              lastActivityAt: "Réactivé à l'instant",
+            }
+          : p
+      )
+    );
+  };
+
   const changePassword = (_newPassword: string) => {};
 
   const approvePayout = (payoutId: string) => {
@@ -816,6 +890,10 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         addCloseuse,
         updateCloseuse,
         reassignCloseuseOrders,
+        addPartner,
+        updatePartner,
+        suspendPartner,
+        reactivatePartner,
         changePassword,
         approvePayout,
         rejectPayout,
