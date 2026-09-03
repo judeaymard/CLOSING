@@ -370,55 +370,64 @@ function AuthForm() {
             )}
           </button>
 
-          {/* Séparateur OU */}
-          <div className="relative flex items-center justify-center pt-1">
-            <div className="border-t border-slate-200 w-full"></div>
-            <span className="bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 relative">
-              OU
-            </span>
-          </div>
+          {/* 🔘 SECTION BAS DE FORMULAIRE (DIFFÉRENCIÉE SELON RÔLE) */}
+          {role === "agence" ? (
+            <div className="pt-4 text-center">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0f291e] text-emerald-300 text-xs font-bold border border-emerald-800/80 shadow-xs">
+                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Accès réservé à l&apos;équipe Eno Livraison</span>
+              </span>
+            </div>
+          ) : (
+            <>
+              {/* Séparateur OU */}
+              <div className="relative flex items-center justify-center pt-1">
+                <div className="border-t border-slate-200 w-full"></div>
+                <span className="bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 relative">
+                  OU
+                </span>
+              </div>
 
-          {/* Bouton Google */}
-          <button
-            type="button"
-            onClick={() => {
-              if (role === "agence") router.push("/admin");
-              else router.push("/dashboard");
-            }}
-            className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.15C3.26 21.3 7.31 24 12 24z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.28 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.39l3.99-3.15z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.61l3.99 3.15c.95-2.85 3.6-4.96 6.72-4.96z"
-              />
-            </svg>
-            <span>Continuer avec Google</span>
-          </button>
+              {/* Bouton Google */}
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard")}
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.15C3.26 21.3 7.31 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.39l3.99-3.15z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.61l3.99 3.15c.95-2.85 3.6-4.96 6.72-4.96z"
+                  />
+                </svg>
+                <span>Continuer avec Google</span>
+              </button>
 
-          {/* Switch vers inscription */}
-          <p className="text-center text-xs text-slate-500 font-medium pt-1">
-            Pas encore de compte ?{" "}
-            <button
-              type="button"
-              onClick={() => setIsRegister(true)}
-              className="font-bold text-[#16a34a] hover:underline"
-            >
-              Créer un compte
-            </button>
-          </p>
+              {/* Switch vers inscription */}
+              <p className="text-center text-xs text-slate-500 font-medium pt-1">
+                Pas encore de compte ?{" "}
+                <button
+                  type="button"
+                  onClick={() => setIsRegister(true)}
+                  className="font-bold text-[#16a34a] hover:underline"
+                >
+                  Créer un compte
+                </button>
+              </p>
+            </>
+          )}
         </form>
       )}
     </div>

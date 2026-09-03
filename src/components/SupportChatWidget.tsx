@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   MessageCircle,
   X,
@@ -51,6 +52,7 @@ const HUMAN_AGENT = {
 };
 
 export default function SupportChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [chatMode, setChatMode] = useState<"BOT" | "CONNECTING_HUMAN" | "HUMAN_AGENT">("BOT");
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
@@ -58,6 +60,11 @@ export default function SupportChatWidget() {
   const [isTyping, setIsTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Ne pas afficher le chat sur la page de connexion /partenaire ou la landing page
+  if (pathname === "/partenaire" || pathname === "/") {
+    return null;
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
