@@ -357,16 +357,25 @@ function AuthForm() {
             </button>
           </div>
 
-          {/* Bouton Se connecter Vert ENO */}
+          {/* Bouton Se connecter avec distinction visuelle radicale */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70"
+            className={`w-full py-3.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 cursor-pointer ${
+              role === "agence"
+                ? "bg-[#091b14] hover:bg-[#06140e] text-emerald-300 border-2 border-emerald-500/70 shadow-xl shadow-[#091b14]/25 tracking-wide"
+                : "bg-[#16a34a] hover:bg-[#15803d] text-white shadow-md shadow-emerald-600/25"
+            }`}
           >
             {loading ? (
-              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+            ) : role === "agence" ? (
+              <>
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span>Se connecter à l&apos;agence</span>
+              </>
             ) : (
-              "Se connecter à ENO LIVRAISON"
+              "Se connecter"
             )}
           </button>
 
