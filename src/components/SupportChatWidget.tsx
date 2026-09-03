@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
@@ -37,7 +37,7 @@ const INITIAL_MESSAGES: Message[] = [
 ];
 
 const SUGGESTED_QUESTIONS = [
-  "👩‍💼 Parler à un agent humain en direct",
+  "👩‍💼 Parler à un agent ENO livraison en direct",
   "📦 Comment suivre mes livraisons ?",
   "💸 Quand mon retrait est-il validé ?",
   "🚚 Programmer un ramassage de stock",
@@ -293,7 +293,7 @@ export default function SupportChatWidget() {
                 onClick={connectToHumanAgent}
                 className="text-white font-bold bg-emerald-700/60 hover:bg-emerald-600 px-2 py-0.5 rounded-md text-[10px] transition-colors cursor-pointer flex items-center gap-1"
               >
-                <span>Parler à un humain</span>
+                <span>Parler à un agent ENO en direct</span>
                 <span>👩‍💼</span>
               </button>
             </div>
