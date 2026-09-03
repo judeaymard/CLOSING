@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -25,8 +25,7 @@ import {
   ChevronLeft,
   Menu,
   X,
-  Shield,
-  Clock,
+  Truck,
   AlertTriangle,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
@@ -62,12 +61,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const getPageMeta = () => {
     if (pathname === "/admin") return { title: "Command Center", subtitle: "Vue d'ensemble et pilotage" };
-    if (pathname.includes("/commandes")) return { title: "Commandes & Closing", subtitle: "Traitement et télévente" };
-    if (pathname.includes("/livreurs")) return { title: "Flotte Coursiers", subtitle: "Tournées et encaissements COD" };
-    if (pathname.includes("/partenaires")) return { title: "E-commerçants", subtitle: "Portefeuille marchands" };
-    if (pathname.includes("/stocks")) return { title: "Entrepôt & Stocks", subtitle: "Inventaire et dépôts" };
-    if (pathname.includes("/finances")) return { title: "Finances & Retraits", subtitle: "Arbitrage et trésorerie" };
-    if (pathname.includes("/conversations")) return { title: "Communication Hub", subtitle: "Support et télévente" };
+    if (pathname === "/admin/commandes") return { title: "Commandes & Closing", subtitle: "Traitement et télévente" };
+    if (pathname === "/admin/livraisons") return { title: "Livraisons en Direct", subtitle: "Supervision des tournées" };
+    if (pathname === "/admin/retours") return { title: "Retours & Litiges", subtitle: "Gestion des non-livrés" };
+    if (pathname.startsWith("/admin/partenaires")) return { title: "E-commerçants", subtitle: "Portefeuille marchands" };
+    if (pathname === "/admin/closeuses") return { title: "Pôle Closeuses", subtitle: "Télévente et conversion" };
+    if (pathname === "/admin/livreurs") return { title: "Flotte Coursiers", subtitle: "Livreurs et caisse terrain" };
+    if (pathname === "/admin/conversations") return { title: "Communication Hub", subtitle: "Support e-commerçants" };
+    if (pathname === "/admin/assistant-ia") return { title: "Assistant IA", subtitle: "Automatisation du support" };
+    if (pathname === "/admin/finances/commissions") return { title: "Commissions & Revenus", subtitle: "Rentabilité agence" };
+    if (pathname.startsWith("/admin/finances")) return { title: "Retraits & Trésorerie", subtitle: "Arbitrage marchands" };
+    if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
+    if (pathname === "/admin/parametres") return { title: "Paramètres", subtitle: "Configuration plateforme" };
     return { title: "Espace Direction", subtitle: "Supervision des opérations" };
   };
 
@@ -75,56 +80,58 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       title: "VUE GÉNÉRALE",
       items: [
-        { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+        { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       ],
     },
     {
       title: "OPÉRATIONS",
       items: [
-        { label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
-        { label: "Livraisons", href: "/admin/livreurs", icon: Bike },
-        { label: "Retours", href: "/admin/commandes?status=RETOURNEE", icon: RotateCcw },
+        { id: "commandes", label: "Commandes", href: "/admin/commandes", icon: Package, badge: pendingOrdersCount, badgeColor: "bg-slate-900 text-white" },
+        { id: "livraisons", label: "Livraisons", href: "/admin/livraisons", icon: Truck },
+        { id: "retours", label: "Retours", href: "/admin/retours", icon: RotateCcw },
       ],
     },
     {
       title: "ÉQUIPE & RÉSEAU",
       items: [
-        { label: "E-commerçants", href: "/admin/partenaires", icon: Users },
-        { label: "Closeuses", href: "/admin/commandes", icon: Headset },
-        { label: "Livreurs", href: "/admin/livreurs", icon: Bike },
+        { id: "partenaires", label: "E-commerçants", href: "/admin/partenaires", icon: Users },
+        { id: "closeuses", label: "Closeuses", href: "/admin/closeuses", icon: Headset },
+        { id: "livreurs", label: "Livreurs", href: "/admin/livreurs", icon: Bike },
       ],
     },
     {
       title: "COMMUNICATION",
       items: [
         {
+          id: "conversations",
           label: "Conversations",
           href: "/admin/conversations",
           icon: MessageSquare,
           badge: urgentConversationsCount > 0 ? urgentConversationsCount : undefined,
           badgeColor: "bg-slate-900 text-white",
         },
-        { label: "Assistant IA", href: "/admin/conversations?mode=bot", icon: Bot },
+        { id: "assistant-ia", label: "Assistant IA", href: "/admin/assistant-ia", icon: Bot },
       ],
     },
     {
       title: "FINANCE",
       items: [
         {
+          id: "retraits",
           label: "Retraits & Trésorerie",
           href: "/admin/finances",
           icon: BadgeDollarSign,
           badge: pendingPayoutsCount > 0 ? pendingPayoutsCount : undefined,
           badgeColor: "bg-amber-500 text-slate-950 font-black",
         },
-        { label: "Commissions & Revenus", href: "/admin/finances", icon: TrendingUp },
+        { id: "commissions", label: "Commissions & Revenus", href: "/admin/finances/commissions", icon: TrendingUp },
       ],
     },
     {
       title: "ANALYSES & SYSTÈME",
       items: [
-        { label: "Performances", href: "/admin", icon: BarChart3 },
-        { label: "Paramètres", href: "/admin/partenaires", icon: Settings },
+        { id: "analyses", label: "Performances", href: "/admin/analyses", icon: BarChart3 },
+        { id: "parametres", label: "Paramètres", href: "/admin/parametres", icon: Settings },
       ],
     },
   ];
@@ -191,10 +198,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        {/* 3. Navigation Links (Hierarchical & Smooth Scroll) */}
+        {/* 3. Navigation Links (Each item 100% independent) */}
         <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pt-1">
-          {navSections.map((sec, idx) => (
-            <div key={idx} className="space-y-0.5">
+          {navSections.map((sec, secIdx) => (
+            <div key={secIdx} className="space-y-0.5">
               {!sidebarCollapsed && (
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2 py-0.5 block">
                   {sec.title}
@@ -203,12 +210,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="space-y-0.5">
                 {sec.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href;
+                  // Exact match logic so no two links ever share active state
+                  const isActive =
+                    item.href === "/admin"
+                      ? pathname === "/admin"
+                      : item.href === "/admin/finances"
+                      ? pathname === "/admin/finances"
+                      : pathname === item.href || (pathname.startsWith(item.href + "/") && !item.href.includes("?"));
+
                   return (
                     <Link
-                      key={item.href + item.label}
+                      key={item.id}
                       href={item.href}
-                      className={`flex items-center justify-between rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      className={`flex items-center justify-between rounded-xl text-xs font-semibold transition-all my-0.5 cursor-pointer block ${
                         sidebarCollapsed ? "p-2 justify-center" : "px-2.5 py-1.5"
                       } ${
                         isActive
@@ -304,19 +318,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             </div>
 
-            {navSections.map((sec, idx) => (
-              <div key={idx} className="space-y-1">
+            {navSections.map((sec, secIdx) => (
+              <div key={secIdx} className="space-y-1">
                 <span className="text-[9px] font-bold uppercase text-slate-400 px-2 block">{sec.title}</span>
                 <div className="space-y-0.5">
                   {sec.items.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href;
+                    const isActive =
+                      item.href === "/admin"
+                        ? pathname === "/admin"
+                        : item.href === "/admin/finances"
+                        ? pathname === "/admin/finances"
+                        : pathname === item.href || (pathname.startsWith(item.href + "/") && !item.href.includes("?"));
+
                     return (
                       <Link
-                        key={item.href + item.label}
+                        key={item.id}
                         href={item.href}
                         onClick={() => setMobileSidebarOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold my-0.5 ${
                           isActive ? "bg-slate-900 text-white font-bold" : "text-slate-600 hover:bg-slate-100"
                         }`}
                       >
@@ -382,7 +402,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               )}
             </button>
 
-            {/* Notification Popover Drawer */}
+            {/* Notification Popover */}
             {notificationsOpen && (
               <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-3xl border border-slate-200 shadow-2xl p-4 space-y-3 z-50 animate-fade-in-up">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
