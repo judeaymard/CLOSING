@@ -89,6 +89,9 @@ export interface LivreurProfile {
   lastActivityAt?: string;
 }
 
+// Statuts opérationnels des closeuses
+export type CloseuseStatus = 'AVAILABLE' | 'BUSY' | 'PAUSED' | 'OFFLINE' | 'UNAVAILABLE';
+
 // Profil Closeuse
 export interface CloseuseProfile {
   id: string;
@@ -97,11 +100,27 @@ export interface CloseuseProfile {
   phone: string;
   avatarUrl?: string;
   isActive: boolean;
+  availabilityStatus?: CloseuseStatus;
   mustChangePassword?: boolean;
   temporaryCode?: string;
   callsTodayCount: number;
   confirmedTodayCount: number;
+  confirmedWeekCount?: number;
+  confirmedMonthCount?: number;
+  cancelledTodayCount?: number;
+  unreachableTodayCount?: number;
+  callbacksScheduledToday?: number;
   conversionRate: number;
+  maxActiveOrders?: number;
+  maxActiveConversations?: number;
+  activeOrdersCount?: number;
+  activeConversationsCount?: number;
+  commissionPerConfirmation?: number;
+  avgProcessingTimeMinutes?: number;
+  languages?: string[];
+  zones?: string[];
+  skills?: string[];
+  lastActivityAt?: string;
 }
 
 // Opérateurs de Retrait (Mobile Money & Crypto)

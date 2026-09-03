@@ -32,6 +32,7 @@ import {
   AssignmentLog,
   AssignmentMode,
   LivreurStatus,
+  CloseuseStatus,
 } from "./types";
 
 interface OperationsContextType {
@@ -50,7 +51,7 @@ interface OperationsContextType {
   // Automatisation des Attributions
   assignmentConfig: AssignmentConfig;
   assignmentLogs: AssignmentLog[];
-  closerAvailability: Record<string, "AVAILABLE" | "BUSY" | "UNAVAILABLE">;
+  closerAvailability: Record<string, CloseuseStatus>;
 
   // Session & Rôles
   currentRole: UserRole;
@@ -100,7 +101,20 @@ interface OperationsContextType {
   updateLivreurAvailability: (livreurId: string, status: LivreurStatus) => void;
   updateLivreur: (livreurId: string, data: Partial<LivreurProfile>) => void;
   reassignLivreurOrders: (fromLivreurId: string, toLivreurId: string) => void;
-  addCloseuse: (data: { name: string; email: string; phone: string }) => CloseuseProfile;
+  addCloseuse: (data: {
+    name: string;
+    email: string;
+    phone: string;
+    languages?: string[];
+    zones?: string[];
+    skills?: string[];
+    maxActiveOrders?: number;
+    maxActiveConversations?: number;
+    commissionPerConfirmation?: number;
+    availabilityStatus?: CloseuseStatus;
+  }) => CloseuseProfile;
+  updateCloseuse: (closeuseId: string, data: Partial<CloseuseProfile>) => void;
+  reassignCloseuseOrders: (fromCloseuseId: string, toCloseuseId: string) => void;
   changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
@@ -110,7 +124,7 @@ interface OperationsContextType {
 
   // Méthodes d'Automatisation
   updateAssignmentConfig: (newConfig: Partial<AssignmentConfig>) => void;
-  updateCloserAvailability: (closerId: string, status: "AVAILABLE" | "BUSY" | "UNAVAILABLE") => void;
+  updateCloserAvailability: (closerId: string, status: CloseuseStatus) => void;
   simulateAssignment: (type: "ORDER" | "CONVERSATION") => {
     winner: CloseuseProfile | null;
     reason: string;
@@ -185,10 +199,10 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   // Automatisation State
   const [assignmentConfig, setAssignmentConfig] = useState<AssignmentConfig>(initialAssignmentConfig);
   const [assignmentLogs, setAssignmentLogs] = useState<AssignmentLog[]>(initialAssignmentLogs);
-  const [closerAvailability, setCloserAvailability] = useState<Record<string, "AVAILABLE" | "BUSY" | "UNAVAILABLE">>({
+  const [closerAvailability, setCloserAvailability] = useState<Record<string, CloseuseStatus>>({
     "cls-1": "AVAILABLE",
-    "cls-2": "AVAILABLE",
-    "cls-3": "AVAILABLE",
+    "cls-2": "BUSY",
+    "cls-3": "PAUSED",
   });
   const [roundRobinPointer, setRoundRobinPointer] = useState<number>(0);
 
@@ -221,8 +235,11 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   };
 
   // 2. Mise à jour de la disponibilité d'une closeuse
-  const updateCloserAvailability = (closerId: string, status: "AVAILABLE" | "BUSY" | "UNAVAILABLE") => {
+  const updateCloserAvailability = (closerId: string, status: CloseuseStatus) => {
     setCloserAvailability((prev) => ({ ...prev, [closerId]: status }));
+    setCloseuses((prev) =>
+      prev.map((c) => (c.id === closerId ? { ...c, availabilityStatus: status } : c))
+    );
   };
 
   // 3. Simulateur d'attribution algorithmique 4 étapes
@@ -622,21 +639,76 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
-  const addCloseuse = (data: { name: string; email: string; phone: string }): CloseuseProfile => {
+  const addCloseuse = (data: {
+    name: string;
+    email: string;
+    phone: string;
+    languages?: string[];
+    zones?: string[];
+    skills?: string[];
+    maxActiveOrders?: number;
+    maxActiveConversations?: number;
+    commissionPerConfirmation?: number;
+    availabilityStatus?: CloseuseStatus;
+  }): CloseuseProfile => {
     const newC: CloseuseProfile = {
       id: `cls-${Date.now()}`,
       name: data.name,
       email: data.email,
       phone: data.phone,
       isActive: true,
+      availabilityStatus: data.availabilityStatus || "AVAILABLE",
       mustChangePassword: true,
       temporaryCode: Math.floor(100000 + Math.random() * 900000).toString(),
       callsTodayCount: 0,
       confirmedTodayCount: 0,
+      confirmedWeekCount: 0,
+      confirmedMonthCount: 0,
+      cancelledTodayCount: 0,
+      unreachableTodayCount: 0,
+      callbacksScheduledToday: 0,
       conversionRate: 85,
+      maxActiveOrders: data.maxActiveOrders || 15,
+      maxActiveConversations: data.maxActiveConversations || 5,
+      activeOrdersCount: 0,
+      activeConversationsCount: 0,
+      commissionPerConfirmation: data.commissionPerConfirmation || 750,
+      avgProcessingTimeMinutes: 4.5,
+      languages: data.languages || ["Français", "Fon"],
+      zones: data.zones || ["Cotonou"],
+      skills: data.skills || ["Généraliste"],
+      lastActivityAt: "À l'instant",
     };
     setCloseuses((prev) => [...prev, newC]);
     return newC;
+  };
+
+  const updateCloseuse = (closeuseId: string, data: Partial<CloseuseProfile>) => {
+    setCloseuses((prev) =>
+      prev.map((c) => (c.id === closeuseId ? { ...c, ...data } : c))
+    );
+  };
+
+  const reassignCloseuseOrders = (fromCloseuseId: string, toCloseuseId: string) => {
+    const targetCloser = closeuses.find((c) => c.id === toCloseuseId);
+    if (!targetCloser) return;
+
+    let count = 0;
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.assignedCloseuseId === fromCloseuseId && (o.status === "EN_ATTENTE" || o.status === "A_RAPPELER")) {
+          count++;
+          return {
+            ...o,
+            assignedCloseuseId: targetCloser.id,
+            assignedCloseuseName: targetCloser.name,
+            updatedAt: new Date().toISOString(),
+            comment: `Réassigné à la closeuse ${targetCloser.name}`,
+          };
+        }
+        return o;
+      })
+    );
   };
 
   const changePassword = (_newPassword: string) => {};
@@ -742,6 +814,8 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         updateLivreur,
         reassignLivreurOrders,
         addCloseuse,
+        updateCloseuse,
+        reassignCloseuseOrders,
         changePassword,
         approvePayout,
         rejectPayout,
