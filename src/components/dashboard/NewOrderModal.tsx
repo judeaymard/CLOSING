@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { X, User, Calendar, Truck, CheckCircle2, Package } from "lucide-react";
 import { Order, Product } from "@/lib/types";
-import { products, generateOrderNumber } from "@/lib/mock-data";
+import { useOperations } from "@/lib/store";
 
 interface NewOrderModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface NewOrderModalProps {
 }
 
 export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOrderModalProps) {
+  const { createOrder, products } = useOperations();
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [region, setRegion] = useState("Cotonou");
@@ -19,7 +20,7 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
   const [orderDate, setOrderDate] = useState("2026-08-26");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliveryLocation, setDeliveryLocation] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<Product>(products[0]);
+  const [selectedProduct, setSelectedProduct] = useState<Product>(products[0] || { id: "p1", name: "Article", price: 10000, initialStock: 100, remainingStock: 50, deliveredCount: 50, partnerId: "p1" });
   const [quantity, setQuantity] = useState(1);
 
   if (!isOpen) return null;
@@ -30,9 +31,7 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
     e.preventDefault();
     if (!clientName || !clientPhone) return;
 
-    const newOrder: Order = {
-      id: "ord_" + Date.now(),
-      orderNumber: generateOrderNumber(),
+    const created = createOrder({
       clientName: clientName.toUpperCase(),
       clientPhone,
       region,
@@ -43,17 +42,13 @@ export default function NewOrderModal({ isOpen, onClose, onOrderCreated }: NewOr
       totalPrice: selectedProduct.price * quantity,
       deliveryFee: 2000,
       serviceFee: 800,
-      status: "EN_ATTENTE",
       comment: "NOUVELLE LIVRAISON (CONFIRMATION ENO EN COURS)",
       availability: deliveryDate,
       availabilityLocation: deliveryLocation,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      partnerId: "p1",
-    };
+    });
 
     if (onOrderCreated) {
-      onOrderCreated(newOrder);
+      onOrderCreated(created);
     }
 
     onClose();

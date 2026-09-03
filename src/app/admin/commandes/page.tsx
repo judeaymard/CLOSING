@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   PhoneCall,
   Search,
-  Filter,
   CheckCircle2,
   AlertCircle,
   MessageSquare,
@@ -15,52 +14,63 @@ import {
   Send,
   Store,
   ArrowRight,
+  Phone,
+  Clock,
+  Bike,
+  Headset,
+  MapPin,
+  X,
 } from "lucide-react";
-import { orders as initialOrders, partners } from "@/lib/mock-data";
-import { Order, OrderStatus } from "@/lib/types";
+import { useOperations } from "@/lib/store";
+import { OrderStatus, ORDER_STATUS_CONFIG } from "@/lib/types";
 
 export default function AdminCommandesPage() {
-  const [ordersList, setOrdersList] = useState<Order[]>(initialOrders);
+  const {
+    orders,
+    partners,
+    livreurs,
+    closeuses,
+    currentRole,
+    activeCloseuse,
+    updateOrderStatus,
+    logClosingCall,
+    assignOrderToLivreur,
+  } = useOperations();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPartner, setSelectedPartner] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [tempComment, setTempComment] = useState("");
 
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    setOrdersList((prev) =>
-      prev.map((ord) => {
-        if (ord.id === orderId) {
-          return {
-            ...ord,
-            status: newStatus,
-            deliveredAt: newStatus === "LIVREE" ? new Date().toISOString() : ord.deliveredAt,
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return ord;
-      })
-    );
+  // Call Logging Modal State
+  const [activeCallOrder, setActiveCallOrder] = useState<any | null>(null);
+  const [callNote, setCallNote] = useState("");
+  const [callStatus, setCallStatus] = useState<OrderStatus>("CONFIRMEE");
+  const [assignedDriver, setAssignedDriver] = useState<string>("");
+  const [timeSlot, setTimeSlot] = useState<string>("14h00 - 16h00");
+
+  const openCallModal = (order: any) => {
+    setActiveCallOrder(order);
+    setCallNote(order.closingNotes || "");
+    setCallStatus(order.status === "EN_ATTENTE" ? "CONFIRMEE" : order.status);
+    setAssignedDriver(order.assignedLivreurId || livreurs[0]?.id || "");
+    setTimeSlot(order.deliveryTimeSlot || "14h00 - 16h00");
   };
 
-  const handleSaveComment = (orderId: string) => {
-    setOrdersList((prev) =>
-      prev.map((ord) => {
-        if (ord.id === orderId) {
-          return {
-            ...ord,
-            comment: tempComment.toUpperCase(),
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return ord;
-      })
+  const handleSaveCall = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeCallOrder) return;
+
+    logClosingCall(
+      activeCallOrder.id,
+      callNote,
+      callStatus,
+      callStatus === "CONFIRMEE" || callStatus === "EN_COURS" ? assignedDriver : undefined,
+      timeSlot
     );
-    setEditingCommentId(null);
-    setTempComment("");
+    setActiveCallOrder(null);
   };
 
-  const filteredOrders = ordersList.filter((ord) => {
+  const filteredOrders = orders.filter((ord) => {
     const matchesPartner = selectedPartner === "ALL" || ord.partnerId === selectedPartner;
     const matchesStatus = selectedStatus === "ALL" || ord.status === selectedStatus;
     const matchesSearch =
@@ -79,226 +89,327 @@ export default function AdminCommandesPage() {
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight">Closing & Gestion des Commandes</h2>
           <p className="text-xs text-emerald-300/70 mt-1">
-            Interface de confirmation téléphonique et assignation aux livreurs pour l&apos;ensemble des boutiques ENO LIVRAISON.
+            File de confirmation téléphonique, enregistrement des notes de closing et dispatch livreurs.
           </p>
         </div>
 
-        {selectedPartner !== "ALL" && (
-          <Link
-            href={`/admin/partenaires/${selectedPartner}`}
-            className="px-4 py-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold flex items-center gap-1.5 shadow-md"
-          >
-            <Store className="w-4 h-4" />
-            <span>Ouvrir l&apos;espace dédié de cette boutique</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-emerald-300 bg-emerald-950 px-3 py-1.5 rounded-xl border border-emerald-800">
+            {filteredOrders.length} commande(s) active(s)
+          </span>
+        </div>
       </div>
 
       {/* FILTER BAR */}
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#091b14] border border-emerald-900/60 p-4 rounded-3xl shadow-xl">
         {/* Partner Select */}
-        <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
-            <Building className="w-4 h-4 text-[#22c55e]" />
-          </div>
+        <div className="sm:col-span-4">
           <select
             value={selectedPartner}
             onChange={(e) => setSelectedPartner(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white focus:outline-none focus:border-[#16a34a]"
+            className="w-full px-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
           >
-            <option value="ALL">Toutes les Boutiques E-commerce</option>
-            {partners
-              .filter((p) => p.isApproved)
-              .map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.companyName} ({p.fullName})
-                </option>
-              ))}
+            <option value="ALL">🏢 Toutes les Boutiques Partenaires</option>
+            {partners.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.companyName} ({p.fullName})
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Status Select */}
-        <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
-            <Filter className="w-4 h-4 text-[#22c55e]" />
-          </div>
+        <div className="sm:col-span-4">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white focus:outline-none focus:border-[#16a34a]"
+            className="w-full px-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
           >
-            <option value="ALL">Tous les statuts</option>
-            <option value="A_RAPPELER">A rappeler (Urgent)</option>
-            <option value="EN_ATTENTE">En attente d&apos;appel</option>
-            <option value="CONFIRMEE">Confirmée par la closeuse</option>
-            <option value="EN_COURS">En cours de livraison</option>
-            <option value="LIVREE">Livrée avec succès</option>
-            <option value="REFUSEE">Refusée par le client</option>
-            <option value="ANNULEE">Annulée</option>
-            <option value="RETOURNEE">Retournée</option>
+            <option value="ALL">📌 Tous les Statuts</option>
+            <option value="EN_ATTENTE">🟡 En attente de confirmation</option>
+            <option value="CONFIRMEE">🔵 Confirmée par Closeuse</option>
+            <option value="EN_COURS">🚴 En livraison coursier</option>
+            <option value="LIVREE">🟢 Livrée & Encaissée</option>
+            <option value="A_RAPPELER">🟠 À rappeler</option>
+            <option value="REFUSEE">🔴 Refusée / Annulée</option>
           </select>
         </div>
 
-        {/* Search */}
+        {/* Search Input */}
         <div className="sm:col-span-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400/60">
-            <Search className="w-4 h-4 text-emerald-400/60" />
-          </div>
+          <Search className="w-3.5 h-3.5 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher un client, téléphone..."
+            placeholder="Rechercher client, N°, ville..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-emerald-950 border border-emerald-800 rounded-2xl text-xs text-white placeholder:text-emerald-400/50 focus:outline-none focus:border-[#16a34a]"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-emerald-950/60 border border-emerald-800 rounded-xl text-xs text-white placeholder:text-emerald-500/60 focus:outline-none focus:border-emerald-400"
           />
         </div>
       </div>
 
-      {/* ORDERS LIST / CLOSING CARDS */}
-      <div className="space-y-3">
-        {filteredOrders.length === 0 ? (
-          <div className="bg-[#091b14] border border-emerald-900/60 p-12 rounded-3xl text-center text-emerald-300/60 text-sm">
-            Aucune commande ne correspond aux filtres.
-          </div>
-        ) : (
-          filteredOrders.map((ord) => {
-            const partner = partners.find((p) => p.id === ord.partnerId);
-            const isEditingThisComment = editingCommentId === ord.id;
+      {/* TABLE DES COMMANDES */}
+      <div className="bg-[#091b14] border border-emerald-900/60 rounded-3xl shadow-xl overflow-hidden">
+        <div className="overflow-x-auto w-full max-w-full">
+          <table className="w-full text-left text-xs whitespace-nowrap min-w-[850px]">
+            <thead className="bg-[#0c241a] border-b border-emerald-900/80 text-emerald-400 font-black uppercase text-[10px] tracking-wider">
+              <tr>
+                <th className="py-3.5 px-5">Réf & Boutique</th>
+                <th className="py-3.5 px-5">Client & Contact</th>
+                <th className="py-3.5 px-5">Destination & Articles</th>
+                <th className="py-3.5 px-5">Montant COD</th>
+                <th className="py-3.5 px-5">Statut Actuel</th>
+                <th className="py-3.5 px-5">Suivi Closing & Livreur</th>
+                <th className="py-3.5 px-5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-emerald-900/40 text-emerald-100 font-medium">
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-emerald-400/60">
+                    Aucune commande trouvée pour ces critères.
+                  </td>
+                </tr>
+              ) : (
+                filteredOrders.map((ord) => {
+                  const statusCfg = ORDER_STATUS_CONFIG[ord.status] || {
+                    label: ord.status,
+                    color: "text-emerald-300",
+                    bg: "bg-emerald-950",
+                  };
 
-            return (
-              <div
-                key={ord.id}
-                className="bg-[#091b14] border border-emerald-900/60 hover:border-emerald-700 rounded-3xl p-5 sm:p-6 shadow-xl transition-all space-y-4"
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-emerald-900/60">
-                  {/* Client & Partner info */}
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-black text-white">{ord.clientName}</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-mono text-[11px] border border-emerald-900">
-                        {ord.orderNumber}
-                      </span>
-                      {partner && (
-                        <Link
-                          href={`/admin/partenaires/${partner.id}`}
-                          className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 hover:underline text-[10px] font-bold border border-emerald-500/30"
+                  return (
+                    <tr key={ord.id} className="hover:bg-emerald-950/40 transition-colors">
+                      {/* Ref & Boutique */}
+                      <td className="py-4 px-5">
+                        <span className="font-mono font-bold text-emerald-400">{ord.orderNumber}</span>
+                        <p className="text-[10px] text-emerald-300/70 font-semibold mt-0.5">
+                          {ord.partnerName || "Afrimarket"}
+                        </p>
+                      </td>
+
+                      {/* Client */}
+                      <td className="py-4 px-5">
+                        <p className="font-black text-white">{ord.clientName}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <a
+                            href={`tel:${ord.clientPhone.replace(/\s+/g, "")}`}
+                            className="text-[11px] font-mono text-emerald-300 hover:text-white flex items-center gap-1"
+                          >
+                            <Phone className="w-3 h-3 text-emerald-400" />
+                            <span>{ord.clientPhone}</span>
+                          </a>
+                          <a
+                            href={`https://wa.me/${ord.clientPhone.replace(/[^0-9]/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] font-bold text-[#25D366] bg-[#25D366]/10 px-1.5 py-0.5 rounded"
+                          >
+                            WA
+                          </a>
+                        </div>
+                      </td>
+
+                      {/* Destination & Product */}
+                      <td className="py-4 px-5">
+                        <p className="font-bold text-white flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{ord.address}</span>
+                        </p>
+                        <p className="text-[11px] text-emerald-300/70 mt-0.5">
+                          📦 {ord.products} ({ord.quantity}x)
+                        </p>
+                      </td>
+
+                      {/* Montant COD */}
+                      <td className="py-4 px-5">
+                        <span className="font-black text-sm text-emerald-400">
+                          {ord.totalPrice.toLocaleString("fr-FR")} F
+                        </span>
+                        <p className="text-[10px] text-emerald-500/80">Cash On Delivery</p>
+                      </td>
+
+                      {/* Statut */}
+                      <td className="py-4 px-5">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-700/60 ${statusCfg.bg} ${statusCfg.color}`}
                         >
-                          Boutique: {partner.companyName}
-                        </Link>
-                      )}
-                    </div>
+                          {statusCfg.label}
+                        </span>
+                      </td>
 
-                    <p className="text-xs text-emerald-300/70 flex flex-wrap items-center gap-3 pt-1">
-                      <span>📍 {ord.address}</span>
-                      <span>📦 {ord.products} (Qté: {ord.quantity})</span>
-                      <span className="text-white font-bold">💰 {ord.totalPrice.toLocaleString("fr-FR")} F CFA</span>
-                    </p>
-                  </div>
+                      {/* Note & Livreur */}
+                      <td className="py-4 px-5 max-w-xs">
+                        {ord.closingNotes ? (
+                          <p className="text-[11px] text-emerald-200 truncate font-semibold">
+                            💬 {ord.closingNotes}
+                          </p>
+                        ) : (
+                          <span className="text-[10px] text-emerald-500/60">Pas encore qualifié</span>
+                        )}
+                        {ord.assignedLivreurName && (
+                          <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                            <Bike className="w-3 h-3" />
+                            <span>Coursier : {ord.assignedLivreurName}</span>
+                          </p>
+                        )}
+                      </td>
 
-                  {/* Direct Call & WhatsApp Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <a
-                      href={`tel:${ord.clientPhone}`}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-600/20 transition-all active:scale-95"
-                    >
-                      <PhoneCall className="w-3.5 h-3.5" />
-                      Appeler ({ord.clientPhone})
-                    </a>
+                      {/* Actions */}
+                      <td className="py-4 px-5 text-right">
+                        <button
+                          onClick={() => openCallModal(ord)}
+                          className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 ml-auto"
+                        >
+                          <Headset className="w-3.5 h-3.5" />
+                          <span>Closing & Appel</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-                    <a
-                      href={`https://wa.me/229${ord.clientPhone.replace(/\s+/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl bg-[#25d366]/20 border border-[#25d366]/30 hover:bg-[#25d366]/30 text-[#25d366] text-xs font-bold flex items-center gap-2 transition-all"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      WhatsApp
-                    </a>
-                  </div>
-                </div>
+      {/* 📞 MODAL DE CLOSING & APPEL CLIENT */}
+      {activeCallOrder && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#091b14] border border-emerald-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-5 animate-fade-in-up">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-900">
+              <div>
+                <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase">
+                  Closing Téléphonique • {activeCallOrder.orderNumber}
+                </span>
+                <h3 className="text-base font-black text-white mt-0.5">{activeCallOrder.clientName}</h3>
+              </div>
+              <button
+                onClick={() => setActiveCallOrder(null)}
+                className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-                {/* CLOSING CONTROL BAR */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                  {/* Status Dropdown */}
-                  <div className="md:col-span-4 flex items-center gap-2">
-                    <label className="text-xs font-bold text-emerald-300/70 uppercase tracking-wider shrink-0">
-                      Statut :
-                    </label>
-                    <select
-                      value={ord.status}
-                      onChange={(e) => handleStatusChange(ord.id, e.target.value as OrderStatus)}
-                      className={`w-full px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider focus:outline-none transition-all cursor-pointer ${
-                        ord.status === "LIVREE"
-                          ? "bg-emerald-600 text-white"
-                          : ord.status === "A_RAPPELER"
-                          ? "bg-amber-500 text-white"
-                          : ord.status === "EN_COURS"
-                          ? "bg-blue-600 text-white"
-                          : ord.status === "CONFIRMEE"
-                          ? "bg-[#16a34a] text-white"
-                          : ord.status === "EN_ATTENTE"
-                          ? "bg-yellow-600 text-white"
-                          : ord.status === "REFUSEE"
-                          ? "bg-rose-600 text-white"
-                          : ord.status === "RETOURNEE"
-                          ? "bg-purple-600 text-white"
-                          : "bg-slate-700 text-white"
+            {/* Quick Call & WhatsApp Shortcuts */}
+            <div className="p-3.5 rounded-2xl bg-emerald-950/80 border border-emerald-800 flex items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] text-emerald-400 uppercase font-bold">Numéro Client</p>
+                <p className="text-sm font-mono font-black text-white">{activeCallOrder.clientPhone}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`tel:${activeCallOrder.clientPhone.replace(/\s+/g, "")}`}
+                  className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Lancer l&apos;appel</span>
+                </a>
+                <a
+                  href={`https://wa.me/${activeCallOrder.clientPhone.replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs flex items-center gap-1.5"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveCall} className="space-y-4 text-xs">
+              {/* Statut suite à l'appel */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-emerald-400">Résultat de l&apos;Appel</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "CONFIRMEE", label: "✅ Confirmée (Prêt)", color: "text-emerald-300" },
+                    { id: "A_RAPPELER", label: "🟠 Injoignable / Rappeler", color: "text-orange-300" },
+                    { id: "EN_COURS", label: "🚴 Partir en livraison direct", color: "text-blue-300" },
+                    { id: "REFUSEE", label: "❌ Commande Refusée / Fausse", color: "text-red-300" },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => setCallStatus(st.id as OrderStatus)}
+                      className={`p-2.5 rounded-xl border text-left font-bold transition-all ${
+                        callStatus === st.id
+                          ? "bg-emerald-700/80 border-emerald-400 text-white shadow-xs"
+                          : "bg-emerald-950 border-emerald-900 text-emerald-200 hover:border-emerald-700"
                       }`}
                     >
-                      <option value="EN_ATTENTE">🟡 EN ATTENTE D&apos;APPEL</option>
-                      <option value="A_RAPPELER">🟠 A RAPPELER</option>
-                      <option value="CONFIRMEE">🔵 CONFIRMÉE</option>
-                      <option value="EN_COURS">🚚 EN COURS DE LIVRAISON</option>
-                      <option value="LIVREE">🟢 LIVRÉE</option>
-                      <option value="REFUSEE">🔴 REFUSÉE</option>
-                      <option value="ANNULEE">⚪ ANNULÉE</option>
-                      <option value="RETOURNEE">🟣 RETOURNÉE</option>
+                      {st.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Note de closing */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-emerald-400">Note de Closing (Visible par le Partenaire)</label>
+                <textarea
+                  value={callNote}
+                  onChange={(e) => setCallNote(e.target.value)}
+                  placeholder="Ex: Client confirme sa présence à domicile pour 15h30. Avoir la monnaie sur 20 000 F..."
+                  rows={2}
+                  className="w-full p-3 bg-emerald-950/80 border border-emerald-800 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-400 placeholder:text-emerald-600"
+                  required
+                ></textarea>
+              </div>
+
+              {/* Attribution Livreur si Confirmée */}
+              {(callStatus === "CONFIRMEE" || callStatus === "EN_COURS") && (
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-emerald-950/60 border border-emerald-900">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-emerald-400">Attribuer au Livreur</label>
+                    <select
+                      value={assignedDriver}
+                      onChange={(e) => setAssignedDriver(e.target.value)}
+                      className="w-full p-2 bg-emerald-900 border border-emerald-700 rounded-xl text-xs font-bold text-white"
+                    >
+                      {livreurs.map((l) => (
+                        <option key={l.id} value={l.id}>
+                          {l.name} ({l.zone.split("•")[0]})
+                        </option>
+                      ))}
                     </select>
                   </div>
 
-                  {/* Comment Field (Inline Editing) */}
-                  <div className="md:col-span-8">
-                    {isEditingThisComment ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={tempComment}
-                          onChange={(e) => setTempComment(e.target.value)}
-                          placeholder="Note de closing (ex: ELLE A ETE LIVREE, CLIENT OCCUPÉ)..."
-                          className="w-full px-3 py-2 bg-emerald-950 border border-[#16a34a] rounded-xl text-xs text-white focus:outline-none"
-                        />
-                        <button
-                          onClick={() => handleSaveComment(ord.id)}
-                          className="p-2 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white shrink-0"
-                          title="Enregistrer note"
-                        >
-                          <Send className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => {
-                          setEditingCommentId(ord.id);
-                          setTempComment(ord.comment || "");
-                        }}
-                        className="p-2 px-3 bg-emerald-950/40 border border-emerald-900/60 hover:border-emerald-700 rounded-xl text-xs text-emerald-200 flex items-center justify-between cursor-pointer group"
-                      >
-                        <span className="font-semibold uppercase truncate">
-                          💬 {ord.comment || "Ajouter une note de closing..."}
-                        </span>
-                        <span className="text-[10px] text-[#22c55e] group-hover:underline shrink-0 ml-2">
-                          Modifier
-                        </span>
-                      </div>
-                    )}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-emerald-400">Créneau Convenu</label>
+                    <input
+                      type="text"
+                      value={timeSlot}
+                      onChange={(e) => setTimeSlot(e.target.value)}
+                      placeholder="15h00 - 17h00"
+                      className="w-full p-2 bg-emerald-900 border border-emerald-700 rounded-xl text-xs font-bold text-white"
+                    />
                   </div>
                 </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveCallOrder(null)}
+                  className="px-4 py-2.5 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all"
+                >
+                  Enregistrer & Mettre à jour en Direct
+                </button>
               </div>
-            );
-          })
-        )}
-      </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

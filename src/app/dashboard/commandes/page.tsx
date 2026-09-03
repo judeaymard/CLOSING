@@ -10,12 +10,13 @@ import {
   Download,
   MapPin,
 } from "lucide-react";
-import { orders, currentPartner } from "@/lib/mock-data";
 import { ORDER_STATUS_CONFIG } from "@/lib/types";
 import NewOrderModal from "@/components/dashboard/NewOrderModal";
+import { useOperations } from "@/lib/store";
 
 export default function CommandesPage() {
-  const partnerOrders = orders.filter((o) => o.partnerId === currentPartner.id);
+  const { orders, activePartner } = useOperations();
+  const partnerOrders = orders.filter((o) => o.partnerId === activePartner.id);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");

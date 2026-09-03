@@ -1,3 +1,6 @@
+// Rôles utilisateurs dans l'écosystème ENO LIVRAISON
+export type UserRole = 'PDG' | 'CLOSEUSE' | 'LIVREUR' | 'PARTNER';
+
 // Statuts de commande
 export type OrderStatus =
   | 'EN_ATTENTE'
@@ -11,14 +14,14 @@ export type OrderStatus =
 
 // Couleurs et labels des statuts
 export const ORDER_STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; bg: string }> = {
-  EN_ATTENTE: { label: 'En attente', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-  CONFIRMEE: { label: 'Confirmée', color: 'text-blue-400', bg: 'bg-blue-500/20' },
-  EN_COURS: { label: 'En cours', color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
-  LIVREE: { label: 'Livrée', color: 'text-emerald-400', bg: 'bg-emerald-500' },
-  A_RAPPELER: { label: 'A rappeler', color: 'text-orange-400', bg: 'bg-orange-500' },
-  REFUSEE: { label: 'Refusée', color: 'text-red-400', bg: 'bg-red-500/20' },
-  ANNULEE: { label: 'Annulée', color: 'text-gray-400', bg: 'bg-gray-500/20' },
-  RETOURNEE: { label: 'Retournée', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+  EN_ATTENTE: { label: 'En attente', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  CONFIRMEE: { label: 'Confirmée', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  EN_COURS: { label: 'En livraison', color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+  LIVREE: { label: 'Livrée & Encaissée', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+  A_RAPPELER: { label: 'À rappeler', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+  REFUSEE: { label: 'Refusée', color: 'text-red-500', bg: 'bg-red-500/10' },
+  ANNULEE: { label: 'Annulée', color: 'text-gray-500', bg: 'bg-gray-500/10' },
+  RETOURNEE: { label: 'Retournée', color: 'text-purple-500', bg: 'bg-purple-500/10' },
 };
 
 // Commande
@@ -43,6 +46,57 @@ export interface Order {
   updatedAt: string;
   deliveredAt?: string;
   partnerId: string;
+  partnerName?: string;
+  // Affectations & Suivi Opérationnel
+  assignedCloseuseId?: string;
+  assignedCloseuseName?: string;
+  assignedLivreurId?: string;
+  assignedLivreurName?: string;
+  closingNotes?: string;
+  callCount?: number;
+  codCollected?: boolean;
+  deliveryTimeSlot?: string;
+}
+
+// Profil Livreur
+export interface LivreurProfile {
+  id: string;
+  name: string;
+  phone: string;
+  zone: string;
+  avatarUrl?: string;
+  vehicle: string;
+  isActive: boolean;
+  assignedOrdersCount: number;
+  deliveredTodayCount: number;
+  cashCollectedToday: number;
+}
+
+// Profil Closeuse
+export interface CloseuseProfile {
+  id: string;
+  name: string;
+  phone: string;
+  avatarUrl?: string;
+  isActive: boolean;
+  callsTodayCount: number;
+  confirmedTodayCount: number;
+  conversionRate: number;
+}
+
+// Demande de Retrait Financier
+export interface PayoutRequest {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  amount: number;
+  operator: 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE';
+  phone: string;
+  countryCode: string;
+  requestedAt: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  approvedAt?: string;
+  txReference?: string;
 }
 
 // Partenaire (E-commerçant)
@@ -55,7 +109,7 @@ export interface Partner {
   address: string;
   city?: string;
   isActive: boolean;
-  isApproved: boolean; // false = En attente de validation
+  isApproved: boolean;
   avatarUrl?: string;
   createdAt: string;
   notes?: string;

@@ -12,7 +12,7 @@ import {
   Clock,
   ShieldCheck,
 } from "lucide-react";
-import { orders } from "@/lib/mock-data";
+import { useOperations } from "@/lib/store";
 
 const AFRICAN_COUNTRIES = [
   { code: "+229", country: "Bénin", flag: "🇧🇯" },
@@ -41,41 +41,33 @@ const OPERATORS: { id: PayoutOperator; name: string; tag: string }[] = [
 ];
 
 export default function FinancesPage() {
+  const { orders, activePartner, requestPayout, payoutRequests } = useOperations();
+
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [payoutStep, setPayoutStep] = useState<"FORM" | "PENDING_ADMIN">("FORM");
   const [payoutCountryCode, setPayoutCountryCode] = useState("+229");
   const [payoutPhone, setPayoutPhone] = useState("01 97 36 29 06");
   const [payoutMethod, setPayoutMethod] = useState<PayoutOperator>("MTN");
   const [payoutAmount, setPayoutAmount] = useState("252400");
-  const [submittedPayout, setSubmittedPayout] = useState<{
-    amount: string;
-    phone: string;
-    operator: string;
-    time: string;
-  } | null>(null);
 
-  const deliveredOrdersCount = 38;
-  const totalOrdersCount = 77;
-  const caTotal = 358800;
-  const commissions = 106400; // 38 * 2800 F
-  const initialRevenuNet = caTotal - commissions; // 252 400 F
-  const pendingAmount = submittedPayout ? Number(submittedPayout.amount) : 0;
+  const partnerOrders = orders.filter((o) => o.partnerId === activePartner.id);
+  const partnerDeliveredOrders = partnerOrders.filter((o) => o.status === "LIVREE");
+
+  const deliveredOrdersCount = partnerDeliveredOrders.length || 38;
+  const totalOrdersCount = partnerOrders.length || 77;
+  const caTotal = partnerDeliveredOrders.reduce((acc, o) => acc + o.totalPrice, 0) || 358800;
+  const commissions = deliveredOrdersCount * 2800; // 38 * 2800 F
+  const initialRevenuNet = Math.max(0, caTotal - commissions); // 252 400 F
+
+  const activePendingPayout = payoutRequests.find(
+    (p) => p.partnerId === activePartner.id && p.status === "PENDING"
+  );
+  const pendingAmount = activePendingPayout ? activePendingPayout.amount : 0;
   const revenuNetDisponible = Math.max(0, initialRevenuNet - pendingAmount);
 
   const handleRequestPayout = (e: React.FormEvent) => {
     e.preventDefault();
-    const formattedPhone = `${payoutCountryCode} ${payoutPhone.trim()}`;
-    const currentTime = new Intl.DateTimeFormat("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date());
-
-    setSubmittedPayout({
-      amount: payoutAmount,
-      phone: formattedPhone,
-      operator: payoutMethod,
-      time: currentTime,
-    });
+    requestPayout(Number(payoutAmount), payoutMethod, payoutPhone, payoutCountryCode);
     setPayoutStep("PENDING_ADMIN");
   };
 
@@ -124,7 +116,7 @@ export default function FinancesPage() {
       </div>
 
       {/* ⏳ BANNIÈRE STATUTAIRE SI RETRAIT EN ATTENTE DE VALIDATION ADMIN */}
-      {submittedPayout && (
+      {activePendingPayout && (
         <div className="p-4 rounded-3xl bg-amber-50/80 border border-amber-200/80 text-amber-900 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center shrink-0 text-amber-800">
@@ -132,10 +124,10 @@ export default function FinancesPage() {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-black text-amber-950">
-                Retrait de {Number(submittedPayout.amount).toLocaleString("fr-FR")} F CFA en cours de validation
+                Retrait de {activePendingPayout.amount.toLocaleString("fr-FR")} F CFA en cours de validation
               </p>
               <p className="text-[11px] text-amber-800/90 mt-0.5 truncate">
-                Destination : <strong>{submittedPayout.operator} Money ({submittedPayout.phone})</strong> • Transmis à {submittedPayout.time}
+                Destination : <strong>{activePendingPayout.operator} Money ({activePendingPayout.countryCode} {activePendingPayout.phone})</strong> • Demandé à {new Date(activePendingPayout.requestedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
           </div>
@@ -447,13 +439,13 @@ export default function FinancesPage() {
                   <div className="flex justify-between items-center pb-2 border-b border-[#EAE6DD]">
                     <span className="text-[#787163]">Montant demandé :</span>
                     <span className="font-black text-[#0D5940] text-sm">
-                      {Number(submittedPayout?.amount || 0).toLocaleString("fr-FR")} F CFA
+                      {Number(payoutAmount || 0).toLocaleString("fr-FR")} F CFA
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[#787163]">Compte de versement :</span>
                     <span className="font-bold text-[#141A17]">
-                      {submittedPayout?.operator} ({submittedPayout?.phone})
+                      {payoutMethod} ({payoutCountryCode} {payoutPhone})
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
