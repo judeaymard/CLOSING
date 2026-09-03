@@ -62,6 +62,8 @@ interface OperationsContextType {
     cryptoAddress?: string,
     cryptoNetwork?: string
   ) => PayoutRequest;
+  addLivreur: (data: { name: string; phone: string; zone: string; vehicle: string }) => LivreurProfile;
+  addCloseuse: (data: { name: string; phone: string }) => CloseuseProfile;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
 }
@@ -333,6 +335,38 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
+  // 10. Ajout d'un Livreur par le PDG
+  const addLivreur = (data: { name: string; phone: string; zone: string; vehicle: string }): LivreurProfile => {
+    const newLivreur: LivreurProfile = {
+      id: `liv-${Date.now()}`,
+      name: data.name.toUpperCase(),
+      phone: data.phone,
+      zone: data.zone,
+      vehicle: data.vehicle,
+      isActive: true,
+      assignedOrdersCount: 0,
+      deliveredTodayCount: 0,
+      cashCollectedToday: 0,
+    };
+    setLivreurs((prev) => [...prev, newLivreur]);
+    return newLivreur;
+  };
+
+  // 11. Ajout d'une Closeuse par le PDG
+  const addCloseuse = (data: { name: string; phone: string }): CloseuseProfile => {
+    const newCloseuse: CloseuseProfile = {
+      id: `cls-${Date.now()}`,
+      name: data.name,
+      phone: data.phone,
+      isActive: true,
+      callsTodayCount: 0,
+      confirmedTodayCount: 0,
+      conversionRate: 0,
+    };
+    setCloseuses((prev) => [...prev, newCloseuse]);
+    return newCloseuse;
+  };
+
   const activeLivreur = livreurs.find((l) => l.id === activeLivreurId) || livreurs[0];
   const activeCloseuse = closeuses.find((c) => c.id === activeCloseuseId) || closeuses[0];
   const activePartner = partners.find((p) => p.id === activePartnerId) || currentPartner;
@@ -361,6 +395,8 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         markOrderDelivered,
         markOrderFailed,
         requestPayout,
+        addLivreur,
+        addCloseuse,
         approvePayout,
         rejectPayout,
       }}

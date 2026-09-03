@@ -15,6 +15,7 @@ import {
   ChevronRight,
   UserCheck,
   Package,
+  X,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 
@@ -27,11 +28,33 @@ export default function AdminLivreursPage() {
     assignOrderToLivreur,
     markOrderDelivered,
     markOrderFailed,
+    addLivreur,
   } = useOperations();
 
   const [selectedDriverId, setSelectedDriverId] = useState<string>(activeLivreur.id);
   const [failModalOrderId, setFailModalOrderId] = useState<string | null>(null);
   const [failReason, setFailReason] = useState<string>("Client absent au rendez-vous");
+
+  // Add Driver Modal State
+  const [showAddDriverModal, setShowAddDriverModal] = useState(false);
+  const [driverName, setDriverName] = useState("");
+  const [driverPhone, setDriverPhone] = useState("+229 01 ");
+  const [driverZone, setDriverZone] = useState("Cotonou Centre • Akpakpa");
+  const [driverVehicle, setDriverVehicle] = useState("Moto Yamaha YB-125");
+
+  const handleCreateDriver = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!driverName || !driverPhone) return;
+    addLivreur({
+      name: driverName,
+      phone: driverPhone,
+      zone: driverZone,
+      vehicle: driverVehicle,
+    });
+    setDriverName("");
+    setDriverPhone("+229 01 ");
+    setShowAddDriverModal(false);
+  };
 
   // Filter orders for the active livreur or selected driver
   const targetDriverId = currentRole === "LIVREUR" ? activeLivreur.id : selectedDriverId;
@@ -201,10 +224,19 @@ export default function AdminLivreursPage() {
 
           {/* Cards des Livreurs */}
           <div className="space-y-4">
-            <h2 className="text-base font-black text-white flex items-center gap-2">
-              <Bike className="w-5 h-5 text-emerald-400" />
-              <span>Flotte de Livreurs & Caisse Journalière</span>
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base font-black text-white flex items-center gap-2">
+                <Bike className="w-5 h-5 text-emerald-400" />
+                <span>Flotte de Livreurs & Caisse Journalière ({livreurs.length})</span>
+              </h2>
+
+              <button
+                onClick={() => setShowAddDriverModal(true)}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5 self-start sm:self-auto"
+              >
+                <span>+ Enregistrer un Nouveau Livreur</span>
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {livreurs.map((liv) => (
@@ -349,6 +381,92 @@ export default function AdminLivreursPage() {
                 Enregistrer le Rapport
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CRÉATION DE NOUVEAU LIVREUR */}
+      {showAddDriverModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#091b14] border border-emerald-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 animate-fade-in-up">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-900">
+              <div>
+                <h3 className="text-base font-black text-white">Enregistrer un Nouveau Livreur</h3>
+                <p className="text-xs text-emerald-300/80 mt-0.5">Création de compte coursier et affectation de zone</p>
+              </div>
+              <button
+                onClick={() => setShowAddDriverModal(false)}
+                className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDriver} className="space-y-3.5 text-xs">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Nom Complet du Livreur *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Moussa KANHOUN"
+                  value={driverName}
+                  onChange={(e) => setDriverName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Téléphone WhatsApp / Appel *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+229 01 97 00 00 00"
+                  value={driverPhone}
+                  onChange={(e) => setDriverPhone(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Zone Principale Couverte</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Cotonou Centre • Akpakpa • Fidjrossè"
+                  value={driverZone}
+                  onChange={(e) => setDriverZone(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Véhicule / Moyen de Déplacement</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Moto TVS HLX 150 (Casque & Sacoche)"
+                  value={driverVehicle}
+                  onChange={(e) => setDriverVehicle(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddDriverModal(false)}
+                  className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                >
+                  Créer le Compte Livreur
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

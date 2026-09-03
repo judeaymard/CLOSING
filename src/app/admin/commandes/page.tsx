@@ -35,6 +35,7 @@ export default function AdminCommandesPage() {
     updateOrderStatus,
     logClosingCall,
     assignOrderToLivreur,
+    addCloseuse,
   } = useOperations();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +48,20 @@ export default function AdminCommandesPage() {
   const [callStatus, setCallStatus] = useState<OrderStatus>("CONFIRMEE");
   const [assignedDriver, setAssignedDriver] = useState<string>("");
   const [timeSlot, setTimeSlot] = useState<string>("14h00 - 16h00");
+
+  // Add Closer Modal State
+  const [showAddCloserModal, setShowAddCloserModal] = useState(false);
+  const [closerName, setCloserName] = useState("");
+  const [closerPhone, setCloserPhone] = useState("+229 01 ");
+
+  const handleCreateCloser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!closerName || !closerPhone) return;
+    addCloseuse({ name: closerName, phone: closerPhone });
+    setCloserName("");
+    setCloserPhone("+229 01 ");
+    setShowAddCloserModal(false);
+  };
 
   const openCallModal = (order: any) => {
     setActiveCallOrder(order);
@@ -97,6 +112,13 @@ export default function AdminCommandesPage() {
           <span className="text-xs font-bold text-emerald-300 bg-emerald-950 px-3 py-1.5 rounded-xl border border-emerald-800">
             {filteredOrders.length} commande(s) active(s)
           </span>
+
+          <button
+            onClick={() => setShowAddCloserModal(true)}
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5"
+          >
+            <span>+ Ajouter une Closeuse</span>
+          </button>
         </div>
       </div>
 
@@ -404,6 +426,68 @@ export default function AdminCommandesPage() {
                   className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all"
                 >
                   Enregistrer & Mettre à jour en Direct
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CRÉATION DE NOUVELLE CLOSEUSE */}
+      {showAddCloserModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#091b14] border border-emerald-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 animate-fade-in-up">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-900">
+              <div>
+                <h3 className="text-base font-black text-white">Enregistrer une Nouvelle Closeuse</h3>
+                <p className="text-xs text-emerald-300/80 mt-0.5">Accès au centre d&apos;appels & qualification des leads</p>
+              </div>
+              <button
+                onClick={() => setShowAddCloserModal(false)}
+                className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCloser} className="space-y-3.5 text-xs">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Nom & Prénom de la Closeuse *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Flora DOSSOU"
+                  value={closerName}
+                  onChange={(e) => setCloserName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400">Numéro WhatsApp / Téléphonique Professionnel *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+229 01 97 00 00 00"
+                  value={closerPhone}
+                  onChange={(e) => setCloserPhone(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddCloserModal(false)}
+                  className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                >
+                  Créer le Compte Closeuse
                 </button>
               </div>
             </form>
