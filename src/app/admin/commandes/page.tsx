@@ -52,15 +52,22 @@ export default function AdminCommandesPage() {
   // Add Closer Modal State
   const [showAddCloserModal, setShowAddCloserModal] = useState(false);
   const [closerName, setCloserName] = useState("");
+  const [closerEmail, setCloserEmail] = useState("");
   const [closerPhone, setCloserPhone] = useState("+229 01 ");
+  const [createdCloserInfo, setCreatedCloserInfo] = useState<{ name: string; email: string; code: string } | null>(null);
 
   const handleCreateCloser = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!closerName || !closerPhone) return;
-    addCloseuse({ name: closerName, phone: closerPhone });
+    if (!closerName || !closerPhone || !closerEmail) return;
+    const created = addCloseuse({ name: closerName, email: closerEmail, phone: closerPhone });
+    setCreatedCloserInfo({
+      name: created.name,
+      email: created.email,
+      code: created.temporaryCode || "315792",
+    });
     setCloserName("");
+    setCloserEmail("");
     setCloserPhone("+229 01 ");
-    setShowAddCloserModal(false);
   };
 
   const openCallModal = (order: any) => {
@@ -450,47 +457,96 @@ export default function AdminCommandesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateCloser} className="space-y-3.5 text-xs">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Nom & Prénom de la Closeuse *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Flora DOSSOU"
-                  value={closerName}
-                  onChange={(e) => setCloserName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
+            {createdCloserInfo ? (
+              <div className="space-y-4 py-2 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto shadow-md">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Numéro WhatsApp / Téléphonique Professionnel *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="+229 01 97 00 00 00"
-                  value={closerPhone}
-                  onChange={(e) => setCloserPhone(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-black text-white">Compte Closeuse Créé avec Succès !</h4>
+                  <p className="text-xs text-emerald-300/80 leading-relaxed">
+                    Un email contenant son code d&apos;accès temporaire a été envoyé à :
+                  </p>
+                  <p className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 p-2 rounded-xl border border-emerald-800">
+                    {createdCloserInfo.email}
+                  </p>
+                </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+                <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-800 text-left space-y-1 text-xs">
+                  <p className="text-[11px] font-bold text-amber-300">🔑 Code d&apos;accès temporaire généré :</p>
+                  <p className="text-lg font-mono font-black text-white tracking-widest">{createdCloserInfo.code}</p>
+                  <p className="text-[10px] text-amber-300/80 mt-1">
+                    À sa 1ère connexion, tout son espace sera verrouillé jusqu&apos;à ce qu&apos;elle saisisse ce code et définisse son mot de passe personnel.
+                  </p>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setShowAddCloserModal(false)}
-                  className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                  onClick={() => {
+                    setCreatedCloserInfo(null);
+                    setShowAddCloserModal(false);
+                  }}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
                 >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
-                >
-                  Créer le Compte Closeuse
+                  Fermer & Continuer
                 </button>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleCreateCloser} className="space-y-3.5 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Nom & Prénom de la Closeuse *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Flora DOSSOU"
+                    value={closerName}
+                    onChange={(e) => setCloserName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Adresse Email de la Closeuse * (Pour envoi du code)</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="flora.dossou@gmail.com"
+                    value={closerEmail}
+                    onChange={(e) => setCloserEmail(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Numéro WhatsApp / Téléphonique Professionnel *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+229 01 97 00 00 00"
+                    value={closerPhone}
+                    onChange={(e) => setCloserPhone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCloserModal(false)}
+                    className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                  >
+                    Créer & Envoyer le Code par Email
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

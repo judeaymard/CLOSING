@@ -62,8 +62,9 @@ interface OperationsContextType {
     cryptoAddress?: string,
     cryptoNetwork?: string
   ) => PayoutRequest;
-  addLivreur: (data: { name: string; phone: string; zone: string; vehicle: string }) => LivreurProfile;
-  addCloseuse: (data: { name: string; phone: string }) => CloseuseProfile;
+  addLivreur: (data: { name: string; email: string; phone: string; zone: string; vehicle: string }) => LivreurProfile;
+  addCloseuse: (data: { name: string; email: string; phone: string }) => CloseuseProfile;
+  changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
 }
@@ -335,15 +336,19 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     );
   };
 
-  // 10. Ajout d'un Livreur par le PDG
-  const addLivreur = (data: { name: string; phone: string; zone: string; vehicle: string }): LivreurProfile => {
+  // 10. Ajout d'un Livreur par le PDG avec code d'activation email
+  const addLivreur = (data: { name: string; email: string; phone: string; zone: string; vehicle: string }): LivreurProfile => {
+    const tempCode = Math.floor(100000 + Math.random() * 900000).toString();
     const newLivreur: LivreurProfile = {
       id: `liv-${Date.now()}`,
       name: data.name.toUpperCase(),
+      email: data.email,
       phone: data.phone,
       zone: data.zone,
       vehicle: data.vehicle,
       isActive: true,
+      mustChangePassword: true,
+      temporaryCode: tempCode,
       assignedOrdersCount: 0,
       deliveredTodayCount: 0,
       cashCollectedToday: 0,
@@ -352,19 +357,44 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     return newLivreur;
   };
 
-  // 11. Ajout d'une Closeuse par le PDG
-  const addCloseuse = (data: { name: string; phone: string }): CloseuseProfile => {
+  // 11. Ajout d'une Closeuse par le PDG avec code d'activation email
+  const addCloseuse = (data: { name: string; email: string; phone: string }): CloseuseProfile => {
+    const tempCode = Math.floor(100000 + Math.random() * 900000).toString();
     const newCloseuse: CloseuseProfile = {
       id: `cls-${Date.now()}`,
       name: data.name,
+      email: data.email,
       phone: data.phone,
       isActive: true,
+      mustChangePassword: true,
+      temporaryCode: tempCode,
       callsTodayCount: 0,
       confirmedTodayCount: 0,
       conversionRate: 0,
     };
     setCloseuses((prev) => [...prev, newCloseuse]);
     return newCloseuse;
+  };
+
+  // 12. Changement de mot de passe obligatoire lors de la 1ère connexion
+  const changePassword = (_newPassword: string) => {
+    if (currentRole === "LIVREUR") {
+      setLivreurs((prev) =>
+        prev.map((l) =>
+          l.id === activeLivreurId
+            ? { ...l, mustChangePassword: false, temporaryCode: undefined }
+            : l
+        )
+      );
+    } else if (currentRole === "CLOSEUSE") {
+      setCloseuses((prev) =>
+        prev.map((c) =>
+          c.id === activeCloseuseId
+            ? { ...c, mustChangePassword: false, temporaryCode: undefined }
+            : c
+        )
+      );
+    }
   };
 
   const activeLivreur = livreurs.find((l) => l.id === activeLivreurId) || livreurs[0];
@@ -397,6 +427,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         requestPayout,
         addLivreur,
         addCloseuse,
+        changePassword,
         approvePayout,
         rejectPayout,
       }}

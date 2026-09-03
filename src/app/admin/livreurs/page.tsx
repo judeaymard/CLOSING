@@ -38,22 +38,30 @@ export default function AdminLivreursPage() {
   // Add Driver Modal State
   const [showAddDriverModal, setShowAddDriverModal] = useState(false);
   const [driverName, setDriverName] = useState("");
+  const [driverEmail, setDriverEmail] = useState("");
   const [driverPhone, setDriverPhone] = useState("+229 01 ");
   const [driverZone, setDriverZone] = useState("Cotonou Centre • Akpakpa");
   const [driverVehicle, setDriverVehicle] = useState("Moto Yamaha YB-125");
+  const [createdDriverInfo, setCreatedDriverInfo] = useState<{ name: string; email: string; code: string } | null>(null);
 
   const handleCreateDriver = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driverName || !driverPhone) return;
-    addLivreur({
+    if (!driverName || !driverPhone || !driverEmail) return;
+    const created = addLivreur({
       name: driverName,
+      email: driverEmail,
       phone: driverPhone,
       zone: driverZone,
       vehicle: driverVehicle,
     });
+    setCreatedDriverInfo({
+      name: created.name,
+      email: created.email,
+      code: created.temporaryCode || "849201",
+    });
     setDriverName("");
+    setDriverEmail("");
     setDriverPhone("+229 01 ");
-    setShowAddDriverModal(false);
   };
 
   // Filter orders for the active livreur or selected driver
@@ -402,71 +410,120 @@ export default function AdminLivreursPage() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateDriver} className="space-y-3.5 text-xs">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Nom Complet du Livreur *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Moussa KANHOUN"
-                  value={driverName}
-                  onChange={(e) => setDriverName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
+            {createdDriverInfo ? (
+              <div className="space-y-4 py-2 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto shadow-md">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Téléphone WhatsApp / Appel *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="+229 01 97 00 00 00"
-                  value={driverPhone}
-                  onChange={(e) => setDriverPhone(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-black text-white">Compte Livreur Créé avec Succès !</h4>
+                  <p className="text-xs text-emerald-300/80 leading-relaxed">
+                    Un email contenant son code d&apos;accès temporaire a été envoyé à :
+                  </p>
+                  <p className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 p-2 rounded-xl border border-emerald-800">
+                    {createdDriverInfo.email}
+                  </p>
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Zone Principale Couverte</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Cotonou Centre • Akpakpa • Fidjrossè"
-                  value={driverZone}
-                  onChange={(e) => setDriverZone(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
+                <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-800 text-left space-y-1 text-xs">
+                  <p className="text-[11px] font-bold text-amber-300">🔑 Code d&apos;accès temporaire généré :</p>
+                  <p className="text-lg font-mono font-black text-white tracking-widest">{createdDriverInfo.code}</p>
+                  <p className="text-[10px] text-amber-300/80 mt-1">
+                    À sa 1ère connexion, tout son espace sera verrouillé jusqu&apos;à ce qu&apos;il saisisse ce code et définisse son mot de passe personnel.
+                  </p>
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-emerald-400">Véhicule / Moyen de Déplacement</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Moto TVS HLX 150 (Casque & Sacoche)"
-                  value={driverVehicle}
-                  onChange={(e) => setDriverVehicle(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddDriverModal(false)}
-                  className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                  onClick={() => {
+                    setCreatedDriverInfo(null);
+                    setShowAddDriverModal(false);
+                  }}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
                 >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
-                >
-                  Créer le Compte Livreur
+                  Fermer & Continuer
                 </button>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleCreateDriver} className="space-y-3.5 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Nom Complet du Livreur *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Moussa KANHOUN"
+                    value={driverName}
+                    onChange={(e) => setDriverName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Adresse Email du Livreur * (Pour envoi du code)</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="moussa.kanhoun@gmail.com"
+                    value={driverEmail}
+                    onChange={(e) => setDriverEmail(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Téléphone WhatsApp / Appel *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+229 01 97 00 00 00"
+                    value={driverPhone}
+                    onChange={(e) => setDriverPhone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Zone Principale Couverte</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Cotonou Centre • Akpakpa • Fidjrossè"
+                    value={driverZone}
+                    onChange={(e) => setDriverZone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">Véhicule / Moyen de Déplacement</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Moto TVS HLX 150 (Casque & Sacoche)"
+                    value={driverVehicle}
+                    onChange={(e) => setDriverVehicle(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-xs font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddDriverModal(false)}
+                    className="px-4 py-2 rounded-xl border border-emerald-800 text-xs font-bold text-emerald-300"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                  >
+                    Créer & Envoyer le Code par Email
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

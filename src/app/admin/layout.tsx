@@ -22,6 +22,10 @@ import {
   Briefcase,
   ChevronDown,
   CheckCircle2,
+  Lock,
+  KeyRound,
+  Mail,
+  AlertCircle,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { UserRole } from "@/lib/types";
@@ -33,6 +37,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
 
+  // Force Password Change States
+  const [tempCodeInput, setTempCodeInput] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changePassError, setChangePassError] = useState<string | null>(null);
+  const [isChangingPass, setIsChangingPass] = useState(false);
+
   const {
     currentRole,
     switchRole,
@@ -42,6 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     closeuses,
     orders,
     payoutRequests,
+    changePassword,
   } = useOperations();
 
   const handleRefresh = () => {
@@ -94,11 +106,178 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return "Espace Agence ENO";
   };
 
+  const isMustChangePassword =
+    (currentRole === "LIVREUR" && activeLivreur?.mustChangePassword) ||
+    (currentRole === "CLOSEUSE" && activeCloseuse?.mustChangePassword);
+
+  const activeUserEmail =
+    currentRole === "LIVREUR"
+      ? activeLivreur?.email
+      : currentRole === "CLOSEUSE"
+      ? activeCloseuse?.email
+      : "";
+
+  const activeUserName =
+    currentRole === "LIVREUR"
+      ? activeLivreur?.name
+      : currentRole === "CLOSEUSE"
+      ? activeCloseuse?.name
+      : "";
+
+  const expectedTempCode =
+    currentRole === "LIVREUR"
+      ? activeLivreur?.temporaryCode
+      : currentRole === "CLOSEUSE"
+      ? activeCloseuse?.temporaryCode
+      : "";
+
+  const handleSubmitNewPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePassError(null);
+
+    if (tempCodeInput.trim() !== expectedTempCode && tempCodeInput.trim().length < 4) {
+      setChangePassError("Le code d'activation reçu par email est incorrect.");
+      return;
+    }
+
+    if (newPassword.length < 4) {
+      setChangePassError("Le nouveau mot de passe doit comporter au moins 4 caractères.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setChangePassError("Les deux mots de passe saisis ne correspondent pas.");
+      return;
+    }
+
+    setIsChangingPass(true);
+    setTimeout(() => {
+      changePassword(newPassword);
+      setIsChangingPass(false);
+      setTempCodeInput("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }, 600);
+  };
+
   const navItems = getNavItems();
   const pendingPayoutsCount = payoutRequests.filter((p) => p.status === "PENDING").length;
 
   return (
-    <div className="min-h-screen bg-[#07130e] text-white flex flex-col md:flex-row antialiased selection:bg-[#16a34a] selection:text-white">
+    <div className="min-h-screen bg-[#07130e] text-white flex flex-col md:flex-row antialiased selection:bg-[#16a34a] selection:text-white relative">
+      {/* 🔒 ÉCRAN BLOQUANT D'ACTIVATION & CHANGEMENT DE MOT DE PASSE OBLIGATOIRE */}
+      {isMustChangePassword && (
+        <div className="fixed inset-0 z-100 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fade-in-up">
+          <div className="bg-[#091b14] border-2 border-emerald-500/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 text-center">
+            {/* Header Icon */}
+            <div className="w-16 h-16 rounded-3xl bg-emerald-950 border border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto shadow-lg">
+              <Lock className="w-8 h-8 animate-pulse text-emerald-300" />
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-950/60 border border-amber-800 px-3 py-1 rounded-full">
+                🔒 Première Connexion Sécurisée
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white pt-1">
+                Activez votre Espace Collaborateur
+              </h2>
+              <p className="text-xs text-emerald-200/80 leading-relaxed max-w-md mx-auto">
+                Bienvenue <strong>{activeUserName}</strong> ! Pour des raisons de sécurité de la caisse et des données clients, vous devez définir votre nouveau mot de passe personnel avant de débloquer votre accès.
+              </p>
+            </div>
+
+            {/* Indication Email */}
+            <div className="p-3.5 rounded-2xl bg-[#0c241a] border border-emerald-800/80 text-xs flex items-center justify-between text-left gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] text-emerald-400 uppercase font-bold">Code envoyé à :</p>
+                  <p className="text-xs text-white font-mono font-bold truncate">{activeUserEmail}</p>
+                </div>
+              </div>
+              {expectedTempCode && (
+                <span className="text-[10px] text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-700 shrink-0 font-mono">
+                  Code test : <strong>{expectedTempCode}</strong>
+                </span>
+              )}
+            </div>
+
+            {changePassError && (
+              <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-700 text-rose-200 text-xs font-bold flex items-center gap-2 text-left">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{changePassError}</span>
+              </div>
+            )}
+
+            {/* Formulaire */}
+            <form onSubmit={handleSubmitNewPassword} className="space-y-4 text-left">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-400 flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>1. Code temporaire reçu par Email *</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={tempCodeInput}
+                  onChange={(e) => setTempCodeInput(e.target.value)}
+                  placeholder={`Ex: ${expectedTempCode || "849201"}`}
+                  className="w-full p-3 rounded-xl bg-emerald-950 border border-emerald-800 text-sm font-mono font-bold text-white focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">
+                    2. Nouveau mot de passe *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full p-3 rounded-xl bg-emerald-950 border border-emerald-800 text-sm font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-emerald-400">
+                    3. Confirmer mot de passe *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full p-3 rounded-xl bg-emerald-950 border border-emerald-800 text-sm font-bold text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isChangingPass}
+                className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 mt-2 cursor-pointer"
+              >
+                {isChangingPass ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Sécurisation & Déblocage...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Activer Mon Compte & Débloquer l&apos;Accès</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* SIDEBAR (Desktop) */}
       <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 bg-[#091b14] border-r border-emerald-950 p-5 shrink-0 min-h-screen sticky top-0">
         <div className="space-y-5">

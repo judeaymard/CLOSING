@@ -62,11 +62,14 @@ export interface Order {
 export interface LivreurProfile {
   id: string;
   name: string;
+  email: string;
   phone: string;
   zone: string;
   avatarUrl?: string;
   vehicle: string;
   isActive: boolean;
+  mustChangePassword?: boolean;
+  temporaryCode?: string;
   assignedOrdersCount: number;
   deliveredTodayCount: number;
   cashCollectedToday: number;
@@ -76,9 +79,12 @@ export interface LivreurProfile {
 export interface CloseuseProfile {
   id: string;
   name: string;
+  email: string;
   phone: string;
   avatarUrl?: string;
   isActive: boolean;
+  mustChangePassword?: boolean;
+  temporaryCode?: string;
   callsTodayCount: number;
   confirmedTodayCount: number;
   conversionRate: number;
