@@ -22,7 +22,13 @@ const AFRICAN_COUNTRIES = [
   { code: "+237", country: "Cameroun", flag: "🇨🇲" },
   { code: "+226", country: "Burkina Faso", flag: "🇧🇫" },
   { code: "+223", country: "Mali", flag: "🇲🇱" },
-  { code: "+224", country: "Guinée", flag: "🇬🇳" },
+  { code: "+224", country: "Guinée Conakry", flag: "🇬🇳" },
+  { code: "+222", country: "Mauritanie", flag: "🇲🇷" },
+  { code: "+236", country: "Centrafrique (RCA)", flag: "🇨🇫" },
+  { code: "+257", country: "Burundi", flag: "🇧🇮" },
+  { code: "+243", country: "RDC", flag: "🇨🇩" },
+  { code: "+241", country: "Gabon", flag: "🇬🇦" },
+  { code: "+242", country: "Congo Brazza", flag: "🇨🇬" },
 ];
 
 type PayoutOperator = "MTN" | "MOOV" | "WAVE" | "ORANGE";
