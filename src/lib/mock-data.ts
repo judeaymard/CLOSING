@@ -1,4 +1,14 @@
-import { Order, Partner, Product, LivreurProfile, CloseuseProfile, PayoutRequest } from './types';
+import {
+  Order,
+  Partner,
+  Product,
+  LivreurProfile,
+  CloseuseProfile,
+  PayoutRequest,
+  ActivityItem,
+  Conversation,
+  AgencyAlert,
+} from './types';
 
 export const enoAgencies = [
   {
@@ -470,3 +480,181 @@ export function generateOrderNumber(): string {
   }
   return result;
 }
+
+// 🟢 Activité temps réel de l'agence (Agency Pulse)
+export const initialAgencyPulseActivities: ActivityItem[] = [
+  {
+    id: 'act-1',
+    type: 'ORDER_DELIVERED',
+    title: 'Livraison réussie & COD encaissé',
+    description: 'Rodrigue K. a remis le colis CMD-BJ5K9L2M (14 000 F) à Ouando.',
+    time: 'Il y a 3 min',
+    orderNumber: 'CMD-BJ5K9L2M',
+    partnerName: 'Dossou Fashion',
+    amount: 14000,
+  },
+  {
+    id: 'act-2',
+    type: 'ORDER_CONFIRMED',
+    title: 'Commande confirmée par Closing',
+    description: 'Inès T. a validé la commande CMD-BJ7X8Y9Z après 1 appel (15 min).',
+    time: 'Il y a 11 min',
+    orderNumber: 'CMD-BJ7X8Y9Z',
+    partnerName: 'Afrimarket',
+    amount: 23400,
+  },
+  {
+    id: 'act-3',
+    type: 'ORDER_DISPATCHED',
+    title: 'Colis assigné au livreur de zone',
+    description: 'CMD-BJ3C4D5E assignée à Gaston B. (Zone Akpakpa & PK10).',
+    time: 'Il y a 18 min',
+    orderNumber: 'CMD-BJ3C4D5E',
+    partnerName: 'Bénin Shop',
+    amount: 15600,
+  },
+  {
+    id: 'act-4',
+    type: 'PAYOUT_REQUESTED',
+    title: 'Nouvelle demande de retrait soumise',
+    description: 'Dossou Fashion demande 360 000 F CFA en USDT TRC-20.',
+    time: 'Il y a 32 min',
+    partnerName: 'Dossou Fashion',
+    amount: 360000,
+  },
+  {
+    id: 'act-5',
+    type: 'MESSAGE_RECEIVED',
+    title: 'Message urgent reçu au Support',
+    description: 'Afrimarket : "Pouvez-vous prioriser la livraison à Haie Vive ?"',
+    time: 'Il y a 45 min',
+    partnerName: 'Afrimarket',
+  },
+];
+
+// 💬 Conversations du Hub de Communication
+export const initialConversations: Conversation[] = [
+  {
+    id: 'conv-1',
+    partnerId: 'p1',
+    partnerName: 'Jude Sina',
+    companyName: 'Afrimarket',
+    phone: '+229 01 97 36 29 06',
+    lastMessage: 'Bonjour ! Quel est le délai moyen pour le virement MTN Money demandé ce matin ?',
+    lastMessageAt: '11:42',
+    unreadCount: 2,
+    status: 'URGENT',
+    priority: 'HIGH',
+    assignedAgentName: 'Inès TOVIHOUDJI',
+    assignedAgentRole: 'Superviseure Support',
+    relatedOrderNumber: 'CMD-BJ7X8Y9Z',
+    messages: [
+      {
+        id: 'm1',
+        sender: 'PARTNER',
+        senderName: 'Jude Sina (Afrimarket)',
+        text: 'Bonjour le support ENO ! J\'ai 3 nouvelles commandes enregistrées sur Cotonou.',
+        sentAt: '11:20',
+      },
+      {
+        id: 'm2',
+        sender: 'BOT',
+        senderName: 'Assistant ENO',
+        text: 'Bonjour Afrimarket ! Vos commandes ont été transmises à notre pôle closing. Nos opératrices appellent les clients sous 15 min.',
+        sentAt: '11:21',
+      },
+      {
+        id: 'm3',
+        sender: 'PARTNER',
+        senderName: 'Jude Sina (Afrimarket)',
+        text: 'Parfait. Quel est le délai moyen pour le virement MTN Money demandé ce matin ?',
+        sentAt: '11:42',
+      },
+    ],
+  },
+  {
+    id: 'conv-2',
+    partnerId: 'p3',
+    partnerName: 'Marie Dossou',
+    companyName: 'Dossou Fashion (Côte d\'Ivoire)',
+    phone: '+225 07 45 12 30 89',
+    lastMessage: 'J\'ai bien renseigné mon adresse USDT TRC-20 pour le reversement des fonds.',
+    lastMessageAt: '10:15',
+    unreadCount: 0,
+    status: 'WAITING',
+    priority: 'MEDIUM',
+    assignedAgentName: 'Jude (PDG)',
+    assignedAgentRole: 'Direction Générale',
+    messages: [
+      {
+        id: 'm21',
+        sender: 'PARTNER',
+        senderName: 'Marie Dossou',
+        text: 'Bonjour Monsieur, mes fonds de ventes à Cotonou sont prêts à être retirés en USDT.',
+        sentAt: '10:10',
+      },
+      {
+        id: 'm22',
+        sender: 'PARTNER',
+        senderName: 'Marie Dossou',
+        text: 'J\'ai bien renseigné mon adresse USDT TRC-20 pour le reversement des fonds.',
+        sentAt: '10:15',
+      },
+    ],
+  },
+  {
+    id: 'conv-3',
+    partnerId: 'p2',
+    partnerName: 'Marius Houngbo',
+    companyName: 'Bénin Shop Électro',
+    phone: '+229 01 93 83 79 06',
+    lastMessage: 'Merci pour la confirmation rapide du client de Calavi ! Super closing.',
+    lastMessageAt: 'Hier',
+    unreadCount: 0,
+    status: 'RESOLVED',
+    priority: 'LOW',
+    assignedAgentName: 'Chimène A.',
+    assignedAgentRole: 'Closeuse Senior',
+    messages: [
+      {
+        id: 'm31',
+        sender: 'PARTNER',
+        senderName: 'Marius Houngbo',
+        text: 'Merci pour la confirmation rapide du client de Calavi ! Super closing.',
+        sentAt: 'Hier 16:30',
+      },
+    ],
+  },
+];
+
+// ⚠️ Alertes Intelligentes du Centre d'Attention
+export const initialAgencyAlerts: AgencyAlert[] = [
+  {
+    id: 'alt-1',
+    severity: 'CRITICAL',
+    title: '3 demandes de retrait nécessitent votre arbitrage',
+    description: 'Montant cumulé : 612 400 F CFA en attente de déblocage (MTN Money & USDT TRC-20).',
+    actionLabel: 'Arbitrer les retraits',
+    actionHref: '/admin/finances',
+    count: 3,
+  },
+  {
+    id: 'alt-2',
+    severity: 'WARNING',
+    title: '1 client à rappeler en urgence',
+    description: 'CMD-BJ9G0H1I (Afrimarket) — Injoignable au 1er appel, rappel programmé cet après-midi.',
+    actionLabel: 'Voir la file closing',
+    actionHref: '/admin/commandes',
+    count: 1,
+  },
+  {
+    id: 'alt-3',
+    severity: 'INFO',
+    title: 'Stock bas détecté : 1 produit sous le seuil critique',
+    description: 'Pack Savon Noir & Curcuma (Bénin Shop) — Moins de 10 unités en entrepôt Cotonou.',
+    actionLabel: 'Planifier ramassage',
+    actionHref: '/admin/stocks',
+    count: 1,
+  },
+];
+

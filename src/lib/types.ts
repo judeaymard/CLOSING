@@ -160,3 +160,58 @@ export interface FinanceData {
   fraisLivraison: number;
   totalParProduit: number;
 }
+
+// Période sélectionnée
+export type PeriodFilter = 'TODAY' | '7D' | '30D' | 'YEAR';
+
+// Événement d'activité en direct (Agency Pulse)
+export interface ActivityItem {
+  id: string;
+  type: 'ORDER_CREATED' | 'ORDER_CONFIRMED' | 'ORDER_DISPATCHED' | 'ORDER_DELIVERED' | 'PAYOUT_REQUESTED' | 'MESSAGE_RECEIVED';
+  title: string;
+  description: string;
+  time: string;
+  orderNumber?: string;
+  partnerName?: string;
+  amount?: number;
+}
+
+// Message de conversation
+export interface ChatMessage {
+  id: string;
+  sender: 'PARTNER' | 'BOT' | 'AGENT' | 'PDG';
+  senderName: string;
+  text: string;
+  sentAt: string;
+  isInternalNote?: boolean;
+}
+
+// Conversation du Hub de Communication
+export interface Conversation {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  companyName: string;
+  avatarUrl?: string;
+  phone: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+  status: 'ALL' | 'UNASSIGNED' | 'WAITING' | 'IN_PROGRESS' | 'RESOLVED' | 'URGENT';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  assignedAgentName?: string;
+  assignedAgentRole?: string;
+  relatedOrderNumber?: string;
+  messages: ChatMessage[];
+}
+
+// Alerte du Centre d'Attention
+export interface AgencyAlert {
+  id: string;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  title: string;
+  description: string;
+  actionLabel: string;
+  actionHref: string;
+  count?: number;
+}

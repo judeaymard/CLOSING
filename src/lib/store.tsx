@@ -2,6 +2,18 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
+  orders as initialOrders,
+  partners as initialPartners,
+  products as initialProducts,
+  livreurs as initialLivreurs,
+  closeuses as initialCloseuses,
+  initialPayoutRequests,
+  initialAgencyPulseActivities,
+  initialConversations,
+  initialAgencyAlerts,
+  currentPartner,
+} from "./mock-data";
+import {
   Order,
   Partner,
   Product,
@@ -11,16 +23,12 @@ import {
   PayoutOperator,
   UserRole,
   OrderStatus,
+  Conversation,
+  ActivityItem,
+  AgencyAlert,
+  PeriodFilter,
+  ChatMessage,
 } from "./types";
-import {
-  orders as initialOrders,
-  partners as initialPartners,
-  products as initialProducts,
-  livreurs as initialLivreurs,
-  closeuses as initialCloseuses,
-  initialPayoutRequests,
-  currentPartner,
-} from "./mock-data";
 
 interface OperationsContextType {
   // Entités & Données
@@ -30,6 +38,10 @@ interface OperationsContextType {
   livreurs: LivreurProfile[];
   closeuses: CloseuseProfile[];
   payoutRequests: PayoutRequest[];
+  conversations: Conversation[];
+  activities: ActivityItem[];
+  alerts: AgencyAlert[];
+  period: PeriodFilter;
 
   // Session & Rôles
   currentRole: UserRole;
@@ -41,6 +53,7 @@ interface OperationsContextType {
   activePartner: Partner;
 
   // Actions
+  setPeriod: (period: PeriodFilter) => void;
   switchRole: (role: UserRole, specificId?: string) => void;
   createOrder: (orderData: Partial<Order>) => Order;
   updateOrderStatus: (orderId: string, status: OrderStatus, comment?: string) => void;
@@ -67,6 +80,9 @@ interface OperationsContextType {
   changePassword: (newPassword: string) => void;
   approvePayout: (payoutId: string) => void;
   rejectPayout: (payoutId: string) => void;
+  sendConversationMessage: (convId: string, text: string, isInternalNote?: boolean) => void;
+  assignConversation: (convId: string, agentName: string, agentRole: string) => void;
+  resolveAlert: (alertId: string) => void;
 }
 
 const OperationsContext = createContext<OperationsContextType | undefined>(undefined);
@@ -78,6 +94,10 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [livreurs, setLivreurs] = useState<LivreurProfile[]>(initialLivreurs);
   const [closeuses, setCloseuses] = useState<CloseuseProfile[]>(initialCloseuses);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>(initialPayoutRequests);
+  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
+  const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
+  const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
+  const [period, setPeriod] = useState<PeriodFilter>("TODAY");
 
   // Session State
   const [currentRole, setCurrentRole] = useState<UserRole>("PDG");
@@ -397,6 +417,47 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
+  // 13. Envoi de message dans le Hub de Communication
+  const sendConversationMessage = (convId: string, text: string, isInternalNote = false) => {
+    const newMessage: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      sender: currentRole === "PDG" ? "PDG" : "AGENT",
+      senderName: currentRole === "PDG" ? "Jude (PDG)" : activeCloseuse.name,
+      text,
+      sentAt: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      isInternalNote,
+    };
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? {
+              ...c,
+              lastMessage: isInternalNote ? `[Note interne] ${text}` : text,
+              lastMessageAt: newMessage.sentAt,
+              messages: [...c.messages, newMessage],
+            }
+          : c
+      )
+    );
+  };
+
+  // 14. Attribution de conversation à un agent
+  const assignConversation = (convId: string, agentName: string, agentRole: string) => {
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? { ...c, assignedAgentName: agentName, assignedAgentRole: agentRole, status: "IN_PROGRESS" }
+          : c
+      )
+    );
+  };
+
+  // 15. Résolution d'alerte
+  const resolveAlert = (alertId: string) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+  };
+
   const activeLivreur = livreurs.find((l) => l.id === activeLivreurId) || livreurs[0];
   const activeCloseuse = closeuses.find((c) => c.id === activeCloseuseId) || closeuses[0];
   const activePartner = partners.find((p) => p.id === activePartnerId) || currentPartner;
@@ -410,6 +471,11 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         livreurs,
         closeuses,
         payoutRequests,
+        conversations,
+        activities,
+        alerts,
+        period,
+        setPeriod,
         currentRole,
         activeLivreurId,
         activeCloseuseId,
@@ -430,6 +496,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         changePassword,
         approvePayout,
         rejectPayout,
+        sendConversationMessage,
+        assignConversation,
+        resolveAlert,
       }}
     >
       {children}

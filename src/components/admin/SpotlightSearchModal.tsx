@@ -1,0 +1,283 @@
+﻿"use client";
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  Package,
+  Users,
+  Headset,
+  Bike,
+  MessageSquare,
+  ArrowRight,
+  X,
+  Sparkles,
+} from "lucide-react";
+import { useOperations } from "@/lib/store";
+
+interface SpotlightSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalProps) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const { orders, partners, closeuses, livreurs, conversations } = useOperations();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        if (isOpen) onClose();
+      }
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const cleanQuery = query.toLowerCase().trim();
+
+  const filteredOrders = cleanQuery
+    ? orders.filter(
+        (o) =>
+          o.orderNumber.toLowerCase().includes(cleanQuery) ||
+          o.clientName.toLowerCase().includes(cleanQuery) ||
+          o.clientPhone.includes(cleanQuery) ||
+          o.city.toLowerCase().includes(cleanQuery) ||
+          (o.partnerName && o.partnerName.toLowerCase().includes(cleanQuery))
+      ).slice(0, 4)
+    : [];
+
+  const filteredPartners = cleanQuery
+    ? partners.filter(
+        (p) =>
+          p.companyName.toLowerCase().includes(cleanQuery) ||
+          p.fullName.toLowerCase().includes(cleanQuery) ||
+          p.email.toLowerCase().includes(cleanQuery)
+      ).slice(0, 3)
+    : [];
+
+  const filteredCloseuses = cleanQuery
+    ? closeuses.filter((c) => c.name.toLowerCase().includes(cleanQuery)).slice(0, 2)
+    : [];
+
+  const filteredLivreurs = cleanQuery
+    ? livreurs.filter((l) => l.name.toLowerCase().includes(cleanQuery) || l.zone.toLowerCase().includes(cleanQuery)).slice(0, 2)
+    : [];
+
+  const filteredConversations = cleanQuery
+    ? conversations.filter(
+        (c) =>
+          c.partnerName.toLowerCase().includes(cleanQuery) ||
+          c.companyName.toLowerCase().includes(cleanQuery) ||
+          c.lastMessage.toLowerCase().includes(cleanQuery)
+      ).slice(0, 2)
+    : [];
+
+  const hasResults =
+    filteredOrders.length > 0 ||
+    filteredPartners.length > 0 ||
+    filteredCloseuses.length > 0 ||
+    filteredLivreurs.length > 0 ||
+    filteredConversations.length > 0;
+
+  const navigateTo = (path: string) => {
+    router.push(path);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 sm:p-6 pt-16 sm:pt-24 animate-fade-in-up">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh]">
+        {/* Search Input Bar */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+          <Search className="w-5 h-5 text-[#2563EB] shrink-0" />
+          <input
+            type="text"
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher une commande, un e-commerçant, un livreur, un message..."
+            className="w-full bg-transparent text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <kbd className="hidden sm:inline-block text-[10px] font-mono font-bold bg-slate-200/80 text-slate-600 px-2 py-1 rounded-md">
+            ESC
+          </kbd>
+        </div>
+
+        {/* Results Container */}
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1">
+          {!query ? (
+            <div className="py-8 text-center space-y-2">
+              <Sparkles className="w-8 h-8 text-[#2563EB] mx-auto opacity-70" />
+              <p className="text-xs font-bold text-slate-700">Recherche Instantanée Command Center</p>
+              <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                Tapez le numéro d&apos;un colis (#CMD), le nom d&apos;une boutique, d&apos;un coursier ou d&apos;une closeuse.
+              </p>
+            </div>
+          ) : !hasResults ? (
+            <div className="py-8 text-center space-y-1">
+              <p className="text-xs font-bold text-slate-700">Aucun résultat trouvé pour &quot;{query}&quot;</p>
+              <p className="text-[11px] text-slate-400">Vérifiez l&apos;orthographe ou essayez un autre mot-clé.</p>
+            </div>
+          ) : (
+            <>
+              {/* 📦 Commandes */}
+              {filteredOrders.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1">
+                    Commandes ({filteredOrders.length})
+                  </span>
+                  <div className="space-y-1.5">
+                    {filteredOrders.map((o) => (
+                      <button
+                        key={o.id}
+                        onClick={() => navigateTo("/admin/commandes")}
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center font-bold">
+                            <Package className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-xs text-slate-900">{o.orderNumber}</span>
+                              <span className="text-[10px] text-slate-500 font-medium">• {o.clientName}</span>
+                            </div>
+                            <p className="text-[11px] text-slate-400">{o.city} • {o.totalPrice.toLocaleString("fr-FR")} F CFA</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 👥 E-commerçants */}
+              {filteredPartners.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1">
+                    E-commerçants Partenaires ({filteredPartners.length})
+                  </span>
+                  <div className="space-y-1.5">
+                    {filteredPartners.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => navigateTo(`/admin/partenaires/${p.id}`)}
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border border-slate-100 hover:border-purple-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">{p.companyName}</p>
+                            <p className="text-[11px] text-slate-400">{p.fullName} • {p.phone}</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#7C3AED] group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 💬 Conversations */}
+              {filteredConversations.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1">
+                    Conversations ({filteredConversations.length})
+                  </span>
+                  <div className="space-y-1.5">
+                    {filteredConversations.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => navigateTo("/admin/conversations")}
+                        className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 flex items-center justify-between text-left transition-colors cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                            <MessageSquare className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">{c.companyName}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{c.lastMessage}</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 🛵 Livreurs & Closeuses */}
+              {(filteredLivreurs.length > 0 || filteredCloseuses.length > 0) && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1">
+                    Équipe Opérations
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {filteredLivreurs.map((l) => (
+                      <button
+                        key={l.id}
+                        onClick={() => navigateTo("/admin/livreurs")}
+                        className="p-3 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                          <Bike className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate">{l.name}</p>
+                          <p className="text-[10px] text-slate-400">Livreur • {l.zone}</p>
+                        </div>
+                      </button>
+                    ))}
+
+                    {filteredCloseuses.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => navigateTo("/admin/commandes")}
+                        className="p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border border-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                          <Headset className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate">{c.name}</p>
+                          <p className="text-[10px] text-slate-400">Closeuse ({c.conversionRate}% succès)</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer Shortcut Helper */}
+        <div className="p-3 bg-slate-100/70 border-t border-slate-200/80 text-center text-[11px] text-slate-500 font-medium">
+          Appuyez sur <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border text-[10px]">↑</kbd>{" "}
+          <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border text-[10px]">↓</kbd> pour naviguer ou{" "}
+          <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border text-[10px]">Entrée</kbd> pour sélectionner.
+        </div>
+      </div>
+    </div>
+  );
+}
