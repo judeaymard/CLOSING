@@ -176,8 +176,29 @@ interface OperationsContextType {
   disputeRemittance: (remittanceId: string, notes: string) => void;
   reportCodDiscrepancy: (orderId: string, actualAmount: number, justification: string) => void;
   addTransaction: (data: Partial<FinancialTransaction>) => FinancialTransaction;
-  sendConversationMessage: (convId: string, text: string, isInternalNote?: boolean) => void;
-  assignConversation: (convId: string, agentName: string, agentRole: string) => void;
+  sendConversationMessage: (
+    convId: string,
+    text: string,
+    isInternalNote?: boolean,
+    attachment?: {
+      name: string;
+      url?: string;
+      type?: "IMAGE" | "PDF" | "DOC";
+      size?: string;
+    }
+  ) => void;
+  assignConversation: (convId: string, agentName: string, agentRole: string, reason?: string) => void;
+  transferConversation: (
+    convId: string,
+    toAgentName: string,
+    toAgentRole: string,
+    reason: string
+  ) => void;
+  takeoverConversation: (convId: string) => void;
+  resolveConversation: (convId: string) => void;
+  reopenConversation: (convId: string) => void;
+  escalateConversation: (convId: string, reason: string) => void;
+  smartAutoAssignConversation: (convId: string) => boolean;
   resolveAlert: (alertId: string) => void;
 
   // 🛡️ Audit & Traçabilité Centrale
@@ -1593,14 +1614,37 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     return newTx;
   };
 
-  const sendConversationMessage = (convId: string, text: string, isInternalNote = false) => {
+  const sendConversationMessage = (
+    convId: string,
+    text: string,
+    isInternalNote = false,
+    attachment?: {
+      name: string;
+      url?: string;
+      type?: "IMAGE" | "PDF" | "DOC";
+      size?: string;
+    }
+  ) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    const now = new Date();
+    const sentAtStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
     const newMessage: ChatMessage = {
       id: `msg_${Date.now()}`,
-      sender: "PDG",
-      senderName: "Direction ENO",
+      sender: currentRole === "TREASURY_MANAGER" ? "TREASURY" : currentRole === "CLOSEUSE" ? "AGENT" : "PDG",
+      senderName:
+        currentRole === "TREASURY_MANAGER"
+          ? activeTreasuryManager?.name || "Responsable Trésorerie"
+          : currentRole === "CLOSEUSE"
+          ? activeCloseuse?.name || "Opératrice Télévente"
+          : "Jude S. (PDG)",
       text,
-      sentAt: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      sentAt: sentAtStr,
       isInternalNote,
+      attachmentName: attachment?.name,
+      attachmentUrl: attachment?.url,
+      attachmentType: attachment?.type,
+      attachmentSize: attachment?.size,
     };
 
     setConversations((prev) =>
@@ -1610,21 +1654,227 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
               ...c,
               lastMessage: isInternalNote ? `[Note Interne] ${text}` : text,
               lastMessageAt: "À l'instant",
+              status: c.status === "RESOLVED" ? "OPEN" : c.status,
               messages: [...c.messages, newMessage],
             }
           : c
       )
     );
+
+    // Audit log central
+    logAuditEvent({
+      actor: {
+        id: "usr-current",
+        name: newMessage.senderName,
+        role: currentRole,
+        type: "USER",
+      },
+      action: isInternalNote ? "INTERNAL_NOTE_CREATED" : "MESSAGE_SENT",
+      actionLabel: isInternalNote ? "A rédigé une note interne confidentielle" : "A envoyé un message support",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: isInternalNote
+        ? `Note interne ajoutée à la conversation ${targetConv?.companyName} : "${text.slice(0, 60)}..."`
+        : `Message support envoyé à ${targetConv?.companyName} : "${text.slice(0, 60)}..."`,
+    });
   };
 
-  const assignConversation = (convId: string, agentName: string, agentRole: string) => {
+  const assignConversation = (convId: string, agentName: string, agentRole: string, reason?: string) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    const nowIso = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+    const newHistoryItem = {
+      id: `ah_${Date.now()}`,
+      assignedToName: agentName,
+      assignedToRole: agentRole,
+      timestamp: `${new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })} — ${nowIso}`,
+      reason: reason || "Assignation manuelle",
+    };
+
     setConversations((prev) =>
       prev.map((c) =>
         c.id === convId
-          ? { ...c, assignedAgentName: agentName, assignedAgentRole: agentRole, status: "IN_PROGRESS" }
+          ? {
+              ...c,
+              assignedAgentName: agentName,
+              assignedAgentRole: agentRole,
+              status: c.status === "UNASSIGNED" ? "OPEN" : c.status,
+              assignmentHistory: [newHistoryItem, ...(c.assignmentHistory || [])],
+            }
           : c
       )
     );
+
+    logAuditEvent({
+      actor: {
+        id: "usr-pdg",
+        name: "Jude S. (PDG)",
+        role: "Super Admin",
+        type: "USER",
+      },
+      action: "CONVERSATION_ASSIGNED",
+      actionLabel: "A assigné la conversation",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: `Conversation ${targetConv?.companyName} assignée à ${agentName} (${agentRole}).`,
+      reason,
+      beforeState: { assignedAgentName: targetConv?.assignedAgentName },
+      afterState: { assignedAgentName: agentName, assignedAgentRole: agentRole },
+    });
+  };
+
+  const transferConversation = (
+    convId: string,
+    toAgentName: string,
+    toAgentRole: string,
+    reason: string
+  ) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    const prevAgent = targetConv?.assignedAgentName || "Non assigné";
+    const nowIso = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+    const newHistoryItem = {
+      id: `ah_${Date.now()}`,
+      assignedToName: toAgentName,
+      assignedToRole: toAgentRole,
+      timestamp: `${new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })} — ${nowIso}`,
+      reason: `Transféré depuis ${prevAgent} : ${reason}`,
+    };
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? {
+              ...c,
+              assignedAgentName: toAgentName,
+              assignedAgentRole: toAgentRole,
+              assignmentHistory: [newHistoryItem, ...(c.assignmentHistory || [])],
+            }
+          : c
+      )
+    );
+
+    logAuditEvent({
+      actor: {
+        id: "usr-pdg",
+        name: "Jude S. (PDG)",
+        role: "Super Admin",
+        type: "USER",
+      },
+      action: "CONVERSATION_TRANSFERRED",
+      actionLabel: "A transféré la conversation",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "WARNING",
+      result: "SUCCESS",
+      description: `Transfert de ${prevAgent} vers ${toAgentName} (${toAgentRole}). Motif : ${reason}`,
+      reason,
+      beforeState: { assignedAgentName: prevAgent },
+      afterState: { assignedAgentName: toAgentName, assignedAgentRole: toAgentRole },
+    });
+  };
+
+  const takeoverConversation = (convId: string) => {
+    assignConversation(convId, "Jude S. (PDG)", "Direction Générale", "Prise en charge directe par le PDG (Takeover)");
+  };
+
+  const resolveConversation = (convId: string) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? { ...c, status: "RESOLVED", unreadCount: 0 } : c))
+    );
+
+    logAuditEvent({
+      actor: {
+        id: "usr-pdg",
+        name: "Jude S. (PDG)",
+        role: "Super Admin",
+        type: "USER",
+      },
+      action: "CONVERSATION_RESOLVED",
+      actionLabel: "A marqué la conversation comme résolue",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: `Support pour ${targetConv?.companyName} marqué comme résolu avec succès.`,
+    });
+  };
+
+  const reopenConversation = (convId: string) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? { ...c, status: "OPEN" } : c))
+    );
+
+    logAuditEvent({
+      actor: {
+        id: "usr-pdg",
+        name: "Jude S. (PDG)",
+        role: "Super Admin",
+        type: "USER",
+      },
+      action: "CONVERSATION_REOPENED",
+      actionLabel: "A réouvert la conversation",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: `Conversation ${targetConv?.companyName} réouverte pour suivi.`,
+    });
+  };
+
+  const escalateConversation = (convId: string, reason: string) => {
+    const targetConv = conversations.find((c) => c.id === convId);
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? { ...c, status: "ESCALATED", priority: "URGENT" } : c))
+    );
+
+    logAuditEvent({
+      actor: {
+        id: "usr-pdg",
+        name: "Jude S. (PDG)",
+        role: "Super Admin",
+        type: "USER",
+      },
+      action: "CONVERSATION_ESCALATED",
+      actionLabel: "A escaladé la conversation en urgence",
+      module: "CONVERSATIONS",
+      entityType: "CONVERSATION",
+      entityId: convId,
+      entityReference: targetConv?.companyName || convId,
+      severity: "CRITICAL",
+      result: "SUCCESS",
+      description: `Escalade critique de la conversation ${targetConv?.companyName}. Raison : ${reason}`,
+      reason,
+    });
+  };
+
+  const smartAutoAssignConversation = (convId: string): boolean => {
+    const simulation = simulateAssignment("CONVERSATION");
+    if (!simulation.winner) return false;
+
+    assignConversation(
+      convId,
+      simulation.winner.name,
+      "Closeuse",
+      simulation.reason
+    );
+    return true;
   };
 
   const resolveAlert = (alertId: string) => {
@@ -1709,6 +1959,12 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         addTransaction,
         sendConversationMessage,
         assignConversation,
+        transferConversation,
+        takeoverConversation,
+        resolveConversation,
+        reopenConversation,
+        escalateConversation,
+        smartAutoAssignConversation,
         resolveAlert,
         globalAuditLogs,
         auditSessions,

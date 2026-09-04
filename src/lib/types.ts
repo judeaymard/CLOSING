@@ -413,14 +413,30 @@ export interface ActivityItem {
   amount?: number;
 }
 
+// Statuts et Priorités de Conversation
+export type ConversationStatus = 'OPEN' | 'WAITING' | 'IN_PROGRESS' | 'RESOLVED' | 'ESCALATED' | 'UNASSIGNED' | 'URGENT';
+export type ConversationPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+
+export interface ConversationAssignmentHistory {
+  id: string;
+  assignedToName: string;
+  assignedToRole: string;
+  timestamp: string;
+  reason?: string;
+}
+
 // Message de conversation
 export interface ChatMessage {
   id: string;
-  sender: 'PARTNER' | 'BOT' | 'AGENT' | 'PDG';
+  sender: 'PARTNER' | 'BOT' | 'AGENT' | 'PDG' | 'TREASURY';
   senderName: string;
   text: string;
   sentAt: string;
   isInternalNote?: boolean;
+  attachmentName?: string;
+  attachmentUrl?: string;
+  attachmentType?: 'IMAGE' | 'PDF' | 'DOC';
+  attachmentSize?: string;
 }
 
 // Conversation du Hub de Communication
@@ -434,12 +450,17 @@ export interface Conversation {
   lastMessage: string;
   lastMessageAt: string;
   unreadCount: number;
-  status: 'ALL' | 'UNASSIGNED' | 'WAITING' | 'IN_PROGRESS' | 'RESOLVED' | 'URGENT';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  status: ConversationStatus | string;
+  priority: ConversationPriority | string;
+  assignedAgentId?: string;
   assignedAgentName?: string;
   assignedAgentRole?: string;
   relatedOrderNumber?: string;
   messages: ChatMessage[];
+  assignmentHistory?: ConversationAssignmentHistory[];
+  firstResponseTimeMinutes?: number;
+  avgResponseTimeMinutes?: number;
+  slaStatus?: 'NORMAL' | 'WARNING_SLA' | 'BREACHED_SLA';
 }
 
 // Alerte du Centre d'Attention
