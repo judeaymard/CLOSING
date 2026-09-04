@@ -190,9 +190,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const pageMeta = getPageMeta();
+  const isConversations = pathname === "/admin/conversations" || pathname === "/pdg/conversations";
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-sans antialiased selection:bg-slate-900 selection:text-white">
+    <div className={`bg-[#F8FAFC] text-slate-900 flex font-sans antialiased selection:bg-slate-900 selection:text-white ${
+      isConversations ? "h-screen h-[100dvh] overflow-hidden" : "min-h-screen"
+    }`}>
       {/* 🔍 Spotlight Search Modal */}
       <SpotlightSearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
@@ -404,9 +407,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* 🏛️ MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 ${isConversations ? "h-screen h-[100dvh] overflow-hidden" : ""}`}>
         {/* Top Header Bar */}
-        <header className="hidden md:flex bg-white border-b border-slate-200/80 px-6 py-3 items-center justify-between sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <header className="hidden md:flex bg-white border-b border-slate-200/80 px-6 py-3 items-center justify-between sticky top-0 z-20 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           {/* Breadcrumb & Title */}
           <div>
             <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
@@ -518,7 +521,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page Content Body */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 mt-12 md:mt-0">{children}</main>
+        <main className={`flex-1 ${
+          isConversations
+            ? "flex flex-col min-h-0 overflow-hidden p-2 sm:p-3 lg:p-3.5 mt-12 md:mt-0"
+            : "p-4 sm:p-6 lg:p-8 mt-12 md:mt-0"
+        }`}>{children}</main>
       </div>
     </div>
   );

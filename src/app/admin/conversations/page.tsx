@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   MessageSquare,
@@ -41,6 +41,7 @@ import {
   Eye,
   Info,
   ChevronDown,
+  ArrowDown,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA } from "@/lib/mock-data";
@@ -92,6 +93,11 @@ export default function CommunicationHubPage() {
   const [transferTargetAgent, setTransferTargetAgent] = useState<string>("Jude S. (PDG)");
   const [transferTargetRole, setTransferTargetRole] = useState<string>("Direction Générale");
   const [transferReasonInput, setTransferReasonInput] = useState("");
+
+  // Scroll management & auto-scroll to latest message
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
+  const [showScrollBottomBtn, setShowScrollBottomBtn] = useState(false);
 
   const activeConversation = useMemo(() => {
     return conversations.find((c) => c.id === activeConvId) || conversations[0];
@@ -160,6 +166,32 @@ export default function CommunicationHubPage() {
     });
   }, [conversations, filterQuick, filterStatus, filterPriority, filterAgent, searchQuery]);
 
+  // Scroll to bottom helper
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior });
+    }
+  };
+
+  // Scroll to bottom when switching conversation or receiving messages
+  useEffect(() => {
+    scrollToBottom("auto");
+  }, [activeConvId]);
+
+  useEffect(() => {
+    if (!showScrollBottomBtn) {
+      scrollToBottom("smooth");
+    }
+  }, [activeConversation?.messages?.length]);
+
+  // Track scroll position in chat stream
+  const handleChatScroll = () => {
+    if (!messageContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+    const isScrolledUp = scrollHeight - scrollTop - clientHeight > 120;
+    setShowScrollBottomBtn(isScrolledUp);
+  };
+
   // Handle send message
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,6 +206,7 @@ export default function CommunicationHubPage() {
 
     setMessageInput("");
     setAttachedFile(null);
+    setTimeout(() => scrollToBottom("smooth"), 50);
   };
 
   // Handle transfer
@@ -249,58 +282,57 @@ export default function CommunicationHubPage() {
   };
 
   return (
-    <div className="space-y-4 font-sans max-w-[1600px] mx-auto pb-12">
-      {/* 1. TOP EXECUTIVE HEADER & KPIS */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-xs">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-slate-400">
-            <span>ENO LIVRAISON</span>
-            <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
-            <span className="text-slate-700 truncate">Centre de Communication &amp; Support</span>
+    <div className="flex-1 flex flex-col min-h-0 h-full gap-2 sm:gap-2.5 font-sans overflow-hidden">
+      {/* 1. TOP ULTRA-COMPACT EXECUTIVE SUMMARY BAR (Shrink-0) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl border border-slate-200/80 shadow-2xs shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="p-1.5 rounded-xl bg-slate-900 text-white shrink-0 shadow-2xs">
+            <MessageSquare className="w-4 h-4" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 mt-0.5">
-            <MessageSquare className="w-6 h-6 text-slate-900 shrink-0" />
-            <span>Conversations &amp; Support Marchands</span>
-          </h1>
-          <p className="text-xs text-slate-500 line-clamp-1 sm:line-clamp-none">
-            Centralisez les échanges avec vos e-commerçants et gardez une visibilité complète sur le support de l&apos;agence.
-          </p>
+          <div className="min-w-0">
+            <h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5 truncate">
+              <span>Conversations &amp; Support Marchands</span>
+              <span className="hidden md:inline-block px-2 py-0.2 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                Live CRM
+              </span>
+            </h1>
+          </div>
         </div>
 
-        {/* 6 Executive Metric Badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 shrink-0">
-          <div className="px-3 py-2 rounded-2xl bg-slate-50 border border-slate-200/70 text-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase block truncate">Ouvertes</span>
-            <span className="text-sm font-black text-slate-900">{openCount}</span>
+        {/* 6 High-Density KPI Badges in a clean horizontal strip */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 text-center">
+          <div className="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase mr-1">Ouvertes</span>
+            <span className="text-xs font-black text-slate-900">{openCount}</span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-blue-50 border border-blue-200/70 text-center">
-            <span className="text-[10px] font-bold text-blue-600 uppercase block truncate">Non lues</span>
-            <span className="text-sm font-black text-blue-700">{unreadCount}</span>
+          <div className="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-blue-600 uppercase mr-1">Non lues</span>
+            <span className="text-xs font-black text-blue-700">{unreadCount}</span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-rose-50 border border-rose-200/70 text-center">
-            <span className="text-[10px] font-bold text-rose-600 uppercase block truncate">Urgentes</span>
-            <span className="text-sm font-black text-rose-700">{urgentCount}</span>
+          <div className="px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-rose-600 uppercase mr-1">Urgentes</span>
+            <span className="text-xs font-black text-rose-700">{urgentCount}</span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-amber-50 border border-amber-200/70 text-center">
-            <span className="text-[10px] font-bold text-amber-600 uppercase block truncate">En attente</span>
-            <span className="text-sm font-black text-amber-700">{waitingCount}</span>
+          <div className="px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-amber-600 uppercase mr-1">En attente</span>
+            <span className="text-xs font-black text-amber-700">{waitingCount}</span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-purple-50 border border-purple-200/70 text-center">
-            <span className="text-[10px] font-bold text-purple-600 uppercase block truncate">Sans réponse</span>
-            <span className="text-sm font-black text-purple-700">{unansweredCount}</span>
+          <div className="px-2.5 py-1 rounded-xl bg-purple-50 border border-purple-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-purple-600 uppercase mr-1">Sans réponse</span>
+            <span className="text-xs font-black text-purple-700">{unansweredCount}</span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-center">
-            <span className="text-[10px] font-bold text-emerald-600 uppercase block truncate">Temps moyen</span>
-            <span className="text-sm font-black text-emerald-700">8 min</span>
+          <div className="px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/70 shrink-0">
+            <span className="text-[9px] font-bold text-emerald-600 uppercase mr-1">Délai moy.</span>
+            <span className="text-xs font-black text-emerald-700">8 min</span>
           </div>
         </div>
       </div>
 
       {/* Responsive View Switcher (Visible on < xl screens) */}
-      <div className="xl:hidden flex items-center justify-between bg-white p-1 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="xl:hidden flex items-center justify-between bg-white p-1 rounded-2xl border border-slate-200 shadow-xs shrink-0">
         <button
           onClick={() => setMobileView("LIST")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
+          className={`flex-1 py-1.5 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "LIST" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -308,7 +340,7 @@ export default function CommunicationHubPage() {
         </button>
         <button
           onClick={() => setMobileView("CHAT")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
+          className={`flex-1 py-1.5 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "CHAT" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -316,7 +348,7 @@ export default function CommunicationHubPage() {
         </button>
         <button
           onClick={() => setMobileView("DETAILS")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
+          className={`flex-1 py-1.5 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "DETAILS" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -324,19 +356,19 @@ export default function CommunicationHubPage() {
         </button>
       </div>
 
-      {/* 2. MAIN 3-PANEL SAAS CRM WORKSPACE */}
-      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-0 h-[calc(100vh-13.5rem)] min-h-[580px] bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-hidden">
+      {/* 2. MAIN 3-PANEL VIEWPORT-FITTED WORKSPACE */}
+      <div className="flex-1 min-h-0 flex flex-col xl:grid xl:grid-cols-12 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-hidden">
         
         {/* ======================================================== */}
         {/* 1. LEFT PANEL: CONVERSATIONS LIST (3 Columns on XL)       */}
         {/* ======================================================== */}
         <div
-          className={`xl:col-span-3 border-r border-slate-200/80 flex flex-col min-h-0 bg-white ${
+          className={`xl:col-span-3 border-r border-slate-200/80 flex flex-col min-h-0 h-full bg-white ${
             mobileView !== "LIST" ? "hidden xl:flex" : "flex flex-1"
           }`}
         >
           {/* Search Box & Filters Header */}
-          <div className="p-3.5 border-b border-slate-100 bg-slate-50/50 space-y-2.5 shrink-0">
+          <div className="p-3 border-b border-slate-100 bg-slate-50/50 space-y-2 shrink-0">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -344,7 +376,7 @@ export default function CommunicationHubPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher boutique, contact, #CMD..."
-                className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
               />
             </div>
 
@@ -372,11 +404,11 @@ export default function CommunicationHubPage() {
             </div>
 
             {/* Dropdown Filters Row */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
+                className="w-full px-2 py-1 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
               >
                 <option value="ALL">Tous statuts</option>
                 <option value="OPEN">🟢 Ouverte</option>
@@ -389,7 +421,7 @@ export default function CommunicationHubPage() {
               <select
                 value={filterAgent}
                 onChange={(e) => setFilterAgent(e.target.value)}
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
+                className="w-full px-2 py-1 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
               >
                 <option value="ALL">Tous les agents</option>
                 <option value="Jude S. (PDG)">Jude S. (PDG)</option>
@@ -407,7 +439,7 @@ export default function CommunicationHubPage() {
             </div>
           </div>
 
-          {/* Conversation Items Feed */}
+          {/* Conversation Items Feed (Scrollable internally) */}
           <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100">
             {filteredConversations.map((c) => {
               const isSelected = c.id === activeConversation?.id;
@@ -419,14 +451,14 @@ export default function CommunicationHubPage() {
                     setActiveConvId(c.id);
                     setMobileView("CHAT");
                   }}
-                  className={`w-full p-3.5 text-left transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full p-3 text-left transition-all flex items-start gap-2.5 cursor-pointer ${
                     isSelected
                       ? "bg-slate-50/90 border-l-4 border-l-slate-900 shadow-2xs"
                       : "hover:bg-slate-50/50"
                   }`}
                 >
                   {/* Avatar with unread indicator */}
-                  <div className="relative w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                  <div className="relative w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
                     {c.companyName?.charAt(0) || "M"}
                     {c.unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white animate-pulse">
@@ -443,15 +475,15 @@ export default function CommunicationHubPage() {
                       </span>
                     </div>
 
-                    <p className="text-[11px] text-slate-500 truncate mb-1.5 font-normal">
+                    <p className="text-[11px] text-slate-500 truncate mb-1 font-normal">
                       {c.lastMessage}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1">
                       {getStatusBadge(c.status)}
 
                       {c.assignedAgentName && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold truncate max-w-[110px] flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold truncate max-w-[105px] flex items-center gap-1">
                           <UserCheck className="w-2.5 h-2.5 text-slate-500 shrink-0" />
                           <span className="truncate">{c.assignedAgentName}</span>
                         </span>
@@ -482,17 +514,17 @@ export default function CommunicationHubPage() {
         {/* 2. MIDDLE PANEL: CHAT THREAD (6 Columns on XL)            */}
         {/* ======================================================== */}
         <div
-          className={`xl:col-span-6 flex flex-col min-h-0 bg-slate-50/40 border-r border-slate-200/80 ${
+          className={`xl:col-span-6 flex flex-col min-h-0 h-full bg-slate-50/40 border-r border-slate-200/80 relative ${
             mobileView !== "CHAT" ? "hidden xl:flex" : "flex flex-1"
           }`}
         >
           {activeConversation ? (
             <>
               {/* Thread Top Header: 2-Tier Layout ensuring ZERO overlap */}
-              <div className="p-3.5 sm:p-4 border-b border-slate-200/80 bg-white shrink-0 space-y-3">
+              <div className="p-3 sm:p-3.5 border-b border-slate-200/80 bg-white shrink-0 space-y-2">
                 {/* Tier 1: Merchant Profile Info & Full Title */}
-                <div className="flex items-center justify-between gap-3 min-w-0">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <button
                       onClick={() => setMobileView("LIST")}
                       className="xl:hidden p-1.5 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 shrink-0 cursor-pointer"
@@ -501,18 +533,18 @@ export default function CommunicationHubPage() {
                       <ArrowLeft className="w-4 h-4" />
                     </button>
 
-                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                    <div className="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
                       {activeConversation.companyName?.charAt(0) || "M"}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-sm sm:text-base font-black text-slate-900 truncate">
+                        <h3 className="text-xs sm:text-sm font-black text-slate-900 truncate">
                           {activeConversation.companyName}
                         </h3>
                         {getStatusBadge(activeConversation.status)}
                       </div>
-                      <p className="text-xs text-slate-500 truncate mt-0.5">
+                      <p className="text-[11px] text-slate-500 truncate">
                         {activeConversation.partnerName} • <span className="text-slate-400 font-mono">{activeConversation.phone}</span>
                       </p>
                     </div>
@@ -520,7 +552,7 @@ export default function CommunicationHubPage() {
 
                   {/* Assigned agent indicator */}
                   {activeConversation.assignedAgentName && (
-                    <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold shrink-0">
+                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-semibold shrink-0">
                       <UserCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                       <span>{activeConversation.assignedAgentName}</span>
                     </div>
@@ -528,41 +560,41 @@ export default function CommunicationHubPage() {
                 </div>
 
                 {/* Tier 2: Dedicated Quick Actions Toolbar */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 overflow-x-auto no-scrollbar shrink-0">
+                <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-100 overflow-x-auto no-scrollbar shrink-0">
                   <button
                     onClick={() => takeoverConversation(activeConversation.id)}
-                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-2xs"
+                    className="px-3 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-2xs"
                     title="Prendre en charge immédiatement cette conversation"
                   >
-                    <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <Zap className="w-3 h-3 text-amber-400 shrink-0" />
                     <span>Prendre (PDG)</span>
                   </button>
 
                   <button
                     onClick={() => setShowTransferModal(true)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                    className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
                     title="Transférer à une closeuse ou au trésorier"
                   >
-                    <UserPlus className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <UserPlus className="w-3 h-3 text-slate-500 shrink-0" />
                     <span>Transférer</span>
                   </button>
 
                   {activeConversation.status === "RESOLVED" ? (
                     <button
                       onClick={() => reopenConversation(activeConversation.id)}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-200 shrink-0"
+                      className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-200 shrink-0"
                       title="Réouvrir la conversation"
                     >
-                      <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                      <RotateCcw className="w-3 h-3 shrink-0" />
                       <span>Réouvrir</span>
                     </button>
                   ) : (
                     <button
                       onClick={() => resolveConversation(activeConversation.id)}
-                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                      className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
                       title="Clôturer et marquer comme résolue"
                     >
-                      <Check className="w-3.5 h-3.5 shrink-0" />
+                      <Check className="w-3 h-3 shrink-0" />
                       <span>Résoudre</span>
                     </button>
                   )}
@@ -570,17 +602,21 @@ export default function CommunicationHubPage() {
                   {/* Toggle Details on Tablet / Mobile */}
                   <button
                     onClick={() => setMobileView("DETAILS")}
-                    className="xl:hidden px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-200 shrink-0"
+                    className="xl:hidden px-3 py-1 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-200 shrink-0"
                     title="Voir la fiche marchand et commandes liées"
                   >
-                    <Info className="w-3.5 h-3.5 shrink-0" />
+                    <Info className="w-3 h-3 shrink-0" />
                     <span>Fiche Marchand</span>
                   </button>
                 </div>
               </div>
 
-              {/* Chat Message Stream */}
-              <div className="flex-1 min-h-0 p-4 overflow-y-auto space-y-3.5">
+              {/* Chat Message Stream (Internal Scroll ONLY) */}
+              <div
+                ref={messageContainerRef}
+                onScroll={handleChatScroll}
+                className="flex-1 min-h-0 p-3.5 sm:p-4 overflow-y-auto space-y-3 relative"
+              >
                 {activeConversation.messages.map((m) => {
                   const isPartner = m.sender === "PARTNER";
                   const isBot = m.sender === "BOT";
@@ -607,7 +643,7 @@ export default function CommunicationHubPage() {
                       )}
 
                       <div
-                        className={`p-3.5 rounded-2xl max-w-[88%] sm:max-w-[80%] text-xs leading-relaxed ${
+                        className={`p-3 rounded-2xl max-w-[88%] sm:max-w-[80%] text-xs leading-relaxed ${
                           isInternal
                             ? "w-full bg-amber-50/95 border-2 border-amber-300 text-amber-950 font-medium shadow-xs"
                             : isPartner
@@ -634,7 +670,7 @@ export default function CommunicationHubPage() {
                         {/* Attachments rendering */}
                         {m.attachmentName && (
                           <div
-                            className={`mt-2.5 p-2.5 rounded-xl flex items-center gap-2.5 ${
+                            className={`mt-2 p-2 rounded-xl flex items-center gap-2 ${
                               isPartner || isInternal
                                 ? "bg-slate-100/90 text-slate-800 border border-slate-200"
                                 : "bg-white/10 text-white border border-white/20"
@@ -649,7 +685,7 @@ export default function CommunicationHubPage() {
                               <p className="font-bold text-[11px] truncate">{m.attachmentName}</p>
                               <p className="text-[9px] opacity-70">{m.attachmentSize || "Fichier joint"}</p>
                             </div>
-                            <span className="px-2 py-0.5 rounded-md bg-black/10 text-[10px] font-bold shrink-0">
+                            <span className="px-2 py-0.5 rounded-md bg-black/10 text-[9px] font-bold shrink-0">
                               Reçu
                             </span>
                           </div>
@@ -658,12 +694,26 @@ export default function CommunicationHubPage() {
                     </div>
                   );
                 })}
+
+                {/* Bottom Anchor for auto-scroll */}
+                <div ref={messagesEndRef} className="h-1" />
               </div>
 
-              {/* Message Composer Footer */}
+              {/* Floating "Scroll to Bottom / Nouveau message" Indicator */}
+              {showScrollBottomBtn && (
+                <button
+                  onClick={() => scrollToBottom("smooth")}
+                  className="absolute bottom-20 right-6 px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg border border-slate-700 flex items-center gap-1.5 cursor-pointer z-10 animate-bounce"
+                >
+                  <span>Derniers messages</span>
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {/* Message Composer Footer (ALWAYS FIXED AT THE BOTTOM OF VIEWPORT) */}
               <form
                 onSubmit={handleSendMessage}
-                className={`p-3 sm:p-3.5 bg-white border-t space-y-2 shrink-0 transition-colors ${
+                className={`p-2.5 sm:p-3 bg-white border-t space-y-1.5 shrink-0 transition-colors ${
                   isInternalNote ? "border-amber-300 bg-amber-50/30" : "border-slate-200/80"
                 }`}
               >
@@ -718,7 +768,7 @@ export default function CommunicationHubPage() {
 
                 {/* Attached File Preview Tag */}
                 {attachedFile && (
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-100 border border-slate-200 text-xs">
+                  <div className="flex items-center justify-between p-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <Paperclip className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                       <span className="font-bold text-slate-900 text-[11px] truncate">{attachedFile.name}</span>
@@ -743,9 +793,9 @@ export default function CommunicationHubPage() {
                     placeholder={
                       isInternalNote
                         ? "Rédiger une note confidentielle invisible pour le marchand..."
-                        : `Écrire à ${activeConversation.companyName}...`
+                        : `Écrire à ${activeConversation.companyName}... (Entrée pour envoyer)`
                     }
-                    className={`flex-1 px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none transition-all min-w-0 ${
+                    className={`flex-1 px-3.5 py-2 rounded-xl border text-xs focus:outline-none transition-all min-w-0 ${
                       isInternalNote
                         ? "bg-amber-50/50 border-amber-300 text-amber-950 placeholder:text-amber-500 focus:ring-2 focus:ring-amber-500"
                         : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-900"
@@ -754,7 +804,7 @@ export default function CommunicationHubPage() {
                   <button
                     type="submit"
                     disabled={!messageInput.trim() && !attachedFile}
-                    className={`px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs ${
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl font-bold text-xs transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs ${
                       isInternalNote
                         ? "bg-amber-600 hover:bg-amber-500 text-white"
                         : "bg-slate-900 hover:bg-slate-800 text-white"
@@ -777,12 +827,12 @@ export default function CommunicationHubPage() {
         {/* 3. RIGHT PANEL: CONTEXTUAL CRM & LINKED RESOURCES (3 Cols)*/}
         {/* ======================================================== */}
         <div
-          className={`xl:col-span-3 p-4 sm:p-5 overflow-y-auto space-y-5 bg-white min-h-0 ${
-            mobileView !== "DETAILS" ? "hidden xl:block" : "block flex-1"
+          className={`xl:col-span-3 flex flex-col min-h-0 h-full bg-white ${
+            mobileView !== "DETAILS" ? "hidden xl:flex" : "flex flex-1"
           }`}
         >
           {/* Header on mobile view */}
-          <div className="xl:hidden flex items-center justify-between pb-2 border-b border-slate-100">
+          <div className="xl:hidden flex items-center justify-between p-3 border-b border-slate-100 shrink-0">
             <button
               onClick={() => setMobileView("CHAT")}
               className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
@@ -793,9 +843,9 @@ export default function CommunicationHubPage() {
           </div>
 
           {activeConversation && activePartner ? (
-            <>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-4 space-y-4">
               {/* 1. FICHE E-COMMERÇANT */}
-              <div className="space-y-3 pb-4 border-b border-slate-100">
+              <div className="space-y-2.5 pb-3.5 border-b border-slate-100">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">
                     Fiche E-commerçant
@@ -809,8 +859,8 @@ export default function CommunicationHubPage() {
                   </Link>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
                     {activeConversation.companyName?.charAt(0) || "M"}
                   </div>
                   <div className="min-w-0">
@@ -824,7 +874,7 @@ export default function CommunicationHubPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-slate-600 pt-1">
+                <div className="space-y-1 text-xs text-slate-600 pt-0.5">
                   <p className="flex items-center gap-2">
                     <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">{activeConversation.phone}</span>
@@ -843,7 +893,7 @@ export default function CommunicationHubPage() {
               </div>
 
               {/* 2. COMMANDES LIÉES */}
-              <div className="space-y-3 pb-4 border-b border-slate-100">
+              <div className="space-y-2.5 pb-3.5 border-b border-slate-100">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 shrink-0">
                     <Package className="w-3 h-3 text-slate-500 shrink-0" />
@@ -854,11 +904,11 @@ export default function CommunicationHubPage() {
                   </Link>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {partnerOrders.slice(0, 3).map((ord) => (
                     <div
                       key={ord.id}
-                      className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1 hover:border-slate-300 transition-colors"
+                      className="p-2 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5 hover:border-slate-300 transition-colors"
                     >
                       <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-900">
                         <Link href={`/admin/commandes/${ord.id}`} className="hover:text-blue-600 underline">
@@ -883,7 +933,7 @@ export default function CommunicationHubPage() {
               </div>
 
               {/* 3. ASSIGNATION & GESTION DES CAPACITÉS */}
-              <div className="space-y-3 pb-4 border-b border-slate-100">
+              <div className="space-y-2.5 pb-3.5 border-b border-slate-100">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 shrink-0">
                     <Headset className="w-3 h-3 text-slate-500 shrink-0" />
@@ -899,7 +949,7 @@ export default function CommunicationHubPage() {
                   </button>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {/* PDG option */}
                   <button
                     onClick={() => assignConversation(activeConversation.id, "Jude S. (PDG)", "Direction Générale")}
@@ -944,7 +994,7 @@ export default function CommunicationHubPage() {
               </div>
 
               {/* 4. HISTORIQUE DU PARCOURS / AUDIT */}
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                   <Clock4 className="w-3 h-3 text-slate-500 shrink-0" />
                   <span>Historique des Assignations</span>
@@ -970,7 +1020,7 @@ export default function CommunicationHubPage() {
                   )}
                 </div>
               </div>
-            </>
+            </div>
           ) : null}
         </div>
       </div>
