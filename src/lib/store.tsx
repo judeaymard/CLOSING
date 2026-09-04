@@ -28,6 +28,7 @@ import {
   AgencyAlert,
   PeriodFilter,
   ChatMessage,
+  ChatAttachment,
   AssignmentConfig,
   AssignmentLog,
   AssignmentMode,
@@ -180,7 +181,7 @@ interface OperationsContextType {
     convId: string,
     text: string,
     isInternalNote?: boolean,
-    attachment?: {
+    attachments?: ChatAttachment[] | {
       name: string;
       url?: string;
       type?: "IMAGE" | "PDF" | "DOC";
@@ -291,6 +292,27 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
   const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
   const [period, setPeriod] = useState<PeriodFilter>("TODAY");
+
+  // Persistance locale des conversations pour survie aux rafraîchissements
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("eno_conversations_v3");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setConversations(parsed);
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (conversations && conversations.length > 0) {
+        localStorage.setItem("eno_conversations_v3", JSON.stringify(conversations));
+      }
+    } catch {}
+  }, [conversations]);
 
   // 🛡️ Logueur d'Audit Central Universel
   const logAuditEvent = (
@@ -1618,7 +1640,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     convId: string,
     text: string,
     isInternalNote = false,
-    attachment?: {
+    attachments?: ChatAttachment[] | {
       name: string;
       url?: string;
       type?: "IMAGE" | "PDF" | "DOC";
@@ -1628,6 +1650,36 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     const targetConv = conversations.find((c) => c.id === convId);
     const now = new Date();
     const sentAtStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+    // Normaliser les pièces jointes
+    let normalizedAttachments: ChatAttachment[] = [];
+    if (Array.isArray(attachments)) {
+      normalizedAttachments = attachments;
+    } else if (attachments && attachments.name) {
+      normalizedAttachments = [
+        {
+          id: `att_${Date.now()}`,
+          fileName: attachments.name,
+          mimeType:
+            attachments.type === "PDF"
+              ? "application/pdf"
+              : attachments.type === "IMAGE"
+              ? "image/jpeg"
+              : "application/octet-stream",
+          fileSize: attachments.size || "Fichier",
+          fileSizeBytes: 0,
+          url: attachments.url || "",
+          type: attachments.type || "DOC",
+          createdAt: now.toISOString(),
+          status: "UPLOADED",
+        },
+      ];
+    }
+
+    const hasAttachments = normalizedAttachments.length > 0;
+    const attachmentSummary = hasAttachments
+      ? ` (${normalizedAttachments.length} pièce${normalizedAttachments.length > 1 ? "s" : ""} jointe${normalizedAttachments.length > 1 ? "s" : ""})`
+      : "";
 
     const newMessage: ChatMessage = {
       id: `msg_${Date.now()}`,
@@ -1641,10 +1693,12 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       text,
       sentAt: sentAtStr,
       isInternalNote,
-      attachmentName: attachment?.name,
-      attachmentUrl: attachment?.url,
-      attachmentType: attachment?.type,
-      attachmentSize: attachment?.size,
+      attachments: normalizedAttachments,
+      // Rétrocompatibilité
+      attachmentName: normalizedAttachments[0]?.fileName,
+      attachmentUrl: normalizedAttachments[0]?.url,
+      attachmentType: normalizedAttachments[0]?.type,
+      attachmentSize: normalizedAttachments[0]?.fileSize,
     };
 
     setConversations((prev) =>
@@ -1652,7 +1706,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         c.id === convId
           ? {
               ...c,
-              lastMessage: isInternalNote ? `[Note Interne] ${text}` : text,
+              lastMessage: isInternalNote
+                ? `[Note Interne] ${text || "Fichier joint"}${attachmentSummary}`
+                : `${text || "Fichier joint"}${attachmentSummary}`,
               lastMessageAt: "À l'instant",
               status: c.status === "RESOLVED" ? "OPEN" : c.status,
               messages: [...c.messages, newMessage],
@@ -1669,15 +1725,21 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         role: currentRole,
         type: "USER",
       },
-      action: isInternalNote ? "INTERNAL_NOTE_CREATED" : "MESSAGE_SENT",
-      actionLabel: isInternalNote ? "A rédigé une note interne confidentielle" : "A envoyé un message support",
+      action: hasAttachments ? "ATTACHMENT_UPLOADED" : isInternalNote ? "INTERNAL_NOTE_CREATED" : "MESSAGE_SENT",
+      actionLabel: hasAttachments
+        ? `A envoyé ${normalizedAttachments.length} pièce(s) jointe(s)`
+        : isInternalNote
+        ? "A rédigé une note interne confidentielle"
+        : "A envoyé un message support",
       module: "CONVERSATIONS",
       entityType: "CONVERSATION",
       entityId: convId,
       entityReference: targetConv?.companyName || convId,
       severity: "INFO",
       result: "SUCCESS",
-      description: isInternalNote
+      description: hasAttachments
+        ? `Fichiers envoyés à ${targetConv?.companyName} : ${normalizedAttachments.map((a) => a.fileName).join(", ")}`
+        : isInternalNote
         ? `Note interne ajoutée à la conversation ${targetConv?.companyName} : "${text.slice(0, 60)}..."`
         : `Message support envoyé à ${targetConv?.companyName} : "${text.slice(0, 60)}..."`,
     });

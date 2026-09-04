@@ -425,6 +425,28 @@ export interface ConversationAssignmentHistory {
   reason?: string;
 }
 
+// Modèle complet de pièce jointe
+export type AttachmentStatus = 'PENDING' | 'UPLOADING' | 'UPLOADED' | 'FAILED' | 'CANCELLED';
+
+export interface ChatAttachment {
+  id: string;
+  messageId?: string;
+  conversationId?: string;
+  uploadedBy?: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: string;
+  fileSizeBytes: number;
+  storagePath?: string;
+  url: string;
+  type: 'IMAGE' | 'PDF' | 'DOC';
+  thumbnailUrl?: string;
+  createdAt: string;
+  status: AttachmentStatus;
+  progress?: number; // 0 à 100
+  error?: string;
+}
+
 // Message de conversation
 export interface ChatMessage {
   id: string;
@@ -433,6 +455,8 @@ export interface ChatMessage {
   text: string;
   sentAt: string;
   isInternalNote?: boolean;
+  attachments?: ChatAttachment[];
+  // Rétrocompatibilité
   attachmentName?: string;
   attachmentUrl?: string;
   attachmentType?: 'IMAGE' | 'PDF' | 'DOC';
