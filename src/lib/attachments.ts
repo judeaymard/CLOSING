@@ -125,7 +125,8 @@ export function uploadAttachmentReal(
   file: File,
   conversationId: string,
   uploadedBy: string,
-  onProgress: (percent: number) => void
+  onProgress: (percent: number) => void,
+  uploadedByRole?: string
 ): Promise<ChatAttachment> {
   return new Promise((resolve, reject) => {
     const validation = validateAttachmentFile(file);
@@ -139,6 +140,9 @@ export function uploadAttachmentReal(
     formData.append("file", file);
     formData.append("conversationId", conversationId);
     formData.append("uploadedBy", uploadedBy);
+    if (uploadedByRole) {
+      formData.append("uploadedByRole", uploadedByRole);
+    }
 
     xhr.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable) {

@@ -433,6 +433,7 @@ export interface ChatAttachment {
   messageId?: string;
   conversationId?: string;
   uploadedBy?: string;
+  uploadedByRole?: string;
   fileName: string;
   mimeType: string;
   fileSize: string;
@@ -586,8 +587,8 @@ export interface GlobalAuditLog {
   result: AuditResult;
   description: string;
   reason?: string; // Ex: Justification de l'écart ou raison de l'assignation intelligente
-  beforeState?: Record<string, any> | string;
-  afterState?: Record<string, any> | string;
+  beforeState?: Record<string, unknown> | string;
+  afterState?: Record<string, unknown> | string;
   ipAddress?: string;
   sessionId?: string;
   userAgent?: string;

@@ -85,6 +85,10 @@ export default function CommunicationHubPage() {
     partners,
     closeuses,
     treasuryManagers,
+    currentRole,
+    activeCloseuse,
+    activeTreasuryManager,
+    activePartner: sessionPartner,
     sendConversationMessage,
     assignConversation,
     transferConversation,
@@ -94,6 +98,13 @@ export default function CommunicationHubPage() {
     escalateConversation,
     smartAutoAssignConversation,
   } = useOperations();
+
+  const currentUserName = useMemo(() => {
+    if (currentRole === "TREASURY_MANAGER") return activeTreasuryManager?.name || "Responsable Trésorerie";
+    if (currentRole === "CLOSEUSE") return activeCloseuse?.name || "Opératrice Télévente";
+    if (currentRole === "PARTNER") return sessionPartner?.companyName || "E-commerçant";
+    return "Jude S. (PDG)";
+  }, [currentRole, activeTreasuryManager, activeCloseuse, sessionPartner]);
 
   const [activeConvId, setActiveConvId] = useState<string>(conversations[0]?.id || "conv-1");
   const [filterQuick, setFilterQuick] = useState<"ALL" | "UNREAD" | "WAITING" | "URGENT" | "UNANSWERED" | "MY_CONVS">("ALL");
@@ -264,11 +275,17 @@ export default function CommunicationHubPage() {
       setPendingUploads((prev) => [...prev, uploadItem]);
 
       // Execute Real Upload
-      uploadAttachmentReal(file, activeConversation.id, "Jude S. (PDG)", (percent) => {
-        setPendingUploads((prev) =>
-          prev.map((item) => (item.id === tempId ? { ...item, progress: percent } : item))
-        );
-      })
+      uploadAttachmentReal(
+        file,
+        activeConversation.id,
+        currentUserName,
+        (percent) => {
+          setPendingUploads((prev) =>
+            prev.map((item) => (item.id === tempId ? { ...item, progress: percent } : item))
+          );
+        },
+        currentRole
+      )
         .then((uploadedAttachment) => {
           setPendingUploads((prev) =>
             prev.map((item) =>
@@ -297,7 +314,7 @@ export default function CommunicationHubPage() {
           );
         });
     });
-  }, [activeConversation]);
+  }, [activeConversation, currentUserName, currentRole]);
 
   // Retry failed upload
   const handleRetryUpload = (item: PendingUploadItem) => {
@@ -306,11 +323,17 @@ export default function CommunicationHubPage() {
       prev.map((i) => (i.id === item.id ? { ...i, status: "UPLOADING", progress: 0, errorMessage: undefined } : i))
     );
 
-    uploadAttachmentReal(item.file, activeConversation.id, "Jude S. (PDG)", (percent) => {
-      setPendingUploads((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, progress: percent } : i))
-      );
-    })
+    uploadAttachmentReal(
+      item.file,
+      activeConversation.id,
+      currentUserName,
+      (percent) => {
+        setPendingUploads((prev) =>
+          prev.map((i) => (i.id === item.id ? { ...i, progress: percent } : i))
+        );
+      },
+      currentRole
+    )
       .then((uploadedAttachment) => {
         setPendingUploads((prev) =>
           prev.map((i) =>

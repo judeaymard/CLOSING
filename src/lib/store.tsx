@@ -288,22 +288,40 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [auditLogs, setAuditLogs] = useState<FinancialAuditLog[]>(initialFinancialAuditLogs);
   const [globalAuditLogs, setGlobalAuditLogs] = useState<GlobalAuditLog[]>(initialGlobalAuditLogs);
   const [auditSessions, setAuditSessions] = useState<AuditSessionLog[]>(initialAuditSessions);
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eno_conversations_v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return initialConversations;
+  });
   const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
   const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
   const [period, setPeriod] = useState<PeriodFilter>("TODAY");
 
-  // Persistance locale des conversations pour survie aux rafraîchissements
+  // Persistance et synchronisation des conversations (Serveur + LocalStorage)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("eno_conversations_v3");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setConversations(parsed);
+    // Synchronisation en arrière-plan depuis le backend persistant
+    fetch("/api/conversations")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.conversations) && data.conversations.length > 0) {
+          setConversations(data.conversations);
+          try {
+            localStorage.setItem("eno_conversations_v3", JSON.stringify(data.conversations));
+          } catch {}
         }
-      }
-    } catch {}
+      })
+      .catch((err) => {
+        console.warn("Mode hors-ligne ou fallback conversations:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -1716,6 +1734,21 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
           : c
       )
     );
+
+    // Persistance asynchrone sur le serveur
+    fetch(`/api/conversations/${convId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        isInternalNote,
+        attachments: normalizedAttachments,
+        sender: newMessage.sender,
+        senderName: newMessage.senderName,
+      }),
+    }).catch((err) => {
+      console.warn("Erreur synchronisation message serveur:", err);
+    });
 
     // Audit log central
     logAuditEvent({
