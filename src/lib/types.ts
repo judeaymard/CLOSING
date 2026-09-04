@@ -488,7 +488,57 @@ export interface Conversation {
   slaStatus?: 'NORMAL' | 'WARNING_SLA' | 'BREACHED_SLA';
 }
 
-// Alerte du Centre d'Attention
+// ==========================================
+// 🔔 SYSTÈME DE NOTIFICATIONS & CENTRE D'ALERTES
+// ==========================================
+
+export type NotificationPriority = 'CRITICAL' | 'URGENT' | 'INFO';
+
+export type NotificationCategory =
+  | 'COMMANDES'
+  | 'LIVRAISONS'
+  | 'LIVREURS'
+  | 'ECOMMERCE'
+  | 'FINANCES'
+  | 'CONVERSATIONS'
+  | 'INCIDENTS'
+  | 'SYSTEME';
+
+export type NotificationReferenceType =
+  | 'ORDER'
+  | 'DELIVERY'
+  | 'DRIVER'
+  | 'MERCHANT'
+  | 'WITHDRAWAL'
+  | 'TRANSACTION'
+  | 'CONVERSATION'
+  | 'INCIDENT'
+  | 'SYSTEM';
+
+export interface PlatformNotification {
+  id: string;
+  category: NotificationCategory;
+  priority: NotificationPriority;
+  title: string;
+  description: string;
+  isRead: boolean;
+  createdAt: string;
+  isoDate: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  referenceId?: string;
+  referenceType?: NotificationReferenceType;
+  isAlert?: boolean;
+  alertStatus?: 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED';
+  actor?: {
+    id: string;
+    name: string;
+    role: string;
+  };
+  metadata?: Record<string, unknown>;
+}
+
+// Alerte du Centre d'Attention (Rétrocompatibilité)
 export interface AgencyAlert {
   id: string;
   severity: 'CRITICAL' | 'WARNING' | 'INFO';

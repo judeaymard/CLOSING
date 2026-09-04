@@ -1,11 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { Conversation, ChatMessage, ChatAttachment } from "./types";
-import { initialConversations } from "./mock-data";
+import { Conversation, ChatMessage, ChatAttachment, PlatformNotification } from "./types";
+import { initialConversations, initialPlatformNotifications } from "./mock-data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const CONVERSATIONS_FILE = path.join(DATA_DIR, "conversations.json");
 const ATTACHMENTS_FILE = path.join(DATA_DIR, "attachments.json");
+const NOTIFICATIONS_FILE = path.join(DATA_DIR, "notifications.json");
 const STORAGE_DIR = path.join(process.cwd(), "storage", "attachments");
 const PUBLIC_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads", "conversations");
 
@@ -34,6 +35,17 @@ export async function initDatabase(): Promise<void> {
       await fs.access(ATTACHMENTS_FILE);
     } catch {
       await fs.writeFile(ATTACHMENTS_FILE, JSON.stringify([], null, 2), "utf-8");
+    }
+
+    // Initialisation du fichier notifications.json s'il n'existe pas
+    try {
+      await fs.access(NOTIFICATIONS_FILE);
+    } catch {
+      await fs.writeFile(
+        NOTIFICATIONS_FILE,
+        JSON.stringify(initialPlatformNotifications, null, 2),
+        "utf-8"
+      );
     }
   } catch (error) {
     console.error("Erreur lors de l'initialisation de la base de données serveur:", error);
@@ -263,3 +275,106 @@ export async function checkAttachmentAccess(
 
   return { allowed: true };
 }
+
+/**
+ * Récupère l'ensemble des notifications depuis le serveur persistant.
+ */
+export async function getNotifications(): Promise<PlatformNotification[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(NOTIFICATIONS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture notifications.json:", error);
+  }
+  return initialPlatformNotifications;
+}
+
+/**
+ * Enregistre ou met à jour une notification.
+ */
+export async function saveNotification(
+  notification: PlatformNotification
+): Promise<PlatformNotification> {
+  await initDatabase();
+  const notifications = await getNotifications();
+  const index = notifications.findIndex((n) => n.id === notification.id);
+
+  if (index >= 0) {
+    notifications[index] = notification;
+  } else {
+    notifications.unshift(notification);
+  }
+
+  await fs.writeFile(
+    NOTIFICATIONS_FILE,
+    JSON.stringify(notifications, null, 2),
+    "utf-8"
+  );
+  return notification;
+}
+
+/**
+ * Marque une notification spécifique comme lue.
+ */
+export async function markNotificationRead(
+  id: string
+): Promise<PlatformNotification | null> {
+  await initDatabase();
+  const notifications = await getNotifications();
+  const index = notifications.findIndex((n) => n.id === id);
+
+  if (index >= 0) {
+    notifications[index].isRead = true;
+    await fs.writeFile(
+      NOTIFICATIONS_FILE,
+      JSON.stringify(notifications, null, 2),
+      "utf-8"
+    );
+    return notifications[index];
+  }
+  return null;
+}
+
+/**
+ * Marque l'ensemble des notifications comme lues.
+ */
+export async function markAllNotificationsRead(): Promise<PlatformNotification[]> {
+  await initDatabase();
+  const notifications = await getNotifications();
+  const updated = notifications.map((n) => ({ ...n, isRead: true }));
+
+  await fs.writeFile(
+    NOTIFICATIONS_FILE,
+    JSON.stringify(updated, null, 2),
+    "utf-8"
+  );
+  return updated;
+}
+
+/**
+ * Résout une alerte active.
+ */
+export async function resolveNotificationAlert(
+  id: string
+): Promise<PlatformNotification | null> {
+  await initDatabase();
+  const notifications = await getNotifications();
+  const index = notifications.findIndex((n) => n.id === id);
+
+  if (index >= 0) {
+    notifications[index].alertStatus = "RESOLVED";
+    notifications[index].isRead = true;
+    await fs.writeFile(
+      NOTIFICATIONS_FILE,
+      JSON.stringify(notifications, null, 2),
+      "utf-8"
+    );
+    return notifications[index];
+  }
+  return null;
+}
+

@@ -11,6 +11,7 @@ import {
   initialAgencyPulseActivities,
   initialConversations,
   initialAgencyAlerts,
+  initialPlatformNotifications,
   currentPartner,
 } from "./mock-data";
 import {
@@ -26,6 +27,7 @@ import {
   Conversation,
   ActivityItem,
   AgencyAlert,
+  PlatformNotification,
   PeriodFilter,
   ChatMessage,
   ChatAttachment,
@@ -212,6 +214,23 @@ interface OperationsContextType {
     }
   ) => GlobalAuditLog;
 
+  // 🔔 Centre de Notifications & Alertes
+  notifications: PlatformNotification[];
+  unreadNotificationsCount: number;
+  criticalAlertsCount: number;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  resolveNotificationAlert: (id: string) => void;
+  addNotification: (
+    notification: Omit<PlatformNotification, "id" | "createdAt" | "isoDate" | "isRead"> & {
+      id?: string;
+      createdAt?: string;
+      isoDate?: string;
+      isRead?: boolean;
+    }
+  ) => PlatformNotification;
+  deleteNotification: (id: string) => void;
+
   // Méthodes d'Automatisation
   updateAssignmentConfig: (newConfig: Partial<AssignmentConfig>) => void;
   updateCloserAvailability: (closerId: string, status: CloseuseStatus) => void;
@@ -331,6 +350,134 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       }
     } catch {}
   }, [conversations]);
+
+  // 🔔 Centre de Notifications & Alertes (Plateforme Globale)
+  const [notifications, setNotifications] = useState<PlatformNotification[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eno_notifications_v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return initialPlatformNotifications;
+  });
+
+  // Persistance et synchronisation des notifications (Serveur + LocalStorage)
+  useEffect(() => {
+    fetch("/api/notifications")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.notifications) && data.notifications.length > 0) {
+          setNotifications(data.notifications);
+          try {
+            localStorage.setItem("eno_notifications_v3", JSON.stringify(data.notifications));
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        console.warn("Mode hors-ligne ou fallback notifications:", err);
+      });
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (notifications && notifications.length > 0) {
+        localStorage.setItem("eno_notifications_v3", JSON.stringify(notifications));
+      }
+    } catch {}
+  }, [notifications]);
+
+  const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
+  const criticalAlertsCount = notifications.filter(
+    (n) => n.priority === "CRITICAL" && n.alertStatus !== "RESOLVED"
+  ).length;
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    );
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "MARK_READ", id }),
+    }).catch(() => {});
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "MARK_ALL_READ" }),
+    }).catch(() => {});
+  };
+
+  const resolveNotificationAlert = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, alertStatus: "RESOLVED", isRead: true } : n))
+    );
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "RESOLVE_ALERT", id }),
+    }).catch(() => {});
+  };
+
+  const addNotification = (
+    params: Omit<PlatformNotification, "id" | "createdAt" | "isoDate" | "isRead"> & {
+      id?: string;
+      createdAt?: string;
+      isoDate?: string;
+      isRead?: boolean;
+    }
+  ): PlatformNotification => {
+    const now = new Date();
+    const formattedDate =
+      params.createdAt ||
+      now.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }) +
+        " à " +
+        now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+    const newNotification: PlatformNotification = {
+      id: params.id || `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      category: params.category,
+      priority: params.priority,
+      title: params.title,
+      description: params.description,
+      isRead: params.isRead ?? false,
+      createdAt: formattedDate,
+      isoDate: params.isoDate || now.toISOString(),
+      actionUrl: params.actionUrl,
+      actionLabel: params.actionLabel,
+      referenceId: params.referenceId,
+      referenceType: params.referenceType,
+      isAlert: params.isAlert ?? (params.priority === "CRITICAL" || params.priority === "URGENT"),
+      alertStatus:
+        params.alertStatus ||
+        (params.priority === "CRITICAL" || params.priority === "URGENT" ? "ACTIVE" : undefined),
+      actor: params.actor,
+      metadata: params.metadata,
+    };
+
+    setNotifications((prev) => [newNotification, ...prev]);
+
+    fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newNotification),
+    }).catch(() => {});
+
+    return newNotification;
+  };
+
+  const deleteNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   // 🛡️ Logueur d'Audit Central Universel
   const logAuditEvent = (
@@ -2064,6 +2211,14 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         globalAuditLogs,
         auditSessions,
         logAuditEvent,
+        notifications,
+        unreadNotificationsCount,
+        criticalAlertsCount,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        resolveNotificationAlert,
+        addNotification,
+        deleteNotification,
         updateAssignmentConfig,
         updateCloserAvailability,
         simulateAssignment,
