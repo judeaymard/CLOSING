@@ -47,6 +47,7 @@ import {
   RefreshCw,
   Maximize2,
   FileSpreadsheet,
+  Plus,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA } from "@/lib/mock-data";
@@ -129,9 +130,38 @@ export default function CommunicationHubPage() {
     size?: string;
   } | null>(null);
 
-  // Hidden File Inputs
+  // Hidden File Inputs & Popover Menu
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+  const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Fermeture automatique du menu au clic extérieur ou touche Échap
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        attachmentMenuRef.current &&
+        !attachmentMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowAttachmentMenu(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowAttachmentMenu(false);
+      }
+    };
+
+    if (showAttachmentMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showAttachmentMenu]);
 
   // Mobile / Tablet view navigation: 'LIST' | 'CHAT' | 'DETAILS'
   const [mobileView, setMobileView] = useState<"LIST" | "CHAT" | "DETAILS">("LIST");
@@ -1078,29 +1108,6 @@ export default function CommunicationHubPage() {
                       <span>Note Interne</span>
                     </button>
                   </div>
-
-                  {/* Real Attachment Triggers */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => photoInputRef.current?.click()}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
-                      title="Ajouter une ou plusieurs photos (JPG, PNG, WEBP)"
-                    >
-                      <ImageIcon className="w-4 h-4 text-blue-600" />
-                      <span className="hidden sm:inline">Photo</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
-                      title="Joindre des fichiers (PDF, Excel, Word, CSV jusqu'à 20 MB)"
-                    >
-                      <Paperclip className="w-4 h-4 text-slate-600" />
-                      <span className="hidden sm:inline">Document</span>
-                    </button>
-                  </div>
                 </div>
 
                 {/* Pre-Send Real Multi-Attachment Preview Tray */}
@@ -1181,8 +1188,75 @@ export default function CommunicationHubPage() {
                   </div>
                 )}
 
-                {/* Input row */}
+                {/* Input row with unified ➕ Ajouter button */}
                 <div className="flex items-center gap-2">
+                  {/* Bouton Unique d'Ajout + Popover Menu */}
+                  <div className="relative" ref={attachmentMenuRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowAttachmentMenu((prev) => !prev)}
+                      className={`p-2 sm:px-2.5 sm:py-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0 shadow-2xs ${
+                        showAttachmentMenu
+                          ? "bg-slate-900 text-white border-slate-900"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300"
+                      }`}
+                      title="Ajouter une photo ou un fichier"
+                      aria-expanded={showAttachmentMenu}
+                      aria-haspopup="true"
+                    >
+                      <Plus className={`w-4 h-4 transition-transform duration-150 ${showAttachmentMenu ? "rotate-45" : ""}`} />
+                      <span className="hidden sm:inline">Ajouter</span>
+                    </button>
+
+                    {/* Popover Menu Photo & Fichier */}
+                    {showAttachmentMenu && (
+                      <div
+                        className="absolute left-0 bottom-full mb-2 w-52 rounded-xl bg-white border border-slate-200 shadow-xl p-1 z-30 animate-in fade-in zoom-in-95 duration-100"
+                        role="menu"
+                      >
+                        <div className="space-y-0.5">
+                          {/* Option 1: Photo */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowAttachmentMenu(false);
+                              photoInputRef.current?.click();
+                            }}
+                            className="w-full p-2 text-left rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-xs transition-colors cursor-pointer group"
+                            role="menuitem"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 flex items-center justify-center shrink-0">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-slate-900">Photo</p>
+                              <p className="text-[10px] text-slate-400 truncate">JPG, PNG, WEBP, GIF</p>
+                            </div>
+                          </button>
+
+                          {/* Option 2: Fichier */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowAttachmentMenu(false);
+                              fileInputRef.current?.click();
+                            }}
+                            className="w-full p-2 text-left rounded-lg hover:bg-slate-50 flex items-center gap-2.5 text-xs transition-colors cursor-pointer group"
+                            role="menuitem"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 flex items-center justify-center shrink-0">
+                              <Paperclip className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-slate-900">Fichier</p>
+                              <p className="text-[10px] text-slate-400 truncate">PDF, Word, Excel, CSV</p>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <input
                     type="text"
                     value={messageInput}
