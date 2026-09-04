@@ -12,6 +12,9 @@ import {
   initialConversations,
   initialAgencyAlerts,
   initialPlatformNotifications,
+  initialPlatformUsers,
+  initialPlatformSettings,
+  initialRolePermissionsMap,
   currentPartner,
 } from "./mock-data";
 import {
@@ -28,6 +31,11 @@ import {
   ActivityItem,
   AgencyAlert,
   PlatformNotification,
+  PlatformUser,
+  PlatformUserStatus,
+  PlatformSettings,
+  RoleDefinition,
+  PermissionDefinition,
   PeriodFilter,
   ChatMessage,
   ChatAttachment,
@@ -230,6 +238,18 @@ interface OperationsContextType {
     }
   ) => PlatformNotification;
   deleteNotification: (id: string) => void;
+
+  // ⚙️ Paramètres, Utilisateurs & Permissions
+  platformSettings: PlatformSettings;
+  platformUsers: PlatformUser[];
+  rolePermissions: Record<string, string[]>;
+  currentUserProfile: PlatformUser;
+  updatePlatformSettings: (newSettings: Partial<PlatformSettings>, sectionName?: string) => Promise<boolean>;
+  updateUserProfile: (updates: Partial<PlatformUser>) => void;
+  createPlatformUser: (user: Partial<PlatformUser>) => PlatformUser;
+  updatePlatformUserStatus: (userId: string, status: PlatformUserStatus, reason?: string) => void;
+  updateRolePermissions: (roleId: string, permissions: string[]) => void;
+  hasPermission: (permissionId: string) => boolean;
 
   // Méthodes d'Automatisation
   updateAssignmentConfig: (newConfig: Partial<AssignmentConfig>) => void;
@@ -477,6 +497,354 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
 
   const deleteNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  // ⚙️ Paramètres de la Plateforme (Settings)
+  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eno_settings_v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === "object") return parsed;
+        }
+      } catch {}
+    }
+    return initialPlatformSettings;
+  });
+
+  // 👥 Utilisateurs de la Plateforme (Users)
+  const [platformUsers, setPlatformUsers] = useState<PlatformUser[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eno_users_v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return initialPlatformUsers;
+  });
+
+  // 🛡️ Permissions des Rôles
+  const [rolePermissions, setRolePermissions] = useState<Record<string, string[]>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eno_role_perms_v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === "object") return parsed;
+        }
+      } catch {}
+    }
+    return initialRolePermissionsMap;
+  });
+
+  // Profil Utilisateur Connecté (Acteur Principal PDG par défaut)
+  const [currentUserProfile, setCurrentUserProfile] = useState<PlatformUser>(() => {
+    return initialPlatformUsers[0];
+  });
+
+  // Sync avec le serveur en tâche de fond
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setPlatformSettings(data.settings);
+          try {
+            localStorage.setItem("eno_settings_v3", JSON.stringify(data.settings));
+          } catch {}
+        }
+        if (data.success && data.rolePermissions) {
+          setRolePermissions(data.rolePermissions);
+          try {
+            localStorage.setItem("eno_role_perms_v3", JSON.stringify(data.rolePermissions));
+          } catch {}
+        }
+      })
+      .catch((err) => console.warn("Fallback local settings:", err));
+
+    fetch("/api/users")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.users) && data.users.length > 0) {
+          setPlatformUsers(data.users);
+          try {
+            localStorage.setItem("eno_users_v3", JSON.stringify(data.users));
+          } catch {}
+        }
+      })
+      .catch((err) => console.warn("Fallback local users:", err));
+  }, []);
+
+  // Sauvegarde automatique dans localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("eno_settings_v3", JSON.stringify(platformSettings));
+    } catch {}
+  }, [platformSettings]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("eno_users_v3", JSON.stringify(platformUsers));
+    } catch {}
+  }, [platformUsers]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("eno_role_perms_v3", JSON.stringify(rolePermissions));
+    } catch {}
+  }, [rolePermissions]);
+
+  // Vérification de permission granulaire
+  const hasPermission = (permissionId: string): boolean => {
+    if (currentRole === "PDG") return true;
+    const permissionsForRole = rolePermissions[currentRole] || [];
+    if (permissionsForRole.includes("*") || permissionsForRole.includes(permissionId)) {
+      return true;
+    }
+    if (currentUserProfile.customPermissions?.includes(permissionId)) {
+      return true;
+    }
+    return false;
+  };
+
+  // 1. Mise à jour des paramètres
+  const updatePlatformSettings = async (
+    newSettings: Partial<PlatformSettings>,
+    sectionName = "Configuration générale"
+  ): Promise<boolean> => {
+    const prev = { ...platformSettings };
+    const merged: PlatformSettings = {
+      ...platformSettings,
+      ...newSettings,
+      general: { ...platformSettings.general, ...(newSettings.general || {}) },
+      operational: { ...platformSettings.operational, ...(newSettings.operational || {}) },
+      financial: { ...platformSettings.financial, ...(newSettings.financial || {}) },
+      paymentGateways: {
+        ...platformSettings.paymentGateways,
+        ...(newSettings.paymentGateways || {}),
+      },
+      notifications: {
+        ...platformSettings.notifications,
+        ...(newSettings.notifications || {}),
+      },
+      security: { ...platformSettings.security, ...(newSettings.security || {}) },
+      lastUpdated:
+        new Date().toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }) +
+        " à " +
+        new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      updatedBy: currentUserProfile.name,
+    };
+
+    setPlatformSettings(merged);
+
+    // Audit log
+    logAuditEvent({
+      actor: {
+        id: currentUserProfile.id,
+        name: currentUserProfile.name,
+        role: currentUserProfile.roleLabel,
+        type: "USER",
+      },
+      action: "SETTINGS_UPDATED",
+      actionLabel: `Modification de ${sectionName}`,
+      module: "PARAMETRES",
+      entityType: "SETTING",
+      entityId: "platform-settings",
+      entityReference: `CONFIG-${sectionName.toUpperCase().slice(0, 8)}`,
+      severity: "WARNING",
+      result: "SUCCESS",
+      description: `Mise à jour des paramètres de la section ${sectionName}.`,
+      beforeState: prev as any,
+      afterState: merged as any,
+      isSensitive: true,
+    });
+
+    try {
+      await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: merged, updatedBy: currentUserProfile.name }),
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // 2. Mise à jour du profil utilisateur connecté
+  const updateUserProfile = (updates: Partial<PlatformUser>) => {
+    const prev = { ...currentUserProfile };
+    const updated = { ...currentUserProfile, ...updates };
+    setCurrentUserProfile(updated);
+
+    // Mettre également à jour dans platformUsers
+    setPlatformUsers((prevUsers) =>
+      prevUsers.map((u) => (u.id === updated.id ? updated : u))
+    );
+
+    logAuditEvent({
+      actor: {
+        id: updated.id,
+        name: updated.name,
+        role: updated.roleLabel,
+        type: "USER",
+      },
+      action: "PROFILE_UPDATED",
+      actionLabel: "Mise à jour du profil personnel",
+      module: "UTILISATEURS",
+      entityType: "USER",
+      entityId: updated.id,
+      entityReference: updated.name,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: "Modification des coordonnées personnelles de l'utilisateur connecté.",
+      beforeState: prev as any,
+      afterState: updated as any,
+    });
+
+    fetch("/api/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: updated.id, updates }),
+    }).catch(() => {});
+  };
+
+  // 3. Création d'utilisateur
+  const createPlatformUser = (userData: Partial<PlatformUser>): PlatformUser => {
+    const newUser: PlatformUser = {
+      id: userData.id || `usr-${Date.now()}`,
+      firstName: (userData.firstName || "Nouveau").trim(),
+      lastName: (userData.lastName || "Utilisateur").trim(),
+      name: `${(userData.firstName || "Nouveau").trim()} ${(userData.lastName || "Utilisateur").trim()}`,
+      email: (userData.email || `user-${Date.now()}@enolivraison.com`).trim().toLowerCase(),
+      phone: userData.phone || "+229 00 00 00 00",
+      role: userData.role || "CLOSEUSE",
+      roleLabel: userData.roleLabel || userData.role || "Closeuse",
+      status: userData.status || "active",
+      zone: userData.zone || "Cotonou",
+      createdAt: new Date().toISOString().slice(0, 10),
+      lastActiveAt: "Nouveau compte",
+      is2FAEnabled: userData.is2FAEnabled ?? false,
+      notes: userData.notes || "",
+    };
+
+    setPlatformUsers((prev) => [newUser, ...prev]);
+
+    logAuditEvent({
+      actor: {
+        id: currentUserProfile.id,
+        name: currentUserProfile.name,
+        role: currentUserProfile.roleLabel,
+        type: "USER",
+      },
+      action: "USER_CREATED",
+      actionLabel: `Création de l'utilisateur ${newUser.name}`,
+      module: "UTILISATEURS",
+      entityType: "USER",
+      entityId: newUser.id,
+      entityReference: newUser.name,
+      severity: "WARNING",
+      result: "SUCCESS",
+      description: `Création d'un nouveau compte avec le rôle ${newUser.roleLabel}.`,
+      afterState: newUser as any,
+      isSensitive: true,
+    });
+
+    fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUser),
+    }).catch(() => {});
+
+    return newUser;
+  };
+
+  // 4. Changement de statut utilisateur (suspendre, réactiver)
+  const updatePlatformUserStatus = (
+    userId: string,
+    status: PlatformUserStatus,
+    reason?: string
+  ) => {
+    const targetUser = platformUsers.find((u) => u.id === userId);
+    if (!targetUser) return;
+    const prevStatus = targetUser.status;
+
+    setPlatformUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status } : u))
+    );
+
+    const isSuspension = status === "suspended";
+
+    logAuditEvent({
+      actor: {
+        id: currentUserProfile.id,
+        name: currentUserProfile.name,
+        role: currentUserProfile.roleLabel,
+        type: "USER",
+      },
+      action: isSuspension ? "USER_SUSPENDED" : "USER_STATUS_UPDATED",
+      actionLabel: isSuspension
+        ? `Suspension du compte ${targetUser.name}`
+        : `Changement de statut pour ${targetUser.name} (${status})`,
+      module: "UTILISATEURS",
+      entityType: "USER",
+      entityId: targetUser.id,
+      entityReference: targetUser.name,
+      severity: isSuspension ? "CRITICAL" : "WARNING",
+      result: "SUCCESS",
+      description: `Le compte ${targetUser.name} est passé de ${prevStatus} à ${status}.${reason ? ` Motif : ${reason}` : ""}`,
+      reason,
+      beforeState: { status: prevStatus },
+      afterState: { status },
+      isSensitive: true,
+    });
+
+    fetch("/api/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId, updates: { status } }),
+    }).catch(() => {});
+  };
+
+  // 5. Mise à jour des permissions d'un rôle
+  const updateRolePermissions = (roleId: string, permissions: string[]) => {
+    const prev = rolePermissions[roleId] || [];
+    setRolePermissions((prevMap) => ({ ...prevMap, [roleId]: permissions }));
+
+    logAuditEvent({
+      actor: {
+        id: currentUserProfile.id,
+        name: currentUserProfile.name,
+        role: currentUserProfile.roleLabel,
+        type: "USER",
+      },
+      action: "ROLE_PERMISSIONS_UPDATED",
+      actionLabel: `Mise à jour des permissions du rôle ${roleId}`,
+      module: "PARAMETRES",
+      entityType: "ROLE",
+      entityId: roleId,
+      entityReference: `ROLE-${roleId}`,
+      severity: "CRITICAL",
+      result: "SUCCESS",
+      description: `Modification de la matrice de permissions pour le rôle ${roleId} (${permissions.length} permissions accordées).`,
+      beforeState: { permissions: prev },
+      afterState: { permissions },
+      isSensitive: true,
+    });
+
+    fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "ROLE_PERMISSIONS", roleId, permissions }),
+    }).catch(() => {});
   };
 
   // 🛡️ Logueur d'Audit Central Universel
@@ -2219,6 +2587,16 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         resolveNotificationAlert,
         addNotification,
         deleteNotification,
+        platformSettings,
+        platformUsers,
+        rolePermissions,
+        currentUserProfile,
+        updatePlatformSettings,
+        updateUserProfile,
+        createPlatformUser,
+        updatePlatformUserStatus,
+        updateRolePermissions,
+        hasPermission,
         updateAssignmentConfig,
         updateCloserAvailability,
         simulateAssignment,

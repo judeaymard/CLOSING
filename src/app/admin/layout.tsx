@@ -111,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
     if (pathname === "/admin/rapports") return { title: "Rapports & Exports", subtitle: "Téléchargement de données" };
     if (pathname === "/admin/notifications" || pathname === "/pdg/notifications") return { title: "Notifications & Centre d'Alertes", subtitle: "Surveillance centralisée des alertes, signaux opérationnels et événements de la plateforme" };
-    if (pathname === "/admin/parametres") return { title: "Paramètres", subtitle: "Configuration plateforme" };
+    if (pathname === "/admin/parametres" || pathname === "/pdg/parametres") return { title: "Paramètres & Permissions", subtitle: "Centre de configuration, gouvernance et contrôle des accès" };
     return { title: "Espace Direction", subtitle: "Supervision des opérations" };
   };
 

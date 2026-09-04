@@ -1,4 +1,3 @@
-// Rôles utilisateurs dans l'écosystème ENO LIVRAISON
 export type UserRole =
   | 'PDG'
   | 'SUPER_ADMIN'
@@ -8,7 +7,8 @@ export type UserRole =
   | 'DELIVERY_AGENT'
   | 'PARTNER'
   | 'MERCHANT'
-  | 'TREASURY_MANAGER';
+  | 'TREASURY_MANAGER'
+  | 'LOGISTICS_MANAGER';
 
 // Statuts de commande
 export type OrderStatus =
@@ -603,6 +603,7 @@ export type AuditResult = 'SUCCESS' | 'FAILED' | 'BLOCKED';
 export type AuditEntityType =
   | 'ORDER'
   | 'USER'
+  | 'ROLE'
   | 'LIVREUR'
   | 'CLOSEUSE'
   | 'PARTNER'
@@ -660,4 +661,187 @@ export interface AuditSessionLog {
   status: 'ACTIVE' | 'EXPIRED' | 'TERMINATED' | 'FAILED_ATTEMPT';
   failureReason?: string;
 }
+
+// ==========================================
+// ⚙️ PARAMÈTRES, UTILISATEURS & PERMISSIONS
+// ==========================================
+
+export type PlatformUserStatus = 'active' | 'inactive' | 'suspended' | 'pending';
+
+export interface PlatformUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: UserRole;
+  roleLabel: string;
+  status: PlatformUserStatus;
+  avatarUrl?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  lastActiveAt?: string;
+  zone?: string;
+  is2FAEnabled?: boolean;
+  twoFactorMethod?: 'SMS' | 'AUTHENTICATOR' | 'EMAIL';
+  customPermissions?: string[];
+  mustChangePassword?: boolean;
+  notes?: string;
+}
+
+export interface RoleDefinition {
+  id: UserRole;
+  label: string;
+  category: 'DIRECTION' | 'FINANCE' | 'OPERATIONS' | 'PARTENAIRE';
+  description: string;
+  color: string;
+  badgeBg: string;
+  badgeText: string;
+  userCount: number;
+  isSystem: boolean;
+  defaultPermissions: string[];
+}
+
+export type PermissionCategory =
+  | 'COMMANDES'
+  | 'LIVRAISONS'
+  | 'CLOSEUSES'
+  | 'LIVREURS'
+  | 'ECOMMERCE'
+  | 'CONVERSATIONS'
+  | 'FINANCES'
+  | 'NOTIFICATIONS'
+  | 'UTILISATEURS'
+  | 'PARAMETRES'
+  | 'AUDIT';
+
+export interface PermissionDefinition {
+  id: string;
+  category: PermissionCategory;
+  name: string;
+  description: string;
+  isSensitive?: boolean;
+}
+
+export interface GeneralSettings {
+  platformName: string;
+  companyName: string;
+  logoUrl: string;
+  supportEmail: string;
+  supportPhone: string;
+  secondaryPhone: string;
+  whatsappContact: string;
+  headquartersAddress: string;
+  currency: string;
+  timezone: string;
+  dateFormat: string;
+  maintenanceMode: boolean;
+  allowPublicRegistration: boolean;
+}
+
+export interface OperationalSettings {
+  ordersAssignmentMode: AssignmentMode;
+  conversationsAssignmentMode: AssignmentMode;
+  maxCapacityPerCloser: number;
+  maxCapacityPerDriver: number;
+  estimatedDeliveryMinutes: number;
+  criticalDelayHours: number;
+  autoRedistribute: boolean;
+  redistributeTimeoutMinutes: number;
+  operatingHoursStart: string;
+  operatingHoursEnd: string;
+  sundayDeliveries: boolean;
+  requireDeliveryPhotoConfirmation: boolean;
+  enableCodSecurityLimits: boolean;
+  maxDriverCodCeilingFCFA: number;
+}
+
+export interface FinancialSettings {
+  defaultClosingFee: number;
+  defaultDeliveryFee: number;
+  defaultCommissionRate: number; // en %
+  minWithdrawalThreshold: number; // en FCFA
+  maxDailyWithdrawalLimit: number; // en FCFA
+  payoutProcessingDelayHours: number;
+  autoApprovePayoutsBelow: number;
+  requireDoubleValidationAbove: number;
+  codReconciliationDeadlineHours: number;
+}
+
+export interface PaymentGatewayConfig {
+  leekpay: {
+    enabled: boolean;
+    environment: 'PRODUCTION' | 'SANDBOX';
+    status: 'ACTIVE' | 'PENDING_CONFIG' | 'INACTIVE';
+    webhookConfigured: boolean;
+    supportedChannels: string[];
+    publicKeyMasked: string;
+    apiEndpoint: string;
+  };
+  binancePay: {
+    enabled: boolean;
+    status: 'ACTIVE' | 'PENDING_CONFIG' | 'INACTIVE';
+    merchantIdMasked: string;
+    webhookConfigured: boolean;
+    supportedCurrencies: string[];
+  };
+  usdtCrypto: {
+    enabled: boolean;
+    status: 'ACTIVE' | 'PENDING_CONFIG' | 'INACTIVE';
+    supportedNetworks: string[];
+    defaultNetwork: string;
+    walletAddressMasked: string;
+    minWithdrawalUsdt: number;
+  };
+}
+
+export interface NotificationPreferences {
+  orders: {
+    newOrder: boolean;
+    unassignedOrder: boolean;
+    cancelledOrder: boolean;
+    orderDelivered: boolean;
+  };
+  deliveries: {
+    delayedDelivery: boolean;
+    failedDelivery: boolean;
+    criticalDelay: boolean;
+  };
+  finances: {
+    newPayoutRequest: boolean;
+    codDiscrepancy: boolean;
+    highValueRemittance: boolean;
+    withdrawalPaid: boolean;
+  };
+  system: {
+    criticalIncident: boolean;
+    securityAlert: boolean;
+    dailyBackupSummary: boolean;
+    userSuspension: boolean;
+  };
+}
+
+export interface SecuritySettings {
+  enforce2FAForAdmins: boolean;
+  sessionTimeoutMinutes: number;
+  maxFailedLoginAttempts: number;
+  lockoutDurationMinutes: number;
+  requirePasswordChangeDays: number;
+  ipWhitelistEnabled: boolean;
+  allowedIps: string[];
+  auditAllAdminActions: boolean;
+}
+
+export interface PlatformSettings {
+  general: GeneralSettings;
+  operational: OperationalSettings;
+  financial: FinancialSettings;
+  paymentGateways: PaymentGatewayConfig;
+  notifications: NotificationPreferences;
+  security: SecuritySettings;
+  lastUpdated: string;
+  updatedBy: string;
+}
+
 

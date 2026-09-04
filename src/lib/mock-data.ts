@@ -16,6 +16,10 @@ import {
   GlobalAuditLog,
   AuditSessionLog,
   PlatformNotification,
+  PlatformUser,
+  RoleDefinition,
+  PermissionDefinition,
+  PlatformSettings,
 } from './types';
 
 export const enoAgencies = [
@@ -2235,6 +2239,469 @@ export const initialPlatformNotifications: PlatformNotification[] = [
   },
 ];
 
+// ==========================================
+// 🛡️ DÉFINITION DES RÔLES DE LA PLATEFORME
+// ==========================================
 
+export const platformRoles: RoleDefinition[] = [
+  {
+    id: 'PDG',
+    label: 'Président Directeur Général (PDG)',
+    category: 'DIRECTION',
+    description: 'Accès souverain et gouvernance totale à tous les modules, finances, arbitrages et configurations.',
+    color: '#0f172a',
+    badgeBg: 'bg-slate-900',
+    badgeText: 'text-white',
+    userCount: 1,
+    isSystem: true,
+    defaultPermissions: ['*'],
+  },
+  {
+    id: 'SUPER_ADMIN',
+    label: 'Administrateur Général',
+    category: 'DIRECTION',
+    description: 'Gestion globale des opérations, support, affectations et supervision des équipes sans autorisations financières critiques.',
+    color: '#3b82f6',
+    badgeBg: 'bg-blue-600',
+    badgeText: 'text-white',
+    userCount: 2,
+    isSystem: true,
+    defaultPermissions: [
+      'orders.view', 'orders.create', 'orders.edit', 'orders.cancel', 'orders.assign',
+      'deliveries.view', 'deliveries.assign', 'drivers.view', 'drivers.manage',
+      'closers.view', 'closers.manage', 'merchants.view', 'merchants.manage',
+      'conversations.view', 'conversations.reply', 'conversations.escalate',
+      'notifications.view', 'notifications.manage', 'users.view', 'users.create',
+      'users.edit', 'users.suspend', 'settings.view', 'audit.view'
+    ],
+  },
+  {
+    id: 'TREASURY_MANAGER',
+    label: 'Responsable de Trésorerie',
+    category: 'FINANCE',
+    description: 'Contrôle des caisses COD, validation des remises livreurs, gestion des commissions et vérification des retraits.',
+    color: '#059669',
+    badgeBg: 'bg-emerald-600',
+    badgeText: 'text-white',
+    userCount: 3,
+    isSystem: true,
+    defaultPermissions: [
+      'orders.view', 'deliveries.view', 'drivers.view', 'merchants.view',
+      'conversations.view', 'conversations.reply', 'finance.view', 'finance.manage',
+      'commissions.view', 'withdrawals.view', 'withdrawals.validate',
+      'notifications.view', 'audit.view'
+    ],
+  },
+  {
+    id: 'LOGISTICS_MANAGER',
+    label: 'Responsable Logistique',
+    category: 'OPERATIONS',
+    description: 'Supervision des tournées de livraison, flotte de coursiers, retours, litiges et stocks agence.',
+    color: '#d97706',
+    badgeBg: 'bg-amber-600',
+    badgeText: 'text-white',
+    userCount: 2,
+    isSystem: true,
+    defaultPermissions: [
+      'orders.view', 'orders.edit', 'orders.assign', 'deliveries.view', 'deliveries.assign',
+      'drivers.view', 'drivers.manage', 'conversations.view', 'conversations.reply',
+      'notifications.view'
+    ],
+  },
+  {
+    id: 'CLOSEUSE',
+    label: 'Closeuse / Télévendeuse',
+    category: 'OPERATIONS',
+    description: 'Qualification téléphonique des commandes, confirmation des paniers et support client direct.',
+    color: '#8b5cf6',
+    badgeBg: 'bg-purple-600',
+    badgeText: 'text-white',
+    userCount: 3,
+    isSystem: true,
+    defaultPermissions: [
+      'orders.view', 'orders.edit', 'conversations.view', 'conversations.reply',
+      'notifications.view'
+    ],
+  },
+  {
+    id: 'LIVREUR',
+    label: 'Livreur / Coursier',
+    category: 'OPERATIONS',
+    description: 'Prise en charge des colis, tournées terrain, encaissement COD et déclaration des remises.',
+    color: '#0284c7',
+    badgeBg: 'bg-sky-600',
+    badgeText: 'text-white',
+    userCount: 4,
+    isSystem: true,
+    defaultPermissions: [
+      'deliveries.view', 'notifications.view'
+    ],
+  },
+  {
+    id: 'PARTNER',
+    label: 'E-commerçant / Marchand',
+    category: 'PARTENAIRE',
+    description: 'Accès portail marchand : saisie des commandes, suivi du stock, solde portefeuille et demandes de reversement.',
+    color: '#475569',
+    badgeBg: 'bg-slate-700',
+    badgeText: 'text-white',
+    userCount: 4,
+    isSystem: true,
+    defaultPermissions: [
+      'orders.view', 'orders.create', 'conversations.view', 'conversations.reply',
+      'withdrawals.view', 'notifications.view'
+    ],
+  },
+];
 
+// ==========================================
+// 🛡️ DÉFINITION GRANULAIRE DES PERMISSIONS
+// ==========================================
 
+export const platformPermissions: PermissionDefinition[] = [
+  // 1. Commandes
+  { id: 'orders.view', category: 'COMMANDES', name: 'Consulter les commandes', description: 'Afficher la liste et le détail des commandes et acheteurs.' },
+  { id: 'orders.create', category: 'COMMANDES', name: 'Créer des commandes', description: 'Enregistrer manuellement une commande dans le système.' },
+  { id: 'orders.edit', category: 'COMMANDES', name: 'Modifier les commandes', description: 'Mettre à jour les coordonnées client, adresses et articles.' },
+  { id: 'orders.cancel', category: 'COMMANDES', name: 'Annuler des commandes', description: 'Marquer une commande comme annulée avec justification.', isSensitive: true },
+  { id: 'orders.assign', category: 'COMMANDES', name: 'Assigner les commandes', description: 'Attribuer une commande à une closeuse ou un livreur.' },
+
+  // 2. Livraisons & Flotte
+  { id: 'deliveries.view', category: 'LIVRAISONS', name: 'Suivre les livraisons', description: 'Consulter le tableau de bord temps réel des tournées.' },
+  { id: 'deliveries.assign', category: 'LIVRAISONS', name: 'Assigner les tournées', description: 'Affecter des colis à un livreur spécifique.' },
+  { id: 'drivers.view', category: 'LIVREURS', name: 'Voir la flotte livreurs', description: 'Consulter les profils et statistiques des coursiers.' },
+  { id: 'drivers.manage', category: 'LIVREURS', name: 'Gérer les livreurs', description: 'Ajouter, modifier ou suspendre un compte livreur.', isSensitive: true },
+
+  // 3. Pôle Télévente & Marchands
+  { id: 'closers.view', category: 'CLOSEUSES', name: 'Voir le pôle closeuses', description: 'Consulter les performances et disponibilités de télévente.' },
+  { id: 'closers.manage', category: 'CLOSEUSES', name: 'Gérer les closeuses', description: 'Ajouter ou configurer les capacités des closeuses.', isSensitive: true },
+  { id: 'merchants.view', category: 'ECOMMERCE', name: 'Voir les e-commerçants', description: 'Consulter la liste des boutiques et marchands inscrits.' },
+  { id: 'merchants.manage', category: 'ECOMMERCE', name: 'Gérer les e-commerçants', description: 'Valider, modifier les commissions ou suspendre une boutique.', isSensitive: true },
+
+  // 4. Communication & Support
+  { id: 'conversations.view', category: 'CONVERSATIONS', name: 'Lire les conversations', description: 'Accéder aux discussions marchands, closeuses et livreurs.' },
+  { id: 'conversations.reply', category: 'CONVERSATIONS', name: 'Répondre aux messages', description: 'Envoyer des messages et pièces jointes.' },
+  { id: 'conversations.escalate', category: 'CONVERSATIONS', name: 'Escalader les échanges', description: 'Transférer ou solliciter l\'arbitrage de la direction.' },
+
+  // 5. Finances & Trésorerie
+  { id: 'finance.view', category: 'FINANCES', name: 'Consulter la trésorerie', description: 'Accéder aux flux financiers, soldes et caisses COD.' },
+  { id: 'finance.manage', category: 'FINANCES', name: 'Gérer la trésorerie', description: 'Valider les remises d\'espèces et ajustements de caisse.', isSensitive: true },
+  { id: 'commissions.view', category: 'FINANCES', name: 'Voir les commissions', description: 'Consulter les marges et commissions acquises par ENO.' },
+  { id: 'withdrawals.view', category: 'FINANCES', name: 'Consulter les retraits', description: 'Voir les demandes de virement des partenaires.' },
+  { id: 'withdrawals.validate', category: 'FINANCES', name: 'Valider les retraits', description: 'Approuver ou rejeter les demandes de reversement.', isSensitive: true },
+  { id: 'withdrawals.pay', category: 'FINANCES', name: 'Décaisser les retraits', description: 'Exécuter le paiement réel via Mobile Money, Binance ou USDT.', isSensitive: true },
+
+  // 6. Système, Administration & Sécurité
+  { id: 'notifications.view', category: 'NOTIFICATIONS', name: 'Voir les notifications', description: 'Consulter les alertes et signaux opérationnels.' },
+  { id: 'notifications.manage', category: 'NOTIFICATIONS', name: 'Gérer les alertes', description: 'Configurer les canaux et règles de notification.' },
+  { id: 'users.view', category: 'UTILISATEURS', name: 'Voir les utilisateurs', description: 'Consulter l\'annuaire des comptes de la plateforme.' },
+  { id: 'users.create', category: 'UTILISATEURS', name: 'Créer des utilisateurs', description: 'Ajouter un collaborateur ou un compte marchand.', isSensitive: true },
+  { id: 'users.edit', category: 'UTILISATEURS', name: 'Modifier les utilisateurs', description: 'Mettre à jour les coordonnées et affectations.', isSensitive: true },
+  { id: 'users.suspend', category: 'UTILISATEURS', name: 'Suspendre des comptes', description: 'Bloquer temporairement ou réactiver un utilisateur.', isSensitive: true },
+  { id: 'roles.manage', category: 'PARAMETRES', name: 'Gérer les permissions', description: 'Modifier la matrice de droits par rôle.', isSensitive: true },
+  { id: 'settings.manage', category: 'PARAMETRES', name: 'Modifier la configuration', description: 'Mettre à jour les règles opérationnelles et financières.', isSensitive: true },
+  { id: 'audit.view', category: 'AUDIT', name: 'Consulter l\'audit log', description: 'Examiner le journal central des actions et sessions de sécurité.', isSensitive: true },
+];
+
+export const initialRolePermissionsMap: Record<string, string[]> = {
+  PDG: platformPermissions.map((p) => p.id),
+  SUPER_ADMIN: [
+    'orders.view', 'orders.create', 'orders.edit', 'orders.cancel', 'orders.assign',
+    'deliveries.view', 'deliveries.assign', 'drivers.view', 'drivers.manage',
+    'closers.view', 'closers.manage', 'merchants.view', 'merchants.manage',
+    'conversations.view', 'conversations.reply', 'conversations.escalate',
+    'notifications.view', 'notifications.manage', 'users.view', 'users.create',
+    'users.edit', 'users.suspend', 'settings.manage', 'audit.view'
+  ],
+  TREASURY_MANAGER: [
+    'orders.view', 'deliveries.view', 'drivers.view', 'merchants.view',
+    'conversations.view', 'conversations.reply', 'finance.view', 'finance.manage',
+    'commissions.view', 'withdrawals.view', 'withdrawals.validate',
+    'notifications.view', 'audit.view'
+  ],
+  LOGISTICS_MANAGER: [
+    'orders.view', 'orders.edit', 'orders.assign', 'deliveries.view', 'deliveries.assign',
+    'drivers.view', 'drivers.manage', 'conversations.view', 'conversations.reply',
+    'notifications.view'
+  ],
+  CLOSEUSE: [
+    'orders.view', 'orders.edit', 'conversations.view', 'conversations.reply',
+    'notifications.view'
+  ],
+  LIVREUR: [
+    'deliveries.view', 'notifications.view'
+  ],
+  PARTNER: [
+    'orders.view', 'orders.create', 'conversations.view', 'conversations.reply',
+    'withdrawals.view', 'notifications.view'
+  ],
+};
+
+// ==========================================
+// 👥 ANNUAIRE INITIAL DES UTILISATEURS
+// ==========================================
+
+export const initialPlatformUsers: PlatformUser[] = [
+  {
+    id: 'usr-pdg',
+    firstName: 'Jude',
+    lastName: 'Sinaberogui',
+    name: 'Jude Sinaberogui',
+    email: 'jude@enolivraison.com',
+    phone: '+229 01 64 29 18 84',
+    role: 'PDG',
+    roleLabel: 'Président Directeur Général',
+    status: 'active',
+    avatarUrl: '/avatars/jude.jpg',
+    createdAt: '2026-01-01',
+    lastLoginAt: 'Aujourd\'hui à 11:42',
+    lastActiveAt: 'En ligne',
+    zone: 'Siège Cotonou',
+    is2FAEnabled: true,
+    twoFactorMethod: 'AUTHENTICATOR',
+    notes: 'Compte souverain fondateur ENO.',
+  },
+  {
+    id: 'usr-admin-1',
+    firstName: 'Marc',
+    lastName: 'Kouassi',
+    name: 'Marc Kouassi',
+    email: 'marc.kouassi@enolivraison.com',
+    phone: '+229 01 93 83 79 06',
+    role: 'SUPER_ADMIN',
+    roleLabel: 'Administrateur Général',
+    status: 'active',
+    createdAt: '2026-01-15',
+    lastLoginAt: 'Aujourd\'hui à 09:15',
+    lastActiveAt: 'Il y a 12 min',
+    zone: 'Agence Cotonou',
+    is2FAEnabled: true,
+    twoFactorMethod: 'SMS',
+  },
+  {
+    id: 'usr-tresor-1',
+    firstName: 'Amina',
+    lastName: 'Tidjani',
+    name: 'Amina Tidjani',
+    email: 'amina.tidjani@enolivraison.com',
+    phone: '+229 01 65 44 22 11',
+    role: 'TREASURY_MANAGER',
+    roleLabel: 'Responsable de Trésorerie',
+    status: 'active',
+    createdAt: '2026-02-01',
+    lastLoginAt: 'Aujourd\'hui à 10:30',
+    lastActiveAt: 'Il y a 25 min',
+    zone: 'Caisse Centrale Cotonou',
+    is2FAEnabled: true,
+    twoFactorMethod: 'AUTHENTICATOR',
+  },
+  {
+    id: 'usr-logist-1',
+    firstName: 'Moussa',
+    lastName: 'Dossou',
+    name: 'Moussa Dossou',
+    email: 'moussa.dossou@enolivraison.com',
+    phone: '+229 01 67 51 00 82',
+    role: 'LOGISTICS_MANAGER',
+    roleLabel: 'Responsable Logistique',
+    status: 'active',
+    createdAt: '2026-02-10',
+    lastLoginAt: 'Aujourd\'hui à 08:00',
+    lastActiveAt: 'Il y a 40 min',
+    zone: 'Hub Lokossa',
+    is2FAEnabled: false,
+  },
+  {
+    id: 'usr-closer-1',
+    firstName: 'Sarah',
+    lastName: 'Kone',
+    name: 'Sarah Kone',
+    email: 'sarah.kone@enolivraison.com',
+    phone: '+229 01 92 33 44 55',
+    role: 'CLOSEUSE',
+    roleLabel: 'Closeuse Télévente',
+    status: 'active',
+    createdAt: '2026-02-15',
+    lastLoginAt: 'Aujourd\'hui à 08:45',
+    lastActiveAt: 'En ligne',
+    zone: 'Pôle Télévente Cotonou',
+    is2FAEnabled: false,
+  },
+  {
+    id: 'usr-closer-2',
+    firstName: 'Marie',
+    lastName: 'Dossou',
+    name: 'Marie Dossou',
+    email: 'marie.dossou@enolivraison.com',
+    phone: '+229 01 93 44 55 66',
+    role: 'CLOSEUSE',
+    roleLabel: 'Closeuse Télévente',
+    status: 'active',
+    createdAt: '2026-02-20',
+    lastLoginAt: 'Aujourd\'hui à 09:00',
+    lastActiveAt: 'Il y a 5 min',
+    zone: 'Pôle Télévente Cotonou',
+    is2FAEnabled: false,
+  },
+  {
+    id: 'usr-driver-1',
+    firstName: 'Paul',
+    lastName: 'Agossou',
+    name: 'Paul Agossou',
+    email: 'paul.agossou@enolivraison.com',
+    phone: '+229 01 95 12 34 56',
+    role: 'LIVREUR',
+    roleLabel: 'Livreur Moto',
+    status: 'active',
+    createdAt: '2026-03-01',
+    lastLoginAt: 'Aujourd\'hui à 07:30',
+    lastActiveAt: 'En tournée',
+    zone: 'Zone 1 — Cadjehoun / Haie Vive',
+    is2FAEnabled: false,
+  },
+  {
+    id: 'usr-driver-2',
+    firstName: 'Koffi',
+    lastName: 'Mensah',
+    name: 'Koffi Mensah',
+    email: 'koffi.mensah@enolivraison.com',
+    phone: '+229 01 96 23 45 67',
+    role: 'LIVREUR',
+    roleLabel: 'Livreur Moto',
+    status: 'suspended',
+    createdAt: '2026-03-05',
+    lastLoginAt: 'Hier à 17:00',
+    lastActiveAt: 'Inactif',
+    zone: 'Zone 2 — Akpakpa / PK3',
+    is2FAEnabled: false,
+    notes: 'Compte suspendu pour audit d\'écart de versement COD.',
+  },
+  {
+    id: 'usr-partner-1',
+    firstName: 'Jude',
+    lastName: 'Sinaberogui',
+    name: 'Afrimarket SARL',
+    email: 'contact@afrimarket.bj',
+    phone: '+229 01 64 29 18 84',
+    role: 'PARTNER',
+    roleLabel: 'E-commerçant Partenaire',
+    status: 'active',
+    createdAt: '2026-01-15',
+    lastLoginAt: 'Aujourd\'hui à 11:30',
+    lastActiveAt: 'Il y a 10 min',
+    zone: 'Cotonou',
+    is2FAEnabled: true,
+  },
+];
+
+// ==========================================
+// ⚙️ CONFIGURATION GLOBALE INITIALE
+// ==========================================
+
+export const initialPlatformSettings: PlatformSettings = {
+  general: {
+    platformName: 'ENO LIVRAISON',
+    companyName: 'ENO LOGISTICS TECH SARL',
+    logoUrl: '/images/eno_livraison_logo.png',
+    supportEmail: 'contact@enolivraison.com',
+    supportPhone: '+229 01 64 29 18 84',
+    secondaryPhone: '+229 01 93 83 79 06',
+    whatsappContact: '+229 01 64 29 18 84',
+    headquartersAddress: 'Cadjehoun / Haie Vive, Rue 340, Cotonou, Bénin',
+    currency: 'FCFA',
+    timezone: 'Africa/Porto-Novo (GMT+1)',
+    dateFormat: 'DD/MM/YYYY',
+    maintenanceMode: false,
+    allowPublicRegistration: true,
+  },
+  operational: {
+    ordersAssignmentMode: 'SMART_AUTO',
+    conversationsAssignmentMode: 'SMART_AUTO',
+    maxCapacityPerCloser: 15,
+    maxCapacityPerDriver: 20,
+    estimatedDeliveryMinutes: 120,
+    criticalDelayHours: 4,
+    autoRedistribute: true,
+    redistributeTimeoutMinutes: 30,
+    operatingHoursStart: '08:00',
+    operatingHoursEnd: '20:30',
+    sundayDeliveries: false,
+    requireDeliveryPhotoConfirmation: true,
+    enableCodSecurityLimits: true,
+    maxDriverCodCeilingFCFA: 150000,
+  },
+  financial: {
+    defaultClosingFee: 800,
+    defaultDeliveryFee: 2000,
+    defaultCommissionRate: 5,
+    minWithdrawalThreshold: 10000,
+    maxDailyWithdrawalLimit: 5000000,
+    payoutProcessingDelayHours: 24,
+    autoApprovePayoutsBelow: 50000,
+    requireDoubleValidationAbove: 500000,
+    codReconciliationDeadlineHours: 24,
+  },
+  paymentGateways: {
+    leekpay: {
+      enabled: true,
+      environment: 'PRODUCTION',
+      status: 'ACTIVE',
+      webhookConfigured: true,
+      supportedChannels: ['MTN Mobile Money', 'Moov Money Bénin', 'Orange Money CI', 'Wave Côte d\'Ivoire'],
+      publicKeyMasked: 'pk_live_••••••••••••••••94f2',
+      apiEndpoint: 'https://api.leekpay.com/v1',
+    },
+    binancePay: {
+      enabled: true,
+      status: 'ACTIVE',
+      merchantIdMasked: 'BNP_••••••••2841',
+      webhookConfigured: true,
+      supportedCurrencies: ['USDT', 'BUSD', 'BNB'],
+    },
+    usdtCrypto: {
+      enabled: true,
+      status: 'ACTIVE',
+      supportedNetworks: ['TRC-20 (Tron)', 'BEP-20 (BNB Smart Chain)', 'ERC-20 (Ethereum)', 'Polygon'],
+      defaultNetwork: 'TRC-20 (Tron)',
+      walletAddressMasked: 'TXk7••••••••••••••••••••••••••3z8K',
+      minWithdrawalUsdt: 20,
+    },
+  },
+  notifications: {
+    orders: {
+      newOrder: true,
+      unassignedOrder: true,
+      cancelledOrder: true,
+      orderDelivered: true,
+    },
+    deliveries: {
+      delayedDelivery: true,
+      failedDelivery: true,
+      criticalDelay: true,
+    },
+    finances: {
+      newPayoutRequest: true,
+      codDiscrepancy: true,
+      highValueRemittance: true,
+      withdrawalPaid: true,
+    },
+    system: {
+      criticalIncident: true,
+      securityAlert: true,
+      dailyBackupSummary: true,
+      userSuspension: true,
+    },
+  },
+  security: {
+    enforce2FAForAdmins: true,
+    sessionTimeoutMinutes: 120,
+    maxFailedLoginAttempts: 5,
+    lockoutDurationMinutes: 30,
+    requirePasswordChangeDays: 90,
+    ipWhitelistEnabled: false,
+    allowedIps: ['41.85.160.22', '197.234.221.10'],
+    auditAllAdminActions: true,
+  },
+  lastUpdated: '04 sept. 2026 à 11:30',
+  updatedBy: 'Jude S. (PDG)',
+};

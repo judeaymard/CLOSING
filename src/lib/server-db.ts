@@ -1,12 +1,28 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { Conversation, ChatMessage, ChatAttachment, PlatformNotification } from "./types";
-import { initialConversations, initialPlatformNotifications } from "./mock-data";
+import {
+  Conversation,
+  ChatMessage,
+  ChatAttachment,
+  PlatformNotification,
+  PlatformUser,
+  PlatformSettings,
+} from "./types";
+import {
+  initialConversations,
+  initialPlatformNotifications,
+  initialPlatformUsers,
+  initialPlatformSettings,
+  initialRolePermissionsMap,
+} from "./mock-data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const CONVERSATIONS_FILE = path.join(DATA_DIR, "conversations.json");
 const ATTACHMENTS_FILE = path.join(DATA_DIR, "attachments.json");
 const NOTIFICATIONS_FILE = path.join(DATA_DIR, "notifications.json");
+const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
+const USERS_FILE = path.join(DATA_DIR, "users.json");
+const ROLES_PERMISSIONS_FILE = path.join(DATA_DIR, "roles_permissions.json");
 const STORAGE_DIR = path.join(process.cwd(), "storage", "attachments");
 const PUBLIC_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads", "conversations");
 
@@ -44,6 +60,39 @@ export async function initDatabase(): Promise<void> {
       await fs.writeFile(
         NOTIFICATIONS_FILE,
         JSON.stringify(initialPlatformNotifications, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier settings.json s'il n'existe pas
+    try {
+      await fs.access(SETTINGS_FILE);
+    } catch {
+      await fs.writeFile(
+        SETTINGS_FILE,
+        JSON.stringify(initialPlatformSettings, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier users.json s'il n'existe pas
+    try {
+      await fs.access(USERS_FILE);
+    } catch {
+      await fs.writeFile(
+        USERS_FILE,
+        JSON.stringify(initialPlatformUsers, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier roles_permissions.json s'il n'existe pas
+    try {
+      await fs.access(ROLES_PERMISSIONS_FILE);
+    } catch {
+      await fs.writeFile(
+        ROLES_PERMISSIONS_FILE,
+        JSON.stringify(initialRolePermissionsMap, null, 2),
         "utf-8"
       );
     }
@@ -377,4 +426,109 @@ export async function resolveNotificationAlert(
   }
   return null;
 }
+
+// ==========================================
+// ⚙️ GESTION DES PARAMÈTRES (SETTINGS)
+// ==========================================
+
+export async function getPlatformSettings(): Promise<PlatformSettings> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(SETTINGS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture settings.json:", error);
+  }
+  return initialPlatformSettings;
+}
+
+export async function savePlatformSettings(
+  settings: PlatformSettings
+): Promise<PlatformSettings> {
+  await initDatabase();
+  await fs.writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2), "utf-8");
+  return settings;
+}
+
+// ==========================================
+// 👥 GESTION DES UTILISATEURS (USERS)
+// ==========================================
+
+export async function getPlatformUsers(): Promise<PlatformUser[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(USERS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture users.json:", error);
+  }
+  return initialPlatformUsers;
+}
+
+export async function savePlatformUser(user: PlatformUser): Promise<PlatformUser> {
+  await initDatabase();
+  const users = await getPlatformUsers();
+  const index = users.findIndex((u) => u.id === user.id);
+
+  if (index >= 0) {
+    users[index] = user;
+  } else {
+    users.unshift(user);
+  }
+
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+  return user;
+}
+
+export async function updatePlatformUser(
+  id: string,
+  updates: Partial<PlatformUser>
+): Promise<PlatformUser | null> {
+  await initDatabase();
+  const users = await getPlatformUsers();
+  const index = users.findIndex((u) => u.id === id);
+
+  if (index >= 0) {
+    users[index] = { ...users[index], ...updates };
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+    return users[index];
+  }
+  return null;
+}
+
+// ==========================================
+// 🛡️ GESTION DES RÔLES & PERMISSIONS
+// ==========================================
+
+export async function getRolePermissions(): Promise<Record<string, string[]>> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(ROLES_PERMISSIONS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture roles_permissions.json:", error);
+  }
+  return initialRolePermissionsMap;
+}
+
+export async function saveRolePermissions(
+  roleId: string,
+  permissions: string[]
+): Promise<Record<string, string[]>> {
+  await initDatabase();
+  const map = await getRolePermissions();
+  map[roleId] = permissions;
+  await fs.writeFile(ROLES_PERMISSIONS_FILE, JSON.stringify(map, null, 2), "utf-8");
+  return map;
+}
+
 
