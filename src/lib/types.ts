@@ -479,3 +479,89 @@ export interface AssignmentLog {
   reason: string;
   success: boolean;
 }
+
+// ==========================================
+// 🛡️ SYSTÈME GLOBAL D'AUDIT & TRAÇABILITÉ
+// ==========================================
+
+export type AuditActorType = 'USER' | 'SYSTEM';
+
+export type AuditModule =
+  | 'COMMANDES'
+  | 'CLOSEUSES'
+  | 'LIVREURS'
+  | 'ECOMMERCE'
+  | 'TRESORERIE'
+  | 'FINANCES'
+  | 'CONVERSATIONS'
+  | 'AUTOMATISATION'
+  | 'PARAMETRES'
+  | 'UTILISATEURS'
+  | 'AUTH'
+  | 'SYSTEME';
+
+export type AuditSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export type AuditResult = 'SUCCESS' | 'FAILED' | 'BLOCKED';
+
+export type AuditEntityType =
+  | 'ORDER'
+  | 'USER'
+  | 'LIVREUR'
+  | 'CLOSEUSE'
+  | 'PARTNER'
+  | 'TREASURY_MANAGER'
+  | 'REMITTANCE'
+  | 'PAYOUT'
+  | 'CONVERSATION'
+  | 'SETTING'
+  | 'SESSION'
+  | 'RULE'
+  | 'SYSTEM';
+
+export interface AuditActor {
+  id: string;
+  name: string;
+  role: string;
+  type: AuditActorType;
+}
+
+export interface GlobalAuditLog {
+  id: string;
+  timestamp: string; // Ex: "04 sept. 2026 — 10:42:18"
+  isoDate: string;
+  actor: AuditActor;
+  action: string; // Ex: "ORDER_CONFIRMED", "REMITTANCE_VALIDATED", "USER_CREATED", "CAPACITY_UPDATED"
+  actionLabel: string; // Ex: "A validé la remise", "A confirmé la commande"
+  module: AuditModule;
+  entityType: AuditEntityType;
+  entityId: string;
+  entityReference: string; // Ex: "CMD-1048", "RM-1045", "LIV-01"
+  severity: AuditSeverity;
+  result: AuditResult;
+  description: string;
+  reason?: string; // Ex: Justification de l'écart ou raison de l'assignation intelligente
+  beforeState?: Record<string, any> | string;
+  afterState?: Record<string, any> | string;
+  ipAddress?: string;
+  sessionId?: string;
+  userAgent?: string;
+  financeTxRef?: string; // Lien direct avec le Journal Financier si pertinent
+  isSensitive?: boolean;
+}
+
+export interface AuditSessionLog {
+  id: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  ipAddress: string;
+  device: string;
+  browser: string;
+  location: string;
+  loginAt: string;
+  lastActiveAt: string;
+  status: 'ACTIVE' | 'EXPIRED' | 'TERMINATED' | 'FAILED_ATTEMPT';
+  failureReason?: string;
+}
+

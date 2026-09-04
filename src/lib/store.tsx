@@ -40,6 +40,13 @@ import {
   TreasuryManagerProfile,
   EmployeeStatus,
   DriverCodFinancialSummary,
+  GlobalAuditLog,
+  AuditSessionLog,
+  AuditModule,
+  AuditSeverity,
+  AuditResult,
+  AuditEntityType,
+  AuditActorType,
 } from "./types";
 import {
   initialTransactions,
@@ -47,6 +54,8 @@ import {
   initialCodRemittances,
   initialFinancialAuditLogs,
   initialTreasuryManagers,
+  initialGlobalAuditLogs,
+  initialAuditSessions,
 } from "./mock-data";
 
 interface OperationsContextType {
@@ -171,6 +180,16 @@ interface OperationsContextType {
   assignConversation: (convId: string, agentName: string, agentRole: string) => void;
   resolveAlert: (alertId: string) => void;
 
+  // 🛡️ Audit & Traçabilité Centrale
+  globalAuditLogs: GlobalAuditLog[];
+  auditSessions: AuditSessionLog[];
+  logAuditEvent: (
+    params: Omit<GlobalAuditLog, "id" | "timestamp" | "isoDate"> & {
+      timestamp?: string;
+      isoDate?: string;
+    }
+  ) => GlobalAuditLog;
+
   // Méthodes d'Automatisation
   updateAssignmentConfig: (newConfig: Partial<AssignmentConfig>) => void;
   updateCloserAvailability: (closerId: string, status: CloseuseStatus) => void;
@@ -245,10 +264,54 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [codCollections, setCodCollections] = useState<CodCollection[]>(initialCodCollections);
   const [codRemittances, setCodRemittances] = useState<CodRemittance[]>(initialCodRemittances);
   const [auditLogs, setAuditLogs] = useState<FinancialAuditLog[]>(initialFinancialAuditLogs);
+  const [globalAuditLogs, setGlobalAuditLogs] = useState<GlobalAuditLog[]>(initialGlobalAuditLogs);
+  const [auditSessions, setAuditSessions] = useState<AuditSessionLog[]>(initialAuditSessions);
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
   const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
   const [period, setPeriod] = useState<PeriodFilter>("TODAY");
+
+  // 🛡️ Logueur d'Audit Central Universel
+  const logAuditEvent = (
+    params: Omit<GlobalAuditLog, "id" | "timestamp" | "isoDate"> & {
+      timestamp?: string;
+      isoDate?: string;
+    }
+  ): GlobalAuditLog => {
+    const now = new Date();
+    const formattedTimestamp =
+      params.timestamp ||
+      now.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) +
+        " — " +
+        now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+    const newLog: GlobalAuditLog = {
+      id: `aud-glob-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: formattedTimestamp,
+      isoDate: params.isoDate || now.toISOString(),
+      actor: params.actor,
+      action: params.action,
+      actionLabel: params.actionLabel,
+      module: params.module,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      entityReference: params.entityReference,
+      severity: params.severity,
+      result: params.result,
+      description: params.description,
+      reason: params.reason,
+      beforeState: params.beforeState,
+      afterState: params.afterState,
+      ipAddress: params.ipAddress || (params.actor.type === "USER" ? "41.85.160.22" : undefined),
+      sessionId: params.sessionId,
+      userAgent: params.userAgent,
+      financeTxRef: params.financeTxRef,
+      isSensitive: params.isSensitive,
+    };
+
+    setGlobalAuditLogs((prev) => [newLog, ...prev]);
+    return newLog;
+  };
 
   // Automatisation State
   const [assignmentConfig, setAssignmentConfig] = useState<AssignmentConfig>(initialAssignmentConfig);
@@ -287,7 +350,31 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
 
   // 1. Mise à jour de la configuration d'attribution
   const updateAssignmentConfig = (newConfig: Partial<AssignmentConfig>) => {
-    setAssignmentConfig((prev) => ({ ...prev, ...newConfig }));
+    const prevConfig = { ...assignmentConfig };
+    setAssignmentConfig((prev) => {
+      const updated = { ...prev, ...newConfig };
+      logAuditEvent({
+        actor: {
+          id: "usr-pdg",
+          name: "Jude S. (PDG)",
+          role: "Super Admin",
+          type: "USER",
+        },
+        action: "ASSIGNMENT_CONFIG_UPDATED",
+        actionLabel: "Modification des règles d'attribution",
+        module: "AUTOMATISATION",
+        entityType: "SETTING",
+        entityId: "conf-attribution",
+        entityReference: "RÈGLES-ATTRIB",
+        severity: "WARNING",
+        result: "SUCCESS",
+        description: "Mise à jour des règles d'attribution automatique des commandes et conversations.",
+        beforeState: prevConfig,
+        afterState: updated,
+        isSensitive: true,
+      });
+      return updated;
+    });
   };
 
   // 2. Mise à jour de la disponibilité d'une closeuse
@@ -1443,6 +1530,31 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       ...prev,
     ]);
 
+    // Consigner dans le Journal Global d'Audit de la Plateforme
+    logAuditEvent({
+      actor: {
+        id: receivedById || "tm-1",
+        name: receivedBy,
+        role: "Responsable de trésorerie",
+        type: "USER",
+      },
+      action: isDiscrepancy ? "REMITTANCE_DISCREPANCY_FLAGGED" : "REMITTANCE_VALIDATED",
+      actionLabel: isDiscrepancy ? "A réceptionné une remise avec écart" : "A validé la remise au coffre",
+      module: "TRESORERIE",
+      entityType: "REMITTANCE",
+      entityId: newRemittance.id,
+      entityReference: ref,
+      severity: isDiscrepancy ? "WARNING" : "INFO",
+      result: "SUCCESS",
+      description: isDiscrepancy
+        ? `Remise ${ref} reçue avec un écart de ${difference} FCFA (Attendu: ${expectedAmount} FCFA, Reçu: ${receivedAmount} FCFA). Motif: ${discrepancyReason || "Non précisé"}`
+        : `Remise ${ref} de ${receivedAmount} FCFA validée intégralement et déposée au coffre-fort.`,
+      reason: isDiscrepancy ? discrepancyReason : undefined,
+      financeTxRef: newTx.txReference,
+      beforeState: { fundsToRemit: expectedAmount },
+      afterState: { fundsToRemit: isDiscrepancy ? difference : 0, receivedAmount },
+    });
+
     // Alerte pour le PDG si écart
     if (isDiscrepancy) {
       const newAlert: AgencyAlert = {
@@ -1598,6 +1710,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         sendConversationMessage,
         assignConversation,
         resolveAlert,
+        globalAuditLogs,
+        auditSessions,
+        logAuditEvent,
         updateAssignmentConfig,
         updateCloserAvailability,
         simulateAssignment,

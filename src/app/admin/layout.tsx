@@ -31,6 +31,7 @@ import {
   AlertTriangle,
   Landmark,
   ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import SpotlightSearchModal from "@/components/admin/SpotlightSearchModal";
@@ -92,6 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/commissions") return { title: "Commissions", subtitle: "Revenus et commissions perçus par ENO" };
     if (pathname === "/admin/retraits") return { title: "Retraits", subtitle: "Reversements et demandes des e-commerçants" };
     if (pathname === "/admin/tresoriers") return { title: "Responsables Trésorerie", subtitle: "Équipe financière et caisses" };
+    if (pathname === "/admin/audit" || pathname === "/pdg/audit") return { title: "Audit & Activité", subtitle: "Traçabilité centralisée des actions de la plateforme" };
     if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
     if (pathname === "/admin/rapports") return { title: "Rapports & Exports", subtitle: "Téléchargement de données" };
     if (pathname === "/admin/notifications") return { title: "Centre de Notifications", subtitle: "Alertes et signaux" };
@@ -171,8 +173,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ],
     },
     {
-      title: "SYSTÈME",
+      title: "SYSTÈME & SÉCURITÉ",
       items: [
+        { id: "nav-audit", label: "Audit & Activité", href: "/admin/audit", icon: ShieldAlert },
         {
           id: "nav-notifications",
           label: "Notifications",
