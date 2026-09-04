@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, use } from "react";
 import Link from "next/link";
@@ -39,6 +39,7 @@ export default function AdminOrderDetailPage({ params }: { params: Promise<{ id:
     partners,
     closeuses,
     livreurs,
+    platformSettings,
     updateOrderStatus,
     assignOrderToCloseuse,
     assignOrderToLivreur,
@@ -68,12 +69,14 @@ export default function AdminOrderDetailPage({ params }: { params: Promise<{ id:
     );
   }
 
-  // Financial breakdown calculation
-  const subtotal = Math.max(0, order.totalPrice - 2000);
-  const deliveryFee = 2000;
-  const closingFee = 800;
-  const driverShare = 1200;
-  const netMerchantAmount = Math.max(0, order.totalPrice - deliveryFee - closingFee);
+  // Financial breakdown calculation (Consomme les frais de la commande ou la config centrale)
+  const deliveryFee = order.deliveryFee ?? platformSettings?.financial?.defaultDeliveryFee ?? 2000;
+  const closingFee = order.serviceFee ?? platformSettings?.financial?.defaultClosingFee ?? 800;
+  const subtotal = Math.max(0, order.totalPrice - deliveryFee);
+  const commissionRate = platformSettings?.financial?.defaultCommissionRate ?? 5;
+  const enoCommission = Math.round((order.totalPrice * commissionRate) / 100);
+  const driverShare = Math.round(deliveryFee * 0.6);
+  const netMerchantAmount = Math.max(0, order.totalPrice - deliveryFee - closingFee - enoCommission);
 
   const handleCopyPhone = () => {
     navigator.clipboard.writeText(order.clientPhone);

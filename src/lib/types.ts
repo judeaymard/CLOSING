@@ -299,6 +299,7 @@ export interface FinancialAuditLog {
 // Types d'opérations du Grand Livre de Trésorerie
 export type TransactionType =
   | 'ENCAISSEMENT_COD'
+  | 'LIVRAISON_ENCAISSEE'
   | 'REMISE_LIVREUR'
   | 'CREDIT_MARCHAND'
   | 'MONTANT_RESERVE'
@@ -610,6 +611,8 @@ export type AuditEntityType =
   | 'TREASURY_MANAGER'
   | 'REMITTANCE'
   | 'PAYOUT'
+  | 'FINANCE'
+  | 'TRANSACTION'
   | 'CONVERSATION'
   | 'SETTING'
   | 'SESSION'

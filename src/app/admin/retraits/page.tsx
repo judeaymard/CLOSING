@@ -26,18 +26,29 @@ import {
   ExternalLink,
   Ban,
   ArrowRight,
+  Plus,
+  Sliders,
+  Lock,
+  Globe,
+  Coins,
+  ShieldAlert,
+  Info,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA } from "@/lib/mock-data";
 import { PayoutRequest, PayoutOperator, PayoutStatus } from "@/lib/types";
+import { validateWithdrawalRequest } from "@/lib/pricing-service";
+
 export default function AdminRetraitsPage() {
   const router = useRouter();
   const {
     payoutRequests,
     partners,
+    platformSettings,
     validatePayout,
     payPayout,
     rejectPayout,
+    requestPayout,
   } = useOperations();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +58,20 @@ export default function AdminRetraitsPage() {
   const [paymentRefInput, setPaymentRefInput] = useState("");
   const [showRejectModal, setShowRejectModal] = useState<PayoutRequest | null>(null);
   const [rejectionReasonInput, setRejectionReasonInput] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Formulaire de création de retrait
+  const [newPartnerId, setNewPartnerId] = useState(partners[0]?.id || "");
+  const [newAmount, setNewAmount] = useState<number>(50000);
+  const [newOperator, setNewOperator] = useState<PayoutOperator>("LEEKPAY");
+  const [newPhone, setNewPhone] = useState("+229 97 00 11 22");
+  const [newCryptoAddress, setNewCryptoAddress] = useState("");
+  const [newCryptoNetwork, setNewCryptoNetwork] = useState("TRC20");
+  const [newBinanceId, setNewBinanceId] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const selectedPartner = partners.find((p) => p.id === newPartnerId) || partners[0];
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -55,16 +79,22 @@ export default function AdminRetraitsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // Paramètres financiers actifs (Source de Vérité)
+  const minThreshold = platformSettings.financial?.minWithdrawalThreshold ?? 10000;
+  const doubleValidationLimit = platformSettings.financial?.requireDoubleValidationAbove ?? 500000;
+  const processingDelayHours = platformSettings.financial?.payoutProcessingDelayHours ?? 24;
+  const gateways = platformSettings.paymentGateways;
+
   // Filtered Payouts
   const filteredPayouts = useMemo(() => {
     return payoutRequests.filter((p) => {
       const currentStatus = p.status || "PENDING";
 
       if (statusFilter !== "ALL") {
-        if (statusFilter === "PENDING" && currentStatus !== "PENDING") return false;
-        if (statusFilter === "VALIDATED" && currentStatus !== "VALIDATED") return false;
-        if (statusFilter === "PAID" && (currentStatus !== "PAID" && currentStatus !== "APPROVED")) return false;
-        if (statusFilter === "REJECTED" && currentStatus !== "REJECTED") return false;
+        if (statusFilter === "PENDING" && currentStatus !== "PENDING" && currentStatus !== "IN_VERIFICATION") return false;
+        if (statusFilter === "APPROVED" && currentStatus !== "APPROVED" && currentStatus !== "VALIDATED") return false;
+        if (statusFilter === "PAID" && currentStatus !== "PAID") return false;
+        if (statusFilter === "REJECTED" && currentStatus !== "REJECTED" && currentStatus !== "FAILED") return false;
       }
 
       if (searchTerm.trim()) {
@@ -82,16 +112,56 @@ export default function AdminRetraitsPage() {
 
   // Aggregate Metrics
   const totalAvailableBalanceToPay = partners.reduce((acc, p) => acc + (p.availableBalance || 0), 0) || 4820000;
-  const pendingPayouts = payoutRequests.filter((p) => p.status === "PENDING");
+  const pendingPayouts = payoutRequests.filter((p) => p.status === "PENDING" || p.status === "IN_VERIFICATION");
   const pendingAmount = pendingPayouts.reduce((acc, p) => acc + p.amount, 0);
 
-  const validatedPayouts = payoutRequests.filter((p) => p.status === "VALIDATED");
-  const validatedAmount = validatedPayouts.reduce((acc, p) => acc + p.amount, 0);
+  const approvedPayouts = payoutRequests.filter((p) => p.status === "VALIDATED" || p.status === "APPROVED");
+  const approvedAmount = approvedPayouts.reduce((acc, p) => acc + p.amount, 0);
 
-  const paidPayouts = payoutRequests.filter((p) => p.status === "PAID" || p.status === "APPROVED");
+  const paidPayouts = payoutRequests.filter((p) => p.status === "PAID");
   const paidAmount = paidPayouts.reduce((acc, p) => acc + p.amount, 0) || 28450000;
 
-  const rejectedPayouts = payoutRequests.filter((p) => p.status === "REJECTED");
+  const rejectedPayouts = payoutRequests.filter((p) => p.status === "REJECTED" || p.status === "FAILED");
+
+  const handleCreateWithdrawal = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    try {
+      const validation = validateWithdrawalRequest(
+        platformSettings,
+        selectedPartner,
+        newAmount,
+        newOperator,
+        {
+          phone: newPhone,
+          cryptoAddress: newCryptoAddress,
+          cryptoNetwork: newCryptoNetwork,
+          binancePayId: newBinanceId,
+        }
+      );
+
+      if (!validation.isValid) {
+        setFormError(validation.errors.join(" | "));
+        return;
+      }
+
+      requestPayout(
+        newAmount,
+        newOperator,
+        newPhone,
+        "+229",
+        newCryptoAddress || undefined,
+        newCryptoNetwork || undefined,
+        newBinanceId || undefined
+      );
+
+      setShowCreateModal(false);
+      setNewAmount(50000);
+    } catch (err: any) {
+      setFormError(err.message || "Erreur lors de l'enregistrement de la demande.");
+    }
+  };
 
   const handleExecutePayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,13 +200,17 @@ export default function AdminRetraitsPage() {
     switch (status) {
       case "PENDING":
         return { label: "En attente", color: "bg-amber-100 text-amber-800 border-amber-200", dot: "bg-amber-500" };
+      case "IN_VERIFICATION":
+        return { label: "En vérification", color: "bg-purple-100 text-purple-800 border-purple-200", dot: "bg-purple-500" };
       case "VALIDATED":
-        return { label: "Validé (À payer)", color: "bg-blue-100 text-blue-800 border-blue-200", dot: "bg-blue-500" };
-      case "PAID":
       case "APPROVED":
+        return { label: "Approuvé (À payer)", color: "bg-blue-100 text-blue-800 border-blue-200", dot: "bg-blue-500" };
+      case "PAID":
         return { label: "Payé ✓", color: "bg-emerald-100 text-emerald-800 border-emerald-200", dot: "bg-emerald-500" };
       case "REJECTED":
         return { label: "Rejeté", color: "bg-rose-100 text-rose-800 border-rose-200", dot: "bg-rose-500" };
+      case "FAILED":
+        return { label: "Échoué", color: "bg-rose-100 text-rose-800 border-rose-200", dot: "bg-rose-500" };
       default:
         return { label: status, color: "bg-slate-100 text-slate-700 border-slate-200", dot: "bg-slate-400" };
     }
@@ -169,6 +243,7 @@ export default function AdminRetraitsPage() {
     link.click();
     document.body.removeChild(link);
   };
+
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in-up font-sans max-w-7xl mx-auto">
       {/* 👑 1. HEADER */}
@@ -176,11 +251,19 @@ export default function AdminRetraitsPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Retraits E-commerçants</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Arbitrage, validation et exécution des reversements de fonds appartenant aux boutiques partenaires.
+            Workflow complet de validation, verrouillage transactionnel et reversement des fonds marchands.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Initier un Retrait</span>
+          </button>
+
           <button
             onClick={handleExportCSV}
             className="px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
@@ -190,16 +273,59 @@ export default function AdminRetraitsPage() {
           </button>
 
           <Link
-            href="/admin/tresorerie"
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            href="/admin/parametres?tab=financial"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
-            <BadgeDollarSign className="w-4 h-4" />
-            <span>Grand Livre Trésorerie</span>
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Règles Paramètres</span>
           </Link>
         </div>
       </div>
 
-      {/* 📊 2. KPI STRIP RETRAITS (6 KPIs) */}
+      {/* ⚙️ 2. BANNIÈRE RÈGLES MÉTIER ACTIVES (SOURCE DE VÉRITÉ PARAMÈTRES) */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white p-4 sm:p-5 rounded-3xl shadow-md border border-slate-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold border border-emerald-500/30">
+                SOURCE DE VÉRITÉ ACTIVE
+              </span>
+              <h3 className="text-xs font-bold text-slate-200">Règles Financières Consommées en Direct</h3>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Ces paramètres proviennent de <Link href="/admin/parametres" className="text-emerald-400 underline font-semibold">Paramètres &gt; Paiements & Finances</Link> et s'appliquent immédiatement à chaque nouveau retrait.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs shrink-0">
+            <div className="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60">
+              <span className="text-[10px] text-slate-400 block">Seuil Minimum</span>
+              <span className="font-mono font-bold text-white text-xs">{formatCFA(minThreshold)}</span>
+            </div>
+            <div className="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60">
+              <span className="text-[10px] text-slate-400 block">Délai Traitement</span>
+              <span className="font-mono font-bold text-white text-xs">{processingDelayHours} heures</span>
+            </div>
+            <div className="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60">
+              <span className="text-[10px] text-slate-400 block">Double Validation</span>
+              <span className="font-mono font-bold text-amber-400 text-xs">&gt; {formatCFA(doubleValidationLimit)}</span>
+            </div>
+            <div className="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60">
+              <span className="text-[10px] text-slate-400 block">Passerelles Actives</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`w-2 h-2 rounded-full ${gateways?.leekpay?.enabled ? "bg-emerald-400" : "bg-rose-500"}`} title="LeekPay" />
+                <span className={`w-2 h-2 rounded-full ${gateways?.binancePay?.enabled ? "bg-amber-400" : "bg-rose-500"}`} title="Binance Pay" />
+                <span className={`w-2 h-2 rounded-full ${gateways?.usdtCrypto?.enabled ? "bg-cyan-400" : "bg-rose-500"}`} title="USDT" />
+                <span className="text-[10px] text-slate-300 font-mono">
+                  {Number(gateways?.leekpay?.enabled || 0) + Number(gateways?.binancePay?.enabled || 0) + Number(gateways?.usdtCrypto?.enabled || 0)}/3
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 📊 3. KPI STRIP RETRAITS (6 KPIs) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
           <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">Solde à Reverser</span>
@@ -215,10 +341,10 @@ export default function AdminRetraitsPage() {
         </div>
 
         <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
-          <span className="text-[9px] uppercase font-bold tracking-wider text-blue-600 block">Validés (À Payer)</span>
+          <span className="text-[9px] uppercase font-bold tracking-wider text-blue-600 block">Approuvés (À Payer)</span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-sm font-black font-mono text-blue-700">{validatedPayouts.length}</span>
-            <span className="text-[10px] text-blue-600 font-mono">({formatCFA(validatedAmount)})</span>
+            <span className="text-sm font-black font-mono text-blue-700">{approvedPayouts.length}</span>
+            <span className="text-[10px] text-blue-600 font-mono">({formatCFA(approvedAmount)})</span>
           </div>
         </div>
 
@@ -228,7 +354,7 @@ export default function AdminRetraitsPage() {
         </div>
 
         <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
-          <span className="text-[9px] uppercase font-bold tracking-wider text-rose-600 block">Rejetés</span>
+          <span className="text-[9px] uppercase font-bold tracking-wider text-rose-600 block">Rejetés / Échecs</span>
           <span className="text-sm font-black font-mono text-rose-700">{rejectedPayouts.length}</span>
         </div>
 
@@ -238,13 +364,13 @@ export default function AdminRetraitsPage() {
         </div>
       </div>
 
-      {/* 🔍 3. RECHERCHE & FILTRES RAPIDES */}
-      <div className="flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
+      {/* 🔎 4. BARRE DE RECHERCHE ET FILTRES */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher un retrait, e-commerçant, numéro de téléphone..."
+            placeholder="Rechercher par ID, boutique, téléphone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800 shadow-2xs"
@@ -255,7 +381,7 @@ export default function AdminRetraitsPage() {
           {[
             { id: "ALL", label: "Tous" },
             { id: "PENDING", label: `En attente (${pendingPayouts.length})` },
-            { id: "VALIDATED", label: `Validés (${validatedPayouts.length})` },
+            { id: "APPROVED", label: `Approuvés (${approvedPayouts.length})` },
             { id: "PAID", label: "Payés" },
             { id: "REJECTED", label: "Rejetés" },
           ].map((pill) => (
@@ -274,17 +400,17 @@ export default function AdminRetraitsPage() {
         </div>
       </div>
 
-      {/* 📋 4. TABLEAU DES RETRAITS */}
+      {/* 📋 5. TABLEAU DES RETRAITS */}
       <div className="bg-white border border-slate-200/80 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
         <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left text-xs whitespace-nowrap min-w-[1000px]">
+          <table className="w-full text-left text-xs whitespace-nowrap min-w-[1050px]">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
               <tr>
                 <th className="py-3.5 px-5">ID Retrait</th>
                 <th className="py-3.5 px-5">E-commerçant</th>
                 <th className="py-3.5 px-5">Montant</th>
                 <th className="py-3.5 px-5">Moyen de Paiement</th>
-                <th className="py-3.5 px-5">Coordonnées Réception</th>
+                <th className="py-3.5 px-5">Coordonnées / Réseau</th>
                 <th className="py-3.5 px-5">Date Demande</th>
                 <th className="py-3.5 px-5">Statut</th>
                 <th className="py-3.5 px-5 text-right">Actions</th>
@@ -300,6 +426,7 @@ export default function AdminRetraitsPage() {
               ) : (
                 filteredPayouts.map((payout) => {
                   const badge = getStatusBadge(payout.status);
+                  const isHighValue = payout.amount >= doubleValidationLimit;
 
                   return (
                     <tr
@@ -313,23 +440,41 @@ export default function AdminRetraitsPage() {
 
                       <td className="py-3.5 px-5">
                         <span className="font-bold text-slate-900 block">{payout.partnerName}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">Boutique Partenaire</span>
+                        <span className="text-[10px] text-slate-400 font-mono">Boutique Marchande</span>
                       </td>
 
                       <td className="py-3.5 px-5 font-mono font-black text-slate-900 text-sm">
-                        {formatCFA(payout.amount)}
+                        <div className="flex items-center gap-1.5">
+                          <span>{formatCFA(payout.amount)}</span>
+                          {isHighValue && (
+                            <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold border border-amber-300" title="Montant élevé : double validation requise">
+                              2FA
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-5">
-                        <span className="px-2.5 py-1 rounded-xl bg-slate-100 font-bold text-slate-800 text-[11px] border border-slate-200">
+                        <span className="px-2.5 py-1 rounded-xl bg-slate-100 font-bold text-slate-800 text-[11px] border border-slate-200 inline-flex items-center gap-1">
+                          {payout.operator === "BINANCE_PAY" && <Coins className="w-3 h-3 text-amber-500" />}
+                          {payout.operator === "USDT" && <Globe className="w-3 h-3 text-cyan-500" />}
                           {payout.operator}
                         </span>
                       </td>
 
                       <td className="py-3.5 px-5">
                         {payout.cryptoAddress ? (
-                          <span className="font-mono text-slate-600 text-[11px] truncate max-w-xs block">
-                            {payout.cryptoAddress.slice(0, 8)}...{payout.cryptoAddress.slice(-6)}
+                          <div className="space-y-0.5">
+                            <span className="font-mono text-slate-700 text-[11px] truncate max-w-xs block">
+                              {payout.cryptoAddress.slice(0, 8)}...{payout.cryptoAddress.slice(-6)}
+                            </span>
+                            <span className="text-[9px] font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded border border-cyan-200">
+                              {payout.cryptoNetwork || "TRC20"}
+                            </span>
+                          </div>
+                        ) : payout.binancePayId ? (
+                          <span className="font-mono font-semibold text-amber-800">
+                            ID: {payout.binancePayId}
                           </span>
                         ) : (
                           <span className="font-mono font-semibold text-slate-800">
@@ -339,7 +484,7 @@ export default function AdminRetraitsPage() {
                       </td>
 
                       <td className="py-3.5 px-5 font-mono text-slate-500 text-[11px]">
-                        {payout.requestedAt.replace("T", " ")}
+                        {payout.requestedAt?.replace("T", " ")?.slice(0, 16) || "Récemment"}
                       </td>
 
                       <td className="py-3.5 px-5">
@@ -351,13 +496,13 @@ export default function AdminRetraitsPage() {
 
                       <td className="py-3.5 px-5 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
-                          {payout.status === "PENDING" && (
+                          {(payout.status === "PENDING" || payout.status === "IN_VERIFICATION") && (
                             <>
                               <button
                                 onClick={() => validatePayout(payout.id)}
                                 className="px-2.5 py-1 rounded-xl bg-blue-50 text-blue-800 hover:bg-blue-100 font-bold text-[11px] border border-blue-200 cursor-pointer"
                               >
-                                Valider
+                                Approuver
                               </button>
                               <button
                                 onClick={() => setShowRejectModal(payout)}
@@ -368,7 +513,7 @@ export default function AdminRetraitsPage() {
                             </>
                           )}
 
-                          {payout.status === "VALIDATED" && (
+                          {(payout.status === "VALIDATED" || payout.status === "APPROVED") && (
                             <button
                               onClick={() => setShowPayModal(payout)}
                               className="px-3 py-1 rounded-xl bg-slate-900 text-white hover:bg-slate-800 font-bold text-[11px] shadow-xs cursor-pointer"
@@ -377,10 +522,10 @@ export default function AdminRetraitsPage() {
                             </button>
                           )}
 
-                          {(payout.status === "PAID" || payout.status === "APPROVED") && (
+                          {payout.status === "PAID" && (
                             <button
                               onClick={() => setSelectedPayout(payout)}
-                              className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-[11px] cursor-pointer"
+                              className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-bold text-[11px] border border-emerald-200 cursor-pointer"
                             >
                               Détails
                             </button>
@@ -422,7 +567,7 @@ export default function AdminRetraitsPage() {
                     </span>
                   </div>
 
-                  <p className="text-[10px] text-slate-400 font-mono">{payout.requestedAt.replace("T", " ")}</p>
+                  <p className="text-[10px] text-slate-400 font-mono">{payout.requestedAt?.replace("T", " ")?.slice(0, 16)}</p>
                 </div>
               );
             })
@@ -430,7 +575,220 @@ export default function AdminRetraitsPage() {
         </div>
       </div>
 
-      {/* 🔍 5. FICHE DÉTAILLÉE D'UN RETRAIT (MODAL / DRAWER) */}
+      {/* ➕ 6. MODAL INITIALISATION D'UN RETRAIT (TEST DU WORKFLOW COMPLET) */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-110 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in-up">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+                  <Landmark className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Initier une Demande de Retrait</h3>
+                  <p className="text-xs text-slate-500">Validation temps réel selon la configuration active</p>
+                </div>
+              </div>
+              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateWithdrawal} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Boutique Marchande *</label>
+                <select
+                  value={newPartnerId}
+                  onChange={(e) => setNewPartnerId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:outline-none focus:border-slate-800"
+                >
+                  {partners.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.companyName} (Solde : {formatCFA(p.availableBalance || 0)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="font-bold text-slate-700">Montant Demandé (FCFA) *</label>
+                  <span className="text-[10px] text-slate-500 font-mono">Min. configuré : {formatCFA(minThreshold)}</span>
+                </div>
+                <input
+                  type="number"
+                  min={minThreshold}
+                  step={1000}
+                  required
+                  value={newAmount}
+                  onChange={(e) => setNewAmount(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-black text-sm focus:outline-none focus:border-slate-800"
+                />
+              </div>
+
+              {/* Choix Moyen de Paiement avec blocage si désactivé dans Paramètres */}
+              <div>
+                <label className="font-bold text-slate-700 block mb-1.5">Moyen de Paiement *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    disabled={!gateways?.leekpay?.enabled}
+                    onClick={() => setNewOperator("LEEKPAY")}
+                    className={`p-3 rounded-2xl border text-left transition-all relative ${
+                      newOperator === "LEEKPAY"
+                        ? "border-emerald-600 bg-emerald-50/50 text-emerald-950 font-bold"
+                        : !gateways?.leekpay?.enabled
+                        ? "border-slate-200 bg-slate-100 text-slate-400 opacity-60 cursor-not-allowed"
+                        : "border-slate-200 hover:border-slate-300 text-slate-700 font-medium"
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">LeekPay</span>
+                    <span className="text-[9px] text-slate-500 block">Mobile Money</span>
+                    {!gateways?.leekpay?.enabled && (
+                      <span className="text-[8px] font-bold text-rose-600 flex items-center gap-0.5 mt-1">
+                        <Lock className="w-2.5 h-2.5" /> Désactivé
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!gateways?.binancePay?.enabled}
+                    onClick={() => setNewOperator("BINANCE_PAY")}
+                    className={`p-3 rounded-2xl border text-left transition-all relative ${
+                      newOperator === "BINANCE_PAY"
+                        ? "border-amber-500 bg-amber-50/50 text-amber-950 font-bold"
+                        : !gateways?.binancePay?.enabled
+                        ? "border-slate-200 bg-slate-100 text-slate-400 opacity-60 cursor-not-allowed"
+                        : "border-slate-200 hover:border-slate-300 text-slate-700 font-medium"
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Binance Pay</span>
+                    <span className="text-[9px] text-slate-500 block">Crypto direct</span>
+                    {!gateways?.binancePay?.enabled && (
+                      <span className="text-[8px] font-bold text-rose-600 flex items-center gap-0.5 mt-1">
+                        <Lock className="w-2.5 h-2.5" /> Désactivé
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!gateways?.usdtCrypto?.enabled}
+                    onClick={() => setNewOperator("USDT")}
+                    className={`p-3 rounded-2xl border text-left transition-all relative ${
+                      newOperator === "USDT"
+                        ? "border-cyan-600 bg-cyan-50/50 text-cyan-950 font-bold"
+                        : !gateways?.usdtCrypto?.enabled
+                        ? "border-slate-200 bg-slate-100 text-slate-400 opacity-60 cursor-not-allowed"
+                        : "border-slate-200 hover:border-slate-300 text-slate-700 font-medium"
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">USDT Crypto</span>
+                    <span className="text-[9px] text-slate-500 block">TRC20 / Polygon</span>
+                    {!gateways?.usdtCrypto?.enabled && (
+                      <span className="text-[8px] font-bold text-rose-600 flex items-center gap-0.5 mt-1">
+                        <Lock className="w-2.5 h-2.5" /> Désactivé
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Champs conditionnels selon opérateur */}
+              {newOperator === "LEEKPAY" && (
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Numéro Mobile Money Réception *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+229 97 00 00 00"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:border-slate-800"
+                  />
+                </div>
+              )}
+
+              {newOperator === "BINANCE_PAY" && (
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Binance Pay ID / Email Binance *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: 284918274 ou merchant@binance.com"
+                    value={newBinanceId}
+                    onChange={(e) => setNewBinanceId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:border-slate-800"
+                  />
+                </div>
+              )}
+
+              {newOperator === "USDT" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Réseau Blockchain Obligatoire *</label>
+                    <select
+                      value={newCryptoNetwork}
+                      onChange={(e) => setNewCryptoNetwork(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:outline-none focus:border-slate-800"
+                    >
+                      <option value="TRC20">TRON (TRC20) — Recommandé</option>
+                      <option value="POLYGON">Polygon (USDT POS)</option>
+                      <option value="BEP20">BNB Smart Chain (BEP20)</option>
+                      <option value="ERC20">Ethereum (ERC20)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Adresse de Wallet USDT *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: TXYZ1234567890abcdef..."
+                      value={newCryptoAddress}
+                      onChange={(e) => setNewCryptoAddress(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs focus:outline-none focus:border-slate-800"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Résumé de verrouillage */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Sécurité Financière</span>
+                <p className="text-[11px] text-slate-600">
+                  Le montant de <strong className="text-slate-900 font-mono">{formatCFA(newAmount)}</strong> sera immédiatement <strong>verrouillé</strong> sur le solde disponible du marchand pour éviter tout double débit.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-slate-500 font-bold cursor-pointer"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-xs cursor-pointer"
+                >
+                  Confirmer la Demande
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🔍 7. FICHE DÉTAILLÉE D'UN RETRAIT (MODAL / DRAWER) */}
       {selectedPayout && (
         <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -480,34 +838,42 @@ export default function AdminRetraitsPage() {
                   <span className="text-slate-500">Compte Réception :</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono font-bold text-slate-900">
-                      {selectedPayout.cryptoAddress || `${selectedPayout.countryCode || ""} ${selectedPayout.phone || selectedPayout.leekpayPhone || ""}`}
+                      {selectedPayout.cryptoAddress || selectedPayout.binancePayId || `${selectedPayout.countryCode || ""} ${selectedPayout.phone || selectedPayout.leekpayPhone || ""}`}
                     </span>
                     <button
-                      onClick={() => handleCopy(selectedPayout.cryptoAddress || selectedPayout.phone || selectedPayout.leekpayPhone || "", selectedPayout.id)}
+                      onClick={() => handleCopy(selectedPayout.cryptoAddress || selectedPayout.binancePayId || selectedPayout.phone || selectedPayout.leekpayPhone || "", selectedPayout.id)}
                       className="p-1 rounded-md hover:bg-slate-200 text-slate-400 cursor-pointer"
                     >
                       {copiedId === selectedPayout.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                     </button>
                   </div>
                 </div>
+                {selectedPayout.cryptoNetwork && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Réseau Blockchain :</span>
+                    <span className="font-mono font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                      {selectedPayout.cryptoNetwork}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Timeline & Metadata */}
               <div className="space-y-1.5 text-[11px] text-slate-600 pt-1">
                 <div className="flex justify-between">
                   <span>Date de demande :</span>
-                  <span className="font-mono font-semibold text-slate-900">{selectedPayout.requestedAt.replace("T", " ")}</span>
+                  <span className="font-mono font-semibold text-slate-900">{selectedPayout.requestedAt?.replace("T", " ")?.slice(0, 16)}</span>
                 </div>
-                {selectedPayout.validatedAt && (
+                {selectedPayout.approvedAt && (
                   <div className="flex justify-between">
-                    <span>Date de validation :</span>
-                    <span className="font-mono font-semibold text-slate-900">{selectedPayout.validatedAt.replace("T", " ").slice(0, 16)}</span>
+                    <span>Date d'approbation :</span>
+                    <span className="font-mono font-semibold text-slate-900">{selectedPayout.approvedAt?.replace("T", " ")?.slice(0, 16)}</span>
                   </div>
                 )}
                 {selectedPayout.paidAt && (
                   <div className="flex justify-between">
                     <span>Date de paiement :</span>
-                    <span className="font-mono font-semibold text-emerald-700">{selectedPayout.paidAt.replace("T", " ").slice(0, 16)}</span>
+                    <span className="font-mono font-semibold text-emerald-700">{selectedPayout.paidAt?.replace("T", " ")?.slice(0, 16)}</span>
                   </div>
                 )}
                 {selectedPayout.paymentReference && (
@@ -532,7 +898,7 @@ export default function AdminRetraitsPage() {
 
               {/* Bottom Actions */}
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                {selectedPayout.status === "PENDING" && (
+                {(selectedPayout.status === "PENDING" || selectedPayout.status === "IN_VERIFICATION") && (
                   <>
                     <button
                       onClick={() => {
@@ -545,16 +911,16 @@ export default function AdminRetraitsPage() {
                     <button
                       onClick={() => {
                         validatePayout(selectedPayout.id);
-                        setSelectedPayout({ ...selectedPayout, status: "VALIDATED", validatedAt: new Date().toISOString() });
+                        setSelectedPayout({ ...selectedPayout, status: "APPROVED", approvedAt: new Date().toISOString() });
                       }}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 cursor-pointer"
                     >
-                      Valider la demande
+                      Approuver la demande
                     </button>
                   </>
                 )}
 
-                {selectedPayout.status === "VALIDATED" && (
+                {(selectedPayout.status === "VALIDATED" || selectedPayout.status === "APPROVED") && (
                   <button
                     onClick={() => {
                       setShowPayModal(selectedPayout);
@@ -565,7 +931,7 @@ export default function AdminRetraitsPage() {
                   </button>
                 )}
 
-                {(selectedPayout.status === "PAID" || selectedPayout.status === "APPROVED") && (
+                {selectedPayout.status === "PAID" && (
                   <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Retrait payé et archivé</span>
@@ -577,7 +943,7 @@ export default function AdminRetraitsPage() {
         </div>
       )}
 
-      {/* 💳 MODAL DE PAIEMENT (AVEC SAISIE RÉFÉRENCE ET BLOCAGE DOUBLE PAIEMENT) */}
+      {/* 💳 8. MODAL DE PAIEMENT */}
       {showPayModal && (
         <div className="fixed inset-0 z-110 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in-up">
@@ -586,7 +952,7 @@ export default function AdminRetraitsPage() {
                 <CreditCard className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-black text-slate-900">Enregistrer le Paiement</h3>
+                <h3 className="text-base font-black text-slate-900">Enregistrer le Virement</h3>
                 <p className="text-xs text-slate-500">{showPayModal.partnerName} • {formatCFA(showPayModal.amount)}</p>
               </div>
             </div>
@@ -594,17 +960,17 @@ export default function AdminRetraitsPage() {
             <form onSubmit={handleExecutePayment} className="space-y-3.5 text-xs">
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-1">
                 <span className="text-[10px] uppercase font-bold text-slate-400 block">Bénéficiaire</span>
-                <p className="font-bold text-slate-900">{showPayModal.operator} : {showPayModal.phone || showPayModal.cryptoAddress}</p>
+                <p className="font-bold text-slate-900">{showPayModal.operator} : {showPayModal.cryptoAddress || showPayModal.binancePayId || showPayModal.phone}</p>
               </div>
 
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
-                  Référence de Transaction du Virement (Obligatoire) *
+                  Référence de Transaction / TxID (Obligatoire) *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: MTN-TX-984214 ou TxID Crypto..."
+                  placeholder="Ex: LEEK-TX-984214 ou TxID Blockchain..."
                   value={paymentRefInput}
                   onChange={(e) => setPaymentRefInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:border-slate-800"
@@ -631,7 +997,7 @@ export default function AdminRetraitsPage() {
         </div>
       )}
 
-      {/* ⚠️ MODAL DE REJET */}
+      {/* ⚠️ 9. MODAL DE REJET */}
       {showRejectModal && (
         <div className="fixed inset-0 z-110 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in-up">
@@ -651,11 +1017,16 @@ export default function AdminRetraitsPage() {
                 <textarea
                   rows={3}
                   required
-                  placeholder="Ex: Coordonnées de paiement erronées, solde insuffisant..."
+                  placeholder="Ex: Coordonnées erronées, compte en vérification..."
                   value={rejectionReasonInput}
                   onChange={(e) => setRejectionReasonInput(e.target.value)}
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900"
                 />
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px]">
+                <Info className="w-3.5 h-3.5 inline mr-1 text-amber-600" />
+                Le montant verrouillé ({formatCFA(showRejectModal.amount)}) sera immédiatement <strong>restitué</strong> au solde disponible du marchand.
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">

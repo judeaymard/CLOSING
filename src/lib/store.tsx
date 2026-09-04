@@ -18,6 +18,14 @@ import {
   currentPartner,
 } from "./mock-data";
 import {
+  calculateDeliveryFee,
+  calculateClosingFee,
+  calculateCommission,
+  calculateOrderTotal,
+  validateWithdrawalRequest,
+} from "./pricing-service";
+import { getPaymentProvider } from "./payment-providers";
+import {
   Order,
   Partner,
   Product,
@@ -25,6 +33,7 @@ import {
   CloseuseProfile,
   PayoutRequest,
   PayoutOperator,
+  PayoutStatus,
   UserRole,
   OrderStatus,
   Conversation,
@@ -126,7 +135,9 @@ interface OperationsContextType {
     phone: string,
     countryCode?: string,
     cryptoAddress?: string,
-    cryptoNetwork?: string
+    cryptoNetwork?: string,
+    binancePayId?: string,
+    binanceEmail?: string
   ) => PayoutRequest;
   addLivreur: (data: {
     name: string;
@@ -970,7 +981,14 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     modeUsed: AssignmentMode;
     breakdown: { closer: CloseuseProfile; load: number; status: string; eligible: boolean }[];
   } => {
-    const mode: AssignmentMode = type === "ORDER" ? assignmentConfig.ordersMode : assignmentConfig.conversationsMode;
+    // 🎯 Source de Vérité Centrale : Consomme directement platformSettings.operational
+    const mode: AssignmentMode =
+      type === "ORDER"
+        ? platformSettings.operational?.ordersAssignmentMode || assignmentConfig.ordersMode
+        : platformSettings.operational?.conversationsAssignmentMode || assignmentConfig.conversationsMode;
+
+    const maxCapacity =
+      platformSettings.operational?.maxCapacityPerCloser || assignmentConfig.maxCapacityPerCloser || 20;
 
     if (mode === "MANUAL") {
       return {
@@ -989,7 +1007,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     const breakdown = closeuses.map((c) => {
       const status = closerAvailability[c.id] || "AVAILABLE";
       const load = getCloserActiveLoad(c.id, c.name);
-      const eligible = status === "AVAILABLE" && load < assignmentConfig.maxCapacityPerCloser;
+      const eligible = status === "AVAILABLE" && load < maxCapacity;
       return { closer: c, load, status, eligible };
     });
 
@@ -1095,10 +1113,25 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     return true;
   };
 
-  // Création de commande avec auto-assign si configuré
+  // Création de commande avec tarification dynamique et auto-assign si configuré
   const createOrder = (orderData: Partial<Order>): Order => {
     const count = orders.length + 1;
     const orderNumber = `CMD-BJ${String(count).padStart(4, "0")}`;
+    const targetPartnerId = orderData.partnerId || activePartnerId;
+    const partner = partners.find((p) => p.id === targetPartnerId);
+
+    // 🎯 Source de Vérité Centrale : Tarification issue de platformSettings
+    const dynamicDeliveryFee = calculateDeliveryFee(
+      platformSettings,
+      { deliveryFee: orderData.deliveryFee },
+      partner
+    );
+    const dynamicServiceFee = calculateClosingFee(
+      platformSettings,
+      { closingFee: orderData.serviceFee },
+      partner
+    );
+
     const newOrder: Order = {
       id: `cmd_${Date.now()}`,
       orderNumber,
@@ -1109,12 +1142,12 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       city: orderData.city || "Cotonou",
       products: orderData.products || "Produit standard",
       quantity: orderData.quantity || 1,
-      totalPrice: orderData.totalPrice || 15000,
-      deliveryFee: 2000,
-      serviceFee: 800,
+      totalPrice: orderData.totalPrice !== undefined ? orderData.totalPrice : 15000,
+      deliveryFee: dynamicDeliveryFee,
+      serviceFee: dynamicServiceFee,
       status: "EN_ATTENTE",
-      partnerId: orderData.partnerId || activePartnerId,
-      partnerName: orderData.partnerName || "E-commerçant",
+      partnerId: targetPartnerId,
+      partnerName: orderData.partnerName || partner?.companyName || "E-commerçant",
       createdAt: new Date().toISOString().split("T")[0],
       updatedAt: new Date().toISOString(),
       ...orderData,
@@ -1217,6 +1250,13 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   };
 
   const markOrderDelivered = (orderId: string) => {
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return;
+
+    // 🎯 Source de Vérité Centrale : Calcul de la commission au moment de la livraison
+    const commission = calculateCommission(platformSettings, order.totalPrice);
+    const netCredit = Math.max(0, order.totalPrice - (order.deliveryFee || 2000) - (order.serviceFee || 800) - commission);
+
     setOrders((prev) =>
       prev.map((o) =>
         o.id === orderId
@@ -1226,11 +1266,52 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
               deliveredAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               codCollected: true,
-              comment: "Colis livré et montant COD encaissé avec succès par le livreur.",
+              comment: `Colis livré et montant COD encaissé avec succès par le livreur (Commission ENO: ${commission} FCFA).`,
             }
           : o
       )
     );
+
+    // Créditer le solde marchand
+    if (order.partnerId) {
+      setPartners((prev) =>
+        prev.map((p) =>
+          p.id === order.partnerId
+            ? { ...p, availableBalance: (p.availableBalance || 0) + netCredit }
+            : p
+        )
+      );
+    }
+
+    // Écriture de la transaction de livraison
+    const newTx: FinancialTransaction = {
+      id: `tx-del-${Date.now()}`,
+      txReference: `TX-CMD-${order.orderNumber || Date.now().toString().slice(-6)}`,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      type: "LIVRAISON_ENCAISSEE",
+      label: `Encaissement ${order.orderNumber} - ${order.clientName}`,
+      partnerId: order.partnerId,
+      partnerName: order.partnerName,
+      inflow: order.totalPrice,
+      outflow: (order.deliveryFee || 2000) + (order.serviceFee || 800) + commission,
+      balanceAfter: 14850000 + order.totalPrice,
+      status: "COMPLETED",
+      notes: `Commande livrée. Commission ENO: ${commission} FCFA (${platformSettings.financial?.defaultCommissionRate ?? 5}%). Crédit net marchand: ${netCredit} FCFA.`,
+    };
+    setTransactions((prev) => [newTx, ...prev]);
+
+    // Notification si activée
+    if (platformSettings.notifications?.orders?.orderDelivered) {
+      addNotification({
+        category: "COMMANDES",
+        priority: "INFO",
+        title: "📦 Commande livrée & encaissée",
+        description: `${order.orderNumber} livrée avec succès à ${order.clientName}. Net marchand: ${netCredit.toLocaleString("fr-FR")} FCFA.`,
+        actionUrl: "/admin/commandes",
+        referenceType: "ORDER",
+        referenceId: order.id,
+      });
+    }
   };
 
   const markOrderFailed = (orderId: string, reason: string) => {
@@ -1254,24 +1335,112 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     phone: string,
     countryCode = "+229",
     cryptoAddress?: string,
-    cryptoNetwork?: string
+    cryptoNetwork?: string,
+    binancePayId?: string,
+    binanceEmail?: string
   ): PayoutRequest => {
     const partner = partners.find((p) => p.id === activePartnerId) || currentPartner;
+
+    // 🎯 Source de Vérité Centrale : Validation selon la configuration active
+    const validation = validateWithdrawalRequest(
+      platformSettings,
+      partner,
+      amount,
+      operator,
+      { phone, cryptoAddress, cryptoNetwork, binancePayId, binanceEmail }
+    );
+
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(" | "));
+    }
+
+    const initialStatus: PayoutStatus = validation.isAutoApproved ? "APPROVED" : "PENDING";
+    const balanceBefore = partner.availableBalance || 0;
+    const balanceAfter = Math.max(0, balanceBefore - amount);
+
+    // 🔒 Verrouillage Transactionnel du Solde
+    setPartners((prev) =>
+      prev.map((p) =>
+        p.id === partner.id
+          ? { ...p, availableBalance: balanceAfter }
+          : p
+      )
+    );
+
     const newReq: PayoutRequest = {
-      id: `pay_${Date.now()}`,
+      id: `WDR-${Date.now().toString().slice(-6)}`,
       partnerId: partner.id,
       partnerName: partner.companyName,
       amount,
+      reservedAmount: amount, // Montant réservé / verrouillé
       operator,
       phone,
       countryCode,
       cryptoAddress,
       cryptoNetwork,
+      binancePayId,
+      binanceEmail,
       cryptoEstimatedUsdt: cryptoAddress ? Math.round(amount / 655) : undefined,
-      requestedAt: new Date().toISOString().split("T")[0],
-      status: "PENDING",
+      requestedAt: new Date().toISOString(),
+      status: initialStatus,
+      balanceBefore,
+      balanceAfter,
+      txReference: `TX-REQ-${Date.now().toString().slice(-6)}`,
     };
+
     setPayoutRequests((prev) => [newReq, ...prev]);
+
+    // 🔔 Notification Centralisée
+    addNotification({
+      category: "FINANCES",
+      priority: validation.requiresDoubleValidation ? "CRITICAL" : "INFO",
+      title: "Nouvelle demande de retrait",
+      description: `Demande de ${amount.toLocaleString("fr-FR")} FCFA par ${partner.companyName} (${operator}).`,
+      actionUrl: "/admin/retraits",
+      referenceType: "WITHDRAWAL",
+      referenceId: newReq.id,
+    });
+
+    // 🛡️ Audit Centralisé
+    logAuditEvent({
+      actor: {
+        id: partner.id,
+        name: partner.companyName,
+        role: "Marchand",
+        type: "USER",
+      },
+      action: "WITHDRAWAL_CREATED",
+      actionLabel: "Création de demande de retrait",
+      module: "FINANCES",
+      entityType: "PAYOUT",
+      entityId: newReq.id,
+      entityReference: newReq.id,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: `Demande de retrait de ${amount} FCFA (${operator}). Statut: ${initialStatus}. Solde verrouillé: ${amount} FCFA.`,
+      afterState: newReq as any,
+    });
+
+    // Sync Backend
+    fetch("/api/withdrawals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        partnerId: partner.id,
+        partnerName: partner.companyName,
+        amount,
+        operator,
+        phone,
+        countryCode,
+        cryptoAddress,
+        cryptoNetwork,
+        binancePayId,
+        binanceEmail,
+        idempotencyKey: newReq.id,
+        availableBalance: balanceBefore,
+      }),
+    }).catch((err) => console.warn("Sync withdrawal backend fallback:", err));
+
     return newReq;
   };
 
@@ -1538,6 +1707,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   };
 
   const approveWithdrawal = (withdrawalId: string, internalNote?: string) => {
+    const payout = payoutRequests.find((p) => p.id === withdrawalId);
     setPayoutRequests((prev) =>
       prev.map((p) =>
         p.id === withdrawalId
@@ -1552,18 +1722,37 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       )
     );
 
-    setAuditLogs((prev) => [
-      {
-        id: `aud-${Date.now()}`,
-        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
-        action: "Demande de retrait approuvée",
-        actor: "Direction ENO (Super Admin)",
-        targetType: "WITHDRAWAL",
-        targetId: withdrawalId,
-        details: internalNote || "Approbation par le PDG. Prêt pour virement.",
-      },
-      ...prev,
-    ]);
+    // 🔔 Notification Centralisée
+    addNotification({
+      category: "FINANCES",
+      priority: "INFO",
+      title: "Retrait approuvé",
+      description: `La demande de retrait de ${payout?.amount?.toLocaleString("fr-FR") || ""} FCFA (${payout?.partnerName || "Marchand"}) a été approuvée. Prêt pour virement.`,
+      actionUrl: "/admin/retraits",
+      referenceType: "WITHDRAWAL",
+      referenceId: withdrawalId,
+    });
+
+    // 🛡️ Audit Centralisé
+    logAuditEvent({
+      actor: { id: "USR-PDG-001", name: currentUserProfile.name, role: "Super Admin", type: "USER" },
+      action: "WITHDRAWAL_APPROVED",
+      actionLabel: "Approbation de demande de retrait",
+      module: "FINANCES",
+      entityType: "PAYOUT",
+      entityId: withdrawalId,
+      entityReference: withdrawalId,
+      severity: "WARNING",
+      result: "SUCCESS",
+      description: `Demande de retrait ${withdrawalId} approuvée par ${currentUserProfile.name}.`,
+    });
+
+    // Sync Backend
+    fetch("/api/withdrawals", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payoutId: withdrawalId, action: "APPROVE", internalNote }),
+    }).catch((err) => console.warn("Sync approve withdrawal fallback:", err));
   };
 
   const rejectWithdrawal = (withdrawalId: string, reason: string) => {
@@ -1597,19 +1786,37 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       )
     );
 
-    setAuditLogs((prev) => [
-      {
-        id: `aud-${Date.now()}`,
-        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
-        action: "Demande de retrait refusée & solde restitué",
-        actor: "Direction ENO (Super Admin)",
-        targetType: "WITHDRAWAL",
-        targetId: withdrawalId,
-        amount: payout.amount,
-        details: `Motif: ${reason}. Montant réintégré au solde disponible.`,
-      },
-      ...prev,
-    ]);
+    // 🔔 Notification Centralisée
+    addNotification({
+      category: "FINANCES",
+      priority: "URGENT",
+      title: "⚠️ Retrait rejeté",
+      description: `Votre demande de retrait de ${payout.amount.toLocaleString("fr-FR")} FCFA a été rejetée (${reason}). Le montant a été réintégré à votre solde disponible.`,
+      actionUrl: "/admin/retraits",
+      referenceType: "WITHDRAWAL",
+      referenceId: withdrawalId,
+    });
+
+    // 🛡️ Audit Centralisé
+    logAuditEvent({
+      actor: { id: "USR-PDG-001", name: currentUserProfile.name, role: "Super Admin", type: "USER" },
+      action: "WITHDRAWAL_REJECTED",
+      actionLabel: "Rejet de demande de retrait",
+      module: "FINANCES",
+      entityType: "PAYOUT",
+      entityId: withdrawalId,
+      entityReference: withdrawalId,
+      severity: "WARNING",
+      result: "SUCCESS",
+      description: `Demande de retrait ${withdrawalId} rejetée. Motif: ${reason}. Montant réintégré: ${payout.amount} FCFA.`,
+    });
+
+    // Sync Backend
+    fetch("/api/withdrawals", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payoutId: withdrawalId, action: "REJECT", rejectionReason: reason }),
+    }).catch((err) => console.warn("Sync reject withdrawal fallback:", err));
   };
 
   const payWithdrawal = (withdrawalId: string, paymentReference: string, adminName = "Direction ENO") => {
@@ -1620,6 +1827,10 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     const balanceBefore = (partner?.availableBalance || 0) + (payout.reservedAmount || payout.amount);
     const balanceAfter = Math.max(0, partner?.availableBalance || 0);
 
+    // Exécution de l'adaptateur de paiement
+    const provider = getPaymentProvider(payout.operator, platformSettings);
+    const ref = paymentReference || `REF-${Date.now().toString().slice(-6)}`;
+
     setPayoutRequests((prev) =>
       prev.map((p) =>
         p.id === withdrawalId
@@ -1627,7 +1838,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
               ...p,
               status: "PAID",
               paidAt: new Date().toISOString(),
-              paymentReference,
+              paymentReference: ref,
               adminProcessorName: adminName,
               reservedAmount: 0,
               balanceBefore,
@@ -1665,23 +1876,41 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       outflow: payout.amount,
       balanceAfter: 14850000 - payout.amount,
       status: "COMPLETED",
-      notes: `Virement exécuté (${payout.operator}). Réf: ${paymentReference}. Traité par ${adminName}.`,
+      notes: `Virement exécuté (${payout.operator}). Réf: ${ref}. Adaptateur: ${provider.name}. Traité par ${adminName}.`,
     };
     setTransactions((prev) => [newTx, ...prev]);
 
-    setAuditLogs((prev) => [
-      {
-        id: `aud-${Date.now()}`,
-        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
-        action: "Virement de retrait payé & archivé",
-        actor: adminName,
-        targetType: "WITHDRAWAL",
-        targetId: withdrawalId,
-        amount: payout.amount,
-        details: `Règlement ${payout.operator} exécuté. Réf: ${paymentReference}.`,
-      },
-      ...prev,
-    ]);
+    // 🔔 Notification Centralisée
+    addNotification({
+      category: "FINANCES",
+      priority: "INFO",
+      title: "🏦 Retrait effectué",
+      description: `Votre retrait de ${payout.amount.toLocaleString("fr-FR")} FCFA a été effectué avec succès (${payout.operator}). Réf: ${ref}.`,
+      actionUrl: "/admin/retraits",
+      referenceType: "WITHDRAWAL",
+      referenceId: withdrawalId,
+    });
+
+    // 🛡️ Audit Centralisé
+    logAuditEvent({
+      actor: { id: "USR-PDG-001", name: adminName, role: "Super Admin", type: "USER" },
+      action: "WITHDRAWAL_PAID",
+      actionLabel: "Virement de retrait payé & archivé",
+      module: "FINANCES",
+      entityType: "PAYOUT",
+      entityId: withdrawalId,
+      entityReference: withdrawalId,
+      severity: "INFO",
+      result: "SUCCESS",
+      description: `Règlement de ${payout.amount} FCFA (${payout.operator}) exécuté avec succès. Réf: ${ref}.`,
+    });
+
+    // Sync Backend
+    fetch("/api/withdrawals", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payoutId: withdrawalId, action: "PAY", paymentReference: ref, adminName }),
+    }).catch((err) => console.warn("Sync pay withdrawal fallback:", err));
   };
 
   const payPayout = (payoutId: string, paymentReference: string, adminName = "Direction ENO") => {

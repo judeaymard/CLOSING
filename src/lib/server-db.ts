@@ -7,6 +7,10 @@ import {
   PlatformNotification,
   PlatformUser,
   PlatformSettings,
+  PayoutRequest,
+  Order,
+  FinancialTransaction,
+  GlobalAuditLog,
 } from "./types";
 import {
   initialConversations,
@@ -14,6 +18,10 @@ import {
   initialPlatformUsers,
   initialPlatformSettings,
   initialRolePermissionsMap,
+  initialPayoutRequests,
+  orders as initialOrders,
+  initialTransactions,
+  initialGlobalAuditLogs,
 } from "./mock-data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -23,6 +31,10 @@ const NOTIFICATIONS_FILE = path.join(DATA_DIR, "notifications.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const ROLES_PERMISSIONS_FILE = path.join(DATA_DIR, "roles_permissions.json");
+const PAYOUTS_FILE = path.join(DATA_DIR, "payouts.json");
+const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+const TRANSACTIONS_FILE = path.join(DATA_DIR, "transactions.json");
+const AUDIT_FILE = path.join(DATA_DIR, "audit.json");
 const STORAGE_DIR = path.join(process.cwd(), "storage", "attachments");
 const PUBLIC_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads", "conversations");
 
@@ -93,6 +105,50 @@ export async function initDatabase(): Promise<void> {
       await fs.writeFile(
         ROLES_PERMISSIONS_FILE,
         JSON.stringify(initialRolePermissionsMap, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier payouts.json s'il n'existe pas
+    try {
+      await fs.access(PAYOUTS_FILE);
+    } catch {
+      await fs.writeFile(
+        PAYOUTS_FILE,
+        JSON.stringify(initialPayoutRequests, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier orders.json s'il n'existe pas
+    try {
+      await fs.access(ORDERS_FILE);
+    } catch {
+      await fs.writeFile(
+        ORDERS_FILE,
+        JSON.stringify(initialOrders, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier transactions.json s'il n'existe pas
+    try {
+      await fs.access(TRANSACTIONS_FILE);
+    } catch {
+      await fs.writeFile(
+        TRANSACTIONS_FILE,
+        JSON.stringify(initialTransactions, null, 2),
+        "utf-8"
+      );
+    }
+
+    // Initialisation du fichier audit.json s'il n'existe pas
+    try {
+      await fs.access(AUDIT_FILE);
+    } catch {
+      await fs.writeFile(
+        AUDIT_FILE,
+        JSON.stringify(initialGlobalAuditLogs, null, 2),
         "utf-8"
       );
     }
@@ -530,5 +586,147 @@ export async function saveRolePermissions(
   await fs.writeFile(ROLES_PERMISSIONS_FILE, JSON.stringify(map, null, 2), "utf-8");
   return map;
 }
+
+// ==========================================
+// 🏦 GESTION DES RETRAITS (PAYOUTS)
+// ==========================================
+
+export async function getPayoutRequests(): Promise<PayoutRequest[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(PAYOUTS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture payouts.json:", error);
+  }
+  return initialPayoutRequests;
+}
+
+export async function savePayoutRequest(payout: PayoutRequest): Promise<PayoutRequest> {
+  await initDatabase();
+  const payouts = await getPayoutRequests();
+  const index = payouts.findIndex((p) => p.id === payout.id);
+  if (index >= 0) {
+    payouts[index] = payout;
+  } else {
+    payouts.unshift(payout);
+  }
+  await fs.writeFile(PAYOUTS_FILE, JSON.stringify(payouts, null, 2), "utf-8");
+  return payout;
+}
+
+export async function updatePayoutRequest(
+  id: string,
+  updates: Partial<PayoutRequest>
+): Promise<PayoutRequest | null> {
+  await initDatabase();
+  const payouts = await getPayoutRequests();
+  const index = payouts.findIndex((p) => p.id === id);
+  if (index >= 0) {
+    payouts[index] = { ...payouts[index], ...updates };
+    await fs.writeFile(PAYOUTS_FILE, JSON.stringify(payouts, null, 2), "utf-8");
+    return payouts[index];
+  }
+  return null;
+}
+
+// ==========================================
+// 📦 GESTION DES COMMANDES (ORDERS)
+// ==========================================
+
+export async function getOrders(): Promise<Order[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(ORDERS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture orders.json:", error);
+  }
+  return initialOrders;
+}
+
+export async function saveOrder(order: Order): Promise<Order> {
+  await initDatabase();
+  const orders = await getOrders();
+  const index = orders.findIndex((o) => o.id === order.id);
+  if (index >= 0) {
+    orders[index] = order;
+  } else {
+    orders.unshift(order);
+  }
+  await fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
+  return order;
+}
+
+export async function updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
+  await initDatabase();
+  const orders = await getOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index >= 0) {
+    orders[index] = { ...orders[index], ...updates };
+    await fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
+    return orders[index];
+  }
+  return null;
+}
+
+// ==========================================
+// 💳 GESTION DES TRANSACTIONS FINANCIÈRES
+// ==========================================
+
+export async function getTransactions(): Promise<FinancialTransaction[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(TRANSACTIONS_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture transactions.json:", error);
+  }
+  return initialTransactions;
+}
+
+export async function saveTransaction(tx: FinancialTransaction): Promise<FinancialTransaction> {
+  await initDatabase();
+  const list = await getTransactions();
+  list.unshift(tx);
+  await fs.writeFile(TRANSACTIONS_FILE, JSON.stringify(list, null, 2), "utf-8");
+  return tx;
+}
+
+// ==========================================
+// 🛡️ JOURNAL D'AUDIT GLOBAL
+// ==========================================
+
+export async function getGlobalAuditLogs(): Promise<GlobalAuditLog[]> {
+  await initDatabase();
+  try {
+    const data = await fs.readFile(AUDIT_FILE, "utf-8");
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Erreur lecture audit.json:", error);
+  }
+  return initialGlobalAuditLogs;
+}
+
+export async function saveGlobalAuditLog(log: GlobalAuditLog): Promise<GlobalAuditLog> {
+  await initDatabase();
+  const list = await getGlobalAuditLogs();
+  list.unshift(log);
+  await fs.writeFile(AUDIT_FILE, JSON.stringify(list, null, 2), "utf-8");
+  return log;
+}
+
 
 
