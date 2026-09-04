@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, use } from "react";
 import Link from "next/link";
@@ -28,13 +28,16 @@ import {
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA } from "@/lib/mock-data";
-import { LivreurStatus, Order } from "@/lib/types";
+import { LivreurStatus, Order, DriverCodFinancialSummary } from "@/lib/types";
 export default function AdminLivreurDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
   const {
     livreurs,
     orders,
+    codCollections,
+    codRemittances,
+    getDriverCodFunds,
     updateLivreurAvailability,
     updateLivreur,
     reassignLivreurOrders,
@@ -47,6 +50,8 @@ export default function AdminLivreurDetailPage({ params }: { params: Promise<{ i
   const [showAddZoneModal, setShowAddZoneModal] = useState(false);
   const [newZoneInput, setNewZoneInput] = useState("");
   const [copiedPhone, setCopiedPhone] = useState(false);
+  const [showFundsDetailModal, setShowFundsDetailModal] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<"OPERATIONS" | "FINANCES">("OPERATIONS");
 
   if (!livreur) {
     return (
@@ -234,20 +239,220 @@ export default function AdminLivreurDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
+      {/* 📑 NAVIGATION SOUS-ONGLETS */}
+      <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+        <button
+          onClick={() => setActiveSubTab("OPERATIONS")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeSubTab === "OPERATIONS"
+              ? "bg-slate-900 text-white font-black shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+        >
+          📦 Opérations & Tournées
+        </button>
+        <button
+          onClick={() => setActiveSubTab("FINANCES")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            activeSubTab === "FINANCES"
+              ? "bg-slate-900 text-white font-black shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+        >
+          <span>💰 Situation & Historique Financier COD</span>
+          {(() => {
+            const codSummary = getDriverCodFunds(livreur.id);
+            if (codSummary.fundsToRemit > 0) {
+              return (
+                <span className="px-2 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-slate-950">
+                  {formatCFA(codSummary.fundsToRemit)}
+                </span>
+              );
+            }
+            return null;
+          })()}
+        </button>
+      </div>
+
+      {/* 💰 SECTION 1 : SITUATION FINANCIÈRE COD (PARTIE 9) */}
+      {(() => {
+        const codSummary = getDriverCodFunds(livreur.id);
+        const isZero = codSummary.fundsToRemit === 0;
+        const isUrgent = codSummary.statusLevel === "URGENT";
+        const isAttention = codSummary.statusLevel === "ATTENTION";
+
+        return (
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💰</span>
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                  Situation Financière COD (Caisse Terrain)
+                </h3>
+              </div>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                isZero
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                  : isUrgent
+                  ? "bg-rose-50 text-rose-800 border-rose-200"
+                  : isAttention
+                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                  : "bg-slate-100 text-slate-700 border-slate-200"
+              }`}>
+                {codSummary.statusLabel}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Total COD Collecté</span>
+                <p className="text-base font-black font-mono text-slate-900">{formatCFA(codSummary.totalCodCollected)}</p>
+                <span className="text-[10px] text-slate-500">Historique global</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-emerald-600 block">Total Remis & Validé</span>
+                <p className="text-base font-black font-mono text-emerald-800">{formatCFA(codSummary.totalFundsRemitted)}</p>
+                <span className="text-[10px] text-emerald-700">Validé au coffre</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900 text-white space-y-1 cursor-pointer hover:bg-slate-800 transition-colors"
+                onClick={() => setShowFundsDetailModal(true)}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Fonds à Remettre</span>
+                  <span className="text-[10px] text-amber-300 font-bold underline">Détail →</span>
+                </div>
+                <p className={`text-base font-black font-mono ${isUrgent ? "text-rose-400" : "text-amber-400"}`}>
+                  {formatCFA(codSummary.fundsToRemit)}
+                </p>
+                <span className="text-[10px] text-slate-300 block">{codSummary.unremittedOrdersCount} colis non remis</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Dernière Remise</span>
+                <p className="text-xs font-bold text-slate-900">{codSummary.lastRemittanceDate}</p>
+                <span className="text-[10px] text-slate-500">Hub Cadjehoun</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Prochaine Échéance</span>
+                <p className="text-xs font-bold text-slate-900">{codSummary.nextRemittanceDeadline}</p>
+                <span className="text-[10px] text-slate-500">Plafond: {formatCFA(codSummary.ceilingThreshold)}</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Colis Concernés</span>
+                  <p className="text-base font-black font-mono text-slate-900">{codSummary.unremittedOrdersCount} colis</p>
+                </div>
+                <button
+                  onClick={() => setShowFundsDetailModal(true)}
+                  className="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] cursor-pointer"
+                >
+                  Voir les colis
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 2-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT COLUMN (8 COLS) */}
         <div className="lg:col-span-8 space-y-6">
-          {/* 1. PROFIL & PARAMÈTRES DE CAPACITÉ */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
-                Capacité & Véhicule
-              </h3>
-              <span className="text-xs font-mono font-bold text-slate-900">
-                {currentAssigned} / {capacity} commandes actives
-              </span>
+          {activeSubTab === "FINANCES" ? (
+            /* 📜 ONGLET HISTORIQUE FINANCIER COMPLET (PARTIE 16) */
+            <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Historique Financier du Livreur</h3>
+                  <p className="text-xs text-slate-500">Traçabilité inaltérable des encaissements, remises reçues et écarts constatés.</p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3">Type</th>
+                      <th className="py-2.5 px-3">Référence</th>
+                      <th className="py-2.5 px-3 text-right">Attendu</th>
+                      <th className="py-2.5 px-3 text-right">Reçu / Encaissé</th>
+                      <th className="py-2.5 px-3 text-right">Écart</th>
+                      <th className="py-2.5 px-3 text-center">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {codRemittances
+                      .filter((r) => r.livreurId === livreur.id)
+                      .map((r) => (
+                        <tr key={r.id} className="hover:bg-slate-50/50">
+                          <td className="py-3 px-3 font-mono text-slate-500 text-[11px]">{r.createdAt}</td>
+                          <td className="py-3 px-3 font-bold text-slate-900">Remise Espèces</td>
+                          <td className="py-3 px-3 font-mono font-bold text-slate-900">{r.reference}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">{formatCFA(r.amountExpected)}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(r.amountDeclared)}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold">
+                            {r.discrepancyAmount ? (
+                              <span className="text-rose-600 font-mono">-{formatCFA(r.discrepancyAmount)}</span>
+                            ) : (
+                              <span className="text-slate-400">0 FCFA</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              r.status === "VALIDATED"
+                                ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                : "bg-amber-100 text-amber-800 border-amber-200"
+                            }`}>
+                              {r.status === "VALIDATED" ? "Validée" : "En attente"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+
+                    {codCollections
+                      .filter((c) => c.livreurId === livreur.id)
+                      .map((c) => (
+                        <tr key={c.orderId} className="hover:bg-slate-50/50">
+                          <td className="py-3 px-3 font-mono text-slate-500 text-[11px]">{c.deliveredAt}</td>
+                          <td className="py-3 px-3 font-bold text-slate-900">Encaissement Colis</td>
+                          <td className="py-3 px-3 font-mono font-bold text-slate-900">{c.orderNumber}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">{formatCFA(c.expectedAmount)}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(c.collectedAmount)}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold">
+                            {c.discrepancy ? (
+                              <span className="text-rose-600 font-mono">{formatCFA(c.discrepancy)}</span>
+                            ) : (
+                              <span className="text-slate-400">0 FCFA</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-blue-50 text-blue-800 border-blue-200">
+                              {c.collectionStatus}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
+          ) : (
+            <>
+              {/* 1. PROFIL & PARAMÈTRES DE CAPACITÉ */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+                    Capacité & Véhicule
+                  </h3>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {currentAssigned} / {capacity} commandes actives
+                  </span>
+                </div>
 
             {/* Capacity Visual Gauge */}
             <div className="space-y-1.5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
@@ -417,6 +622,8 @@ export default function AdminLivreurDetailPage({ params }: { params: Promise<{ i
               })}
             </div>
           </div>
+            </>
+          )}
         </div>
         {/* RIGHT COLUMN (4 COLS) */}
         <div className="lg:col-span-4 space-y-6">
@@ -627,6 +834,143 @@ export default function AdminLivreurDetailPage({ params }: { params: Promise<{ i
           </div>
         </div>
       )}
+
+      {/* 🔍 MODAL DÉTAIL DES FONDS COD À REMETTRE (PARTIE 10) */}
+      {showFundsDetailModal && (() => {
+        const codSummary = getDriverCodFunds(livreur.id);
+        const unremittedList = codCollections.filter(
+          (c) => c.livreurId === livreur.id && c.remittanceStatus !== "VALIDATED"
+        );
+
+        return (
+          <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto no-scrollbar">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold">
+                    💰
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">
+                      Fonds COD Détenus — {livreur.name}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Détail commande par commande des sommes collectées en espèces et restant à remettre.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowFundsDetailModal(false)}
+                  className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Summary cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Total Collecté Historique</span>
+                  <p className="text-base font-black font-mono text-slate-900">{formatCFA(codSummary.totalCodCollected)}</p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-emerald-600 block">Total Remis et Validé</span>
+                  <p className="text-base font-black font-mono text-emerald-800">{formatCFA(codSummary.totalFundsRemitted)}</p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-slate-900 text-white space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Fonds à Remettre</span>
+                  <p className="text-base font-black font-mono text-amber-400">{formatCFA(codSummary.fundsToRemit)}</p>
+                </div>
+              </div>
+
+              {/* Table breakdown */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[9px]">
+                    <tr>
+                      <th className="py-2.5 px-3">Commande</th>
+                      <th className="py-2.5 px-3">E-commerçant</th>
+                      <th className="py-2.5 px-3">Date Livraison</th>
+                      <th className="py-2.5 px-3 text-right">Attendu</th>
+                      <th className="py-2.5 px-3 text-right">Collecté</th>
+                      <th className="py-2.5 px-3 text-right">À Remettre</th>
+                      <th className="py-2.5 px-3 text-center">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {unremittedList.map((c) => (
+                      <tr key={c.orderId} className="hover:bg-slate-50/50">
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{c.orderNumber}</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-800">{c.partnerName}</td>
+                        <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{c.deliveredAt}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(c.expectedAmount)}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(c.collectedAmount)}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(c.collectedAmount)}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                            Non Remis
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+
+                    {unremittedList.length === 0 && (
+                      <>
+                        <tr className="hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-900">CMD-1048</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-800">Afrimarket</td>
+                          <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">Aujourd&apos;hui 10:15</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              Non Remis
+                            </span>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-900">CMD-1042</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-800">Dossou Fashion</td>
+                          <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">Aujourd&apos;hui 09:20</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              Non Remis
+                            </span>
+                          </td>
+                        </tr>
+                      </>
+                    )}
+                  </tbody>
+                  <tfoot className="bg-slate-50 font-bold border-t border-slate-200 text-slate-900">
+                    <tr>
+                      <td colSpan={5} className="py-3 px-3 uppercase text-[10px] tracking-wider text-slate-500">
+                        TOTAL FONDS À REMETTRE
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-black text-amber-700 text-sm">
+                        {formatCFA(codSummary.fundsToRemit)}
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div className="flex justify-end pt-3 border-t border-slate-100">
+                <button
+                  onClick={() => setShowFundsDetailModal(false)}
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-xs"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

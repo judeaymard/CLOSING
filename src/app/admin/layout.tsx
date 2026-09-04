@@ -30,9 +30,24 @@ import {
   Sparkles,
   AlertTriangle,
   Landmark,
+  ShieldCheck,
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import SpotlightSearchModal from "@/components/admin/SpotlightSearchModal";
+
+interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number;
+  badgeColor?: string;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -76,6 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname === "/admin/tresorerie" || pathname === "/admin/finances") return { title: "Trésorerie", subtitle: "Vision financière globale et flux de trésorerie" };
     if (pathname === "/admin/commissions") return { title: "Commissions", subtitle: "Revenus et commissions perçus par ENO" };
     if (pathname === "/admin/retraits") return { title: "Retraits", subtitle: "Reversements et demandes des e-commerçants" };
+    if (pathname === "/admin/tresoriers") return { title: "Responsables Trésorerie", subtitle: "Équipe financière et caisses" };
     if (pathname === "/admin/analyses") return { title: "Analyses de Performance", subtitle: "Indicateurs opérationnels" };
     if (pathname === "/admin/rapports") return { title: "Rapports & Exports", subtitle: "Téléchargement de données" };
     if (pathname === "/admin/notifications") return { title: "Centre de Notifications", subtitle: "Alertes et signaux" };
@@ -83,7 +99,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return { title: "Espace Direction", subtitle: "Supervision des opérations" };
   };
 
-  const navSections = [
+  const navSections: NavSection[] = [
     {
       title: "VUE GÉNÉRALE",
       items: [
@@ -105,6 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { id: "nav-partenaires", label: "E-commerçants", href: "/admin/partenaires", icon: Users },
         { id: "nav-closeuses", label: "Closeuses", href: "/admin/closeuses", icon: Headset },
         { id: "nav-livreurs", label: "Livreurs", href: "/admin/livreurs", icon: Bike },
+        { id: "nav-tresoriers", label: "Responsables Trésorerie", href: "/admin/tresoriers", icon: ShieldCheck },
       ],
     },
     {

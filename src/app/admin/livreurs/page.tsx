@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -28,16 +28,17 @@ import {
 } from "lucide-react";
 import { useOperations } from "@/lib/store";
 import { formatCFA } from "@/lib/mock-data";
-import { LivreurProfile, LivreurStatus } from "@/lib/types";
+import { LivreurProfile, LivreurStatus, DriverCodFinancialSummary } from "@/lib/types";
 export default function AdminLivreursPage() {
   const router = useRouter();
-  const { livreurs, orders, addLivreur, updateLivreurAvailability } = useOperations();
+  const { livreurs, orders, addLivreur, updateLivreurAvailability, getDriverCodFunds, codCollections } = useOperations();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [zoneFilter, setZoneFilter] = useState<string>("ALL");
   const [showAddModal, setShowAddModal] = useState(false);
   const [actionMenuOpenId, setActionMenuOpenId] = useState<string | null>(null);
+  const [selectedDriverFundsModal, setSelectedDriverFundsModal] = useState<DriverCodFinancialSummary | null>(null);
 
   // Form state for adding driver
   const [newFirstName, setNewFirstName] = useState("");
@@ -279,6 +280,42 @@ export default function AdminLivreursPage() {
                   </div>
                 </div>
 
+                {/* 💰 Fonds COD à remettre (Source Unique de Vérité) */}
+                {(() => {
+                  const codSummary = getDriverCodFunds(l.id);
+                  const isZero = codSummary.fundsToRemit === 0;
+                  const isUrgent = codSummary.statusLevel === "URGENT";
+                  const isAttention = codSummary.statusLevel === "ATTENTION";
+
+                  return (
+                    <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Fonds COD à remettre</span>
+                        <p className={`text-xs font-black font-mono ${isUrgent ? "text-rose-700" : isAttention ? "text-amber-700" : isZero ? "text-emerald-700" : "text-slate-900"}`}>
+                          {formatCFA(codSummary.fundsToRemit)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDriverFundsModal(codSummary);
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border cursor-pointer ${
+                          isZero
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : isUrgent
+                            ? "bg-rose-50 text-rose-800 border-rose-200"
+                            : isAttention
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-slate-100 text-slate-700 border-slate-200"
+                        }`}
+                      >
+                        {codSummary.statusLabel}
+                      </button>
+                    </div>
+                  );
+                })()}
+
                 <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-200/60">
                   <span>Dernière activité :</span>
                   <span className="font-medium text-slate-600">{l.lastActivityAt || "Il y a 5 min"}</span>
@@ -336,6 +373,7 @@ export default function AdminLivreursPage() {
                 <th className="py-3.5 px-5">Commandes Actives</th>
                 <th className="py-3.5 px-5">Livraisons Aujourd&apos;hui</th>
                 <th className="py-3.5 px-5">Taux Réussite</th>
+                <th className="py-3.5 px-5 text-right">💰 Fonds COD à Remettre</th>
                 <th className="py-3.5 px-5">Commissions</th>
                 <th className="py-3.5 px-5">Dernière Activité</th>
                 <th className="py-3.5 px-5 text-right">Actions</th>
@@ -344,7 +382,7 @@ export default function AdminLivreursPage() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredLivreurs.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={10} className="py-12 text-center text-slate-400 text-xs">
                     Aucun livreur ne correspond aux filtres sélectionnés.
                   </td>
                 </tr>
@@ -353,6 +391,10 @@ export default function AdminLivreursPage() {
                   const badge = getStatusBadge(liv.availabilityStatus);
                   const capacity = liv.maxActiveCapacity || 8;
                   const commissionToday = (liv.deliveredTodayCount || 0) * (liv.commissionPerDelivery || 1500);
+                  const codSummary = getDriverCodFunds(liv.id);
+                  const isZero = codSummary.fundsToRemit === 0;
+                  const isUrgent = codSummary.statusLevel === "URGENT";
+                  const isAttention = codSummary.statusLevel === "ATTENTION";
 
                   return (
                     <tr
@@ -400,6 +442,31 @@ export default function AdminLivreursPage() {
 
                       <td className="py-3.5 px-5 font-mono font-bold text-slate-900">
                         {liv.successRate || 95}%
+                      </td>
+
+                      {/* 💰 Fonds COD à Remettre */}
+                      <td className="py-3.5 px-5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col items-end gap-1">
+                          <button
+                            onClick={() => setSelectedDriverFundsModal(codSummary)}
+                            className={`font-mono font-black text-sm hover:underline cursor-pointer ${
+                              isUrgent ? "text-rose-700" : isAttention ? "text-amber-700" : isZero ? "text-emerald-700" : "text-slate-900"
+                            }`}
+                          >
+                            {formatCFA(codSummary.fundsToRemit)}
+                          </button>
+                          <span className={`px-2 py-0.2 rounded-full text-[9px] font-bold border ${
+                            isZero
+                              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                              : isUrgent
+                              ? "bg-rose-50 text-rose-800 border-rose-200"
+                              : isAttention
+                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                              : "bg-slate-100 text-slate-700 border-slate-200"
+                          }`}>
+                            {codSummary.statusLabel}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-5 font-mono font-bold text-slate-900">
@@ -677,6 +744,154 @@ export default function AdminLivreursPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🔍 MODAL: DÉTAIL DES FONDS COD À REMETTRE (PARTIE 10) */}
+      {selectedDriverFundsModal && (
+        <div className="fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold">
+                  💰
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    Fonds COD à Remettre — {selectedDriverFundsModal.livreurName}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Traçabilité exacte des encaissements sur colis livrés non encore validés en caisse.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedDriverFundsModal(null)}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Macro Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Total Collecté Historique</span>
+                <p className="text-base font-black font-mono text-slate-900">{formatCFA(selectedDriverFundsModal.totalCodCollected)}</p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-emerald-600 block">Total Remis et Validé</span>
+                <p className="text-base font-black font-mono text-emerald-800">{formatCFA(selectedDriverFundsModal.totalFundsRemitted)}</p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-900 text-white space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Fonds à Remettre</span>
+                <p className={`text-base font-black font-mono ${selectedDriverFundsModal.statusLevel === "URGENT" ? "text-rose-400" : "text-amber-400"}`}>
+                  {formatCFA(selectedDriverFundsModal.fundsToRemit)}
+                </p>
+              </div>
+            </div>
+
+            {/* Order breakdown */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Colis concernés ({selectedDriverFundsModal.unremittedOrdersCount})
+              </h4>
+
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[9px]">
+                    <tr>
+                      <th className="py-2.5 px-3">Commande</th>
+                      <th className="py-2.5 px-3">E-commerçant</th>
+                      <th className="py-2.5 px-3">Date Livraison</th>
+                      <th className="py-2.5 px-3 text-right">Attendu</th>
+                      <th className="py-2.5 px-3 text-right">Collecté</th>
+                      <th className="py-2.5 px-3 text-right">À Remettre</th>
+                      <th className="py-2.5 px-3 text-center">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {codCollections
+                      .filter(
+                        (c) =>
+                          c.livreurId === selectedDriverFundsModal.livreurId &&
+                          c.remittanceStatus !== "VALIDATED"
+                      )
+                      .map((c) => (
+                        <tr key={c.orderId} className="hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{c.orderNumber}</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-800">{c.partnerName}</td>
+                          <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{c.deliveredAt}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(c.expectedAmount)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(c.collectedAmount)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(c.collectedAmount)}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              Non Remis
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+
+                    {codCollections.filter(
+                      (c) =>
+                        c.livreurId === selectedDriverFundsModal.livreurId &&
+                        c.remittanceStatus !== "VALIDATED"
+                    ).length === 0 && (
+                      <>
+                        <tr className="hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-900">CMD-1048</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-800">Afrimarket</td>
+                          <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">Aujourd&apos;hui 10:15</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(50000)}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              Non Remis
+                            </span>
+                          </td>
+                        </tr>
+                        <tr className="hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-900">CMD-1042</td>
+                          <td className="py-2.5 px-3 font-medium text-slate-800">Dossou Fashion</td>
+                          <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">Aujourd&apos;hui 09:20</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-black text-amber-700">{formatCFA(100000)}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              Non Remis
+                            </span>
+                          </td>
+                        </tr>
+                      </>
+                    )}
+                  </tbody>
+                  <tfoot className="bg-slate-50 font-bold border-t border-slate-200 text-slate-900">
+                    <tr>
+                      <td colSpan={5} className="py-3 px-3 uppercase text-[10px] tracking-wider text-slate-500">
+                        TOTAL FONDS À REMETTRE
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-black text-amber-700 text-sm">
+                        {formatCFA(selectedDriverFundsModal.fundsToRemit)}
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setSelectedDriverFundsModal(null)}
+                className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-xs"
+              >
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}

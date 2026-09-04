@@ -37,12 +37,16 @@ import {
   CodCollection,
   CodRemittance,
   FinancialAuditLog,
+  TreasuryManagerProfile,
+  EmployeeStatus,
+  DriverCodFinancialSummary,
 } from "./types";
 import {
   initialTransactions,
   initialCodCollections,
   initialCodRemittances,
   initialFinancialAuditLogs,
+  initialTreasuryManagers,
 } from "./mock-data";
 
 interface OperationsContextType {
@@ -52,6 +56,7 @@ interface OperationsContextType {
   products: Product[];
   livreurs: LivreurProfile[];
   closeuses: CloseuseProfile[];
+  treasuryManagers: TreasuryManagerProfile[];
   payoutRequests: PayoutRequest[];
   transactions: FinancialTransaction[];
   codCollections: CodCollection[];
@@ -72,9 +77,12 @@ interface OperationsContextType {
   activeLivreurId: string;
   activeCloseuseId: string;
   activePartnerId: string;
+  activeTreasuryManagerId: string;
   activeLivreur: LivreurProfile;
   activeCloseuse: CloseuseProfile;
   activePartner: Partner;
+  activeTreasuryManager: TreasuryManagerProfile;
+  getDriverCodFunds: (driverId: string) => DriverCodFinancialSummary;
 
   // Actions
   setPeriod: (period: PeriodFilter) => void;
@@ -142,6 +150,18 @@ interface OperationsContextType {
   approveWithdrawal: (withdrawalId: string, internalNote?: string) => void;
   rejectWithdrawal: (withdrawalId: string, reason: string) => void;
   payWithdrawal: (withdrawalId: string, paymentReference: string, adminName?: string) => void;
+  addTreasuryManager: (data: Partial<TreasuryManagerProfile>) => TreasuryManagerProfile;
+  updateTreasuryManager: (id: string, data: Partial<TreasuryManagerProfile>) => void;
+  toggleTreasuryManagerStatus: (id: string, status: EmployeeStatus) => void;
+  deleteTreasuryManager: (id: string) => void;
+  receiveDriverRemittance: (params: {
+    livreurId: string;
+    receivedAmount: number;
+    receivedBy: string;
+    receivedById?: string;
+    notes?: string;
+    discrepancyReason?: string;
+  }) => CodRemittance;
   declareRemittance: (livreurId: string, amountDeclared: number, orderIds: string[], notes?: string) => CodRemittance;
   validateRemittance: (remittanceId: string, amountValidated?: number) => void;
   disputeRemittance: (remittanceId: string, notes: string) => void;
@@ -219,6 +239,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [livreurs, setLivreurs] = useState<LivreurProfile[]>(initialLivreurs);
   const [closeuses, setCloseuses] = useState<CloseuseProfile[]>(initialCloseuses);
+  const [treasuryManagers, setTreasuryManagers] = useState<TreasuryManagerProfile[]>(initialTreasuryManagers);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>(initialPayoutRequests);
   const [transactions, setTransactions] = useState<FinancialTransaction[]>(initialTransactions);
   const [codCollections, setCodCollections] = useState<CodCollection[]>(initialCodCollections);
@@ -244,6 +265,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [activeLivreurId, setActiveLivreurId] = useState<string>("liv-1");
   const [activeCloseuseId, setActiveCloseuseId] = useState<string>("cls-1");
   const [activePartnerId, setActivePartnerId] = useState<string>("p1");
+  const [activeTreasuryManagerId, setActiveTreasuryManagerId] = useState<string>("tm-1");
 
   // Rôle Switcher
   const switchRole = (role: UserRole, specificId?: string) => {
@@ -251,6 +273,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     if (role === "LIVREUR" && specificId) setActiveLivreurId(specificId);
     if (role === "CLOSEUSE" && specificId) setActiveCloseuseId(specificId);
     if (role === "PARTNER" && specificId) setActivePartnerId(specificId);
+    if (role === "TREASURY_MANAGER" && specificId) setActiveTreasuryManagerId(specificId);
   };
 
   // Helper: compute active load for a closer
@@ -1177,6 +1200,265 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
     ]);
   };
 
+  // 🎯 SOURCE UNIQUE DE VÉRITÉ : Calcul transparent des fonds COD par livreur
+  const getDriverCodFunds = (driverId: string): DriverCodFinancialSummary => {
+    const driver = livreurs.find((l) => l.id === driverId);
+    const driverName = driver?.name || "Livreur";
+
+    // Collections liées à ce livreur
+    const driverCols = codCollections.filter((c) => c.livreurId === driverId);
+    
+    // Commandes non encore validées au coffre
+    const unremittedCols = driverCols.filter(
+      (c) => c.remittanceStatus !== "VALIDATED" && c.collectionStatus !== "NOT_COLLECTED"
+    );
+
+    // Montant restant à remettre = somme des encaissements sur ces colis (toujours >= 0)
+    let fundsToRemit = unremittedCols.reduce((sum, c) => sum + Math.max(0, c.collectedAmount), 0);
+    
+    // Si aucune collection mock n'existe encore pour ce livreur, attribuer une valeur cohérente non-négative
+    if (driverCols.length === 0) {
+      fundsToRemit = driverId === "liv-1" ? 150000 : driverId === "liv-2" ? 50000 : driverId === "liv-3" ? 0 : 75000;
+    }
+
+    const unremittedOrderIds = unremittedCols.map((c) => c.orderId);
+    const unremittedOrdersCount = unremittedCols.length > 0 ? unremittedCols.length : (fundsToRemit > 0 ? 3 : 0);
+
+    const totalCodCollected = 2500000;
+    const totalFundsRemitted = Math.max(0, totalCodCollected - fundsToRemit);
+
+    const ceilingThreshold = 100000;
+
+    let statusLevel: "ZERO" | "NORMAL" | "ATTENTION" | "URGENT" = "NORMAL";
+    let statusLabel = "Fonds normaux";
+
+    if (fundsToRemit === 0) {
+      statusLevel = "ZERO";
+      statusLabel = "✓ Aucun fonds en attente";
+    } else if (fundsToRemit >= 150000) {
+      statusLevel = "URGENT";
+      statusLabel = "🔴 Action requise (Plafond dépassé)";
+    } else if (fundsToRemit >= ceilingThreshold) {
+      statusLevel = "ATTENTION";
+      statusLabel = "⚠️ Attention (Proche plafond)";
+    } else {
+      statusLevel = "NORMAL";
+      statusLabel = "Fonds normaux";
+    }
+
+    return {
+      livreurId: driverId,
+      livreurName: driverName,
+      totalCodCollected,
+      totalFundsRemitted,
+      fundsToRemit,
+      unremittedOrdersCount,
+      unremittedOrderIds,
+      lastRemittanceDate: "Aujourd'hui à 10:42",
+      nextRemittanceDeadline: "Aujourd'hui — 18:00",
+      ceilingThreshold,
+      statusLevel,
+      statusLabel,
+    };
+  };
+
+  // 👥 Gestion des Responsables de Trésorerie par le PDG
+  const addTreasuryManager = (data: Partial<TreasuryManagerProfile>): TreasuryManagerProfile => {
+    const firstName = data.firstName || "Nouveau";
+    const lastName = data.lastName || "Responsable";
+    const newTm: TreasuryManagerProfile = {
+      id: `tm-${Date.now()}`,
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`.trim(),
+      email: data.email || `${firstName.toLowerCase()}.${lastName.toLowerCase()}@enolivraison.com`,
+      phone: data.phone || "+229 01 00 00 00 00",
+      zone: data.zone || "Hub Central Cotonou",
+      status: data.status || "ACTIF",
+      createdAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+      lastActiveAt: "À l'instant",
+      remittancesReceivedCount: 0,
+      totalFundsReceived: 0,
+      discrepanciesFlaggedCount: 0,
+      notes: data.notes,
+    };
+
+    setTreasuryManagers((prev) => [newTm, ...prev]);
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Création d'un Responsable de Trésorerie",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "PARTNER",
+        targetId: newTm.id,
+        details: `Compte trésorier créé pour ${newTm.name} (${newTm.zone}).`,
+      },
+      ...prev,
+    ]);
+
+    return newTm;
+  };
+
+  const updateTreasuryManager = (id: string, data: Partial<TreasuryManagerProfile>) => {
+    setTreasuryManagers((prev) =>
+      prev.map((tm) => {
+        if (tm.id === id) {
+          const updated = { ...tm, ...data };
+          if (data.firstName || data.lastName) {
+            updated.name = `${updated.firstName} ${updated.lastName}`.trim();
+          }
+          return updated;
+        }
+        return tm;
+      })
+    );
+  };
+
+  const toggleTreasuryManagerStatus = (id: string, status: EmployeeStatus) => {
+    setTreasuryManagers((prev) =>
+      prev.map((tm) => (tm.id === id ? { ...tm, status } : tm))
+    );
+  };
+
+  const deleteTreasuryManager = (id: string) => {
+    setTreasuryManagers((prev) => prev.filter((tm) => tm.id !== id));
+  };
+
+  // ⚡ Workflow Rapide (< 1min) de Réception Physique de Remise par le Trésorier
+  const receiveDriverRemittance = ({
+    livreurId,
+    receivedAmount,
+    receivedBy,
+    receivedById,
+    notes,
+    discrepancyReason,
+  }: {
+    livreurId: string;
+    receivedAmount: number;
+    receivedBy: string;
+    receivedById?: string;
+    notes?: string;
+    discrepancyReason?: string;
+  }): CodRemittance => {
+    const driverSummary = getDriverCodFunds(livreurId);
+    const expectedAmount = driverSummary.fundsToRemit;
+    const difference = expectedAmount - receivedAmount;
+    const isDiscrepancy = difference > 0;
+
+    const ref = `RM-${Math.floor(1000 + Math.random() * 9000)}`;
+    const nowIso = new Date().toISOString().replace("T", " ").slice(0, 16);
+
+    const newRemittance: CodRemittance = {
+      id: `rem-${Date.now()}`,
+      reference: ref,
+      livreurId,
+      livreurName: driverSummary.livreurName,
+      amountExpected: expectedAmount,
+      amountDeclared: receivedAmount,
+      receivedAmount,
+      amountValidated: receivedAmount,
+      discrepancyAmount: isDiscrepancy ? difference : 0,
+      discrepancyReason: isDiscrepancy ? discrepancyReason : undefined,
+      ordersCount: driverSummary.unremittedOrdersCount,
+      orderIds: driverSummary.unremittedOrderIds,
+      period: `Tournée du ${new Date().toLocaleDateString("fr-FR")}`,
+      createdAt: nowIso,
+      receivedAt: nowIso,
+      receivedBy,
+      receivedById,
+      validatedAt: nowIso,
+      validatedBy: receivedBy,
+      status: isDiscrepancy ? "DISCREPANCY_DETECTED" : "VALIDATED",
+      notes,
+    };
+
+    setCodRemittances((prev) => [newRemittance, ...prev]);
+
+    // Mettre à jour les statuts des encaissements concernés
+    setCodCollections((prev) =>
+      prev.map((c) => {
+        if (c.livreurId === livreurId && c.remittanceStatus !== "VALIDATED") {
+          return {
+            ...c,
+            remittanceStatus: isDiscrepancy ? "DISCREPANCY_DETECTED" : "VALIDATED",
+            remittanceId: newRemittance.id,
+          };
+        }
+        return c;
+      })
+    );
+
+    // Mettre à jour les statistiques du trésorier qui a reçu les fonds
+    if (receivedById) {
+      setTreasuryManagers((prev) =>
+        prev.map((tm) =>
+          tm.id === receivedById
+            ? {
+                ...tm,
+                remittancesReceivedCount: tm.remittancesReceivedCount + 1,
+                totalFundsReceived: tm.totalFundsReceived + receivedAmount,
+                discrepanciesFlaggedCount: isDiscrepancy
+                  ? tm.discrepanciesFlaggedCount + 1
+                  : tm.discrepanciesFlaggedCount,
+                lastActiveAt: "À l'instant",
+              }
+            : tm
+        )
+      );
+    }
+
+    // Ajouter l'écriture comptable au Grand Livre
+    const newTx: FinancialTransaction = {
+      id: `tx-${Date.now()}`,
+      txReference: `TX-REM-${ref}`,
+      date: nowIso,
+      type: "REMISE_LIVREUR",
+      label: `Remise d'espèces ${driverSummary.livreurName} (${ref})`,
+      livreurId,
+      livreurName: driverSummary.livreurName,
+      inflow: receivedAmount,
+      outflow: 0,
+      balanceAfter: 15200000 + receivedAmount,
+      status: "COMPLETED",
+      notes: `Reçu physiquement par ${receivedBy}.${isDiscrepancy ? ` Écart: -${difference} FCFA.` : " Montant exact validé au coffre."}`,
+    };
+    setTransactions((prev) => [newTx, ...prev]);
+
+    // Consigner dans le Journal d'Audit inaltérable
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: nowIso,
+        action: isDiscrepancy ? "Remise reçue avec écart détecté" : "Réception & Validation de remise physique",
+        actor: `${receivedBy} (Responsable de trésorerie)`,
+        targetType: "REMITTANCE",
+        targetId: ref,
+        amount: receivedAmount,
+        details: isDiscrepancy
+          ? `${receivedAmount} FCFA reçus de ${driverSummary.livreurName} (Attendu: ${expectedAmount} FCFA, Écart: -${difference} FCFA). Motif: ${discrepancyReason || "Non précisé"}.`
+          : `${receivedAmount} FCFA reçus de ${driverSummary.livreurName}. Validation complète sans écart.`,
+      },
+      ...prev,
+    ]);
+
+    // Alerte pour le PDG si écart
+    if (isDiscrepancy) {
+      const newAlert: AgencyAlert = {
+        id: `alt-disc-${Date.now()}`,
+        severity: "CRITICAL",
+        title: `Écart de caisse sur remise ${ref}`,
+        description: `${driverSummary.livreurName} a remis ${receivedAmount} FCFA au lieu de ${expectedAmount} FCFA (-${difference} FCFA). Reçu par ${receivedBy}. Motif: ${discrepancyReason || "À arbitrer"}.`,
+        actionLabel: "Examiner",
+        actionHref: "/pdg/finance",
+      };
+      setAlerts((prev) => [newAlert, ...prev]);
+    }
+
+    return newRemittance;
+  };
+
   const addTransaction = (data: Partial<FinancialTransaction>): FinancialTransaction => {
     const newTx: FinancialTransaction = {
       id: `tx-${Date.now()}`,
@@ -1240,6 +1522,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const activeLivreur = livreurs.find((l) => l.id === activeLivreurId) || livreurs[0];
   const activeCloseuse = closeuses.find((c) => c.id === activeCloseuseId) || closeuses[0];
   const activePartner = partners.find((p) => p.id === activePartnerId) || currentPartner;
+  const activeTreasuryManager = treasuryManagers.find((t) => t.id === activeTreasuryManagerId) || treasuryManagers[0];
 
   return (
     <OperationsContext.Provider
@@ -1249,6 +1532,7 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         products,
         livreurs,
         closeuses,
+        treasuryManagers,
         payoutRequests,
         transactions,
         codCollections,
@@ -1266,9 +1550,12 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         activeLivreurId,
         activeCloseuseId,
         activePartnerId,
+        activeTreasuryManagerId,
         activeLivreur,
         activeCloseuse,
         activePartner,
+        activeTreasuryManager,
+        getDriverCodFunds,
         switchRole,
         createOrder,
         updateOrderStatus,
@@ -1298,6 +1585,11 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         approveWithdrawal,
         rejectWithdrawal,
         payWithdrawal,
+        addTreasuryManager,
+        updateTreasuryManager,
+        toggleTreasuryManagerStatus,
+        deleteTreasuryManager,
+        receiveDriverRemittance,
         declareRemittance,
         validateRemittance,
         disputeRemittance,

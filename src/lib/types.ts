@@ -1,5 +1,14 @@
 // Rôles utilisateurs dans l'écosystème ENO LIVRAISON
-export type UserRole = 'PDG' | 'CLOSEUSE' | 'LIVREUR' | 'PARTNER';
+export type UserRole =
+  | 'PDG'
+  | 'SUPER_ADMIN'
+  | 'CLOSEUSE'
+  | 'CLOSER'
+  | 'LIVREUR'
+  | 'DELIVERY_AGENT'
+  | 'PARTNER'
+  | 'MERCHANT'
+  | 'TREASURY_MANAGER';
 
 // Statuts de commande
 export type OrderStatus =
@@ -203,11 +212,50 @@ export interface CodCollection {
   remittanceId?: string;
 }
 
+// Statuts d'un Employé / Responsable
+export type EmployeeStatus = 'ACTIF' | 'EN_PAUSE' | 'DESACTIVE';
+
+// Profil du Responsable de Trésorerie
+export interface TreasuryManagerProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  email: string;
+  phone: string;
+  zone: string; // adresse ou zone de travail
+  status: EmployeeStatus;
+  avatar?: string;
+  createdAt: string;
+  lastActiveAt: string;
+  remittancesReceivedCount: number;
+  totalFundsReceived: number;
+  discrepanciesFlaggedCount: number;
+  notes?: string;
+}
+
+// Synthèse financière COD unifiée par livreur (Source Unique de Vérité)
+export interface DriverCodFinancialSummary {
+  livreurId: string;
+  livreurName: string;
+  totalCodCollected: number;
+  totalFundsRemitted: number;
+  fundsToRemit: number; // Toujours >= 0 (Montant réellement dû sur colis non encore remis)
+  unremittedOrdersCount: number;
+  unremittedOrderIds: string[];
+  lastRemittanceDate?: string;
+  nextRemittanceDeadline?: string;
+  ceilingThreshold: number; // Seuil d'alerte (ex: 100 000 ou 150 000 FCFA)
+  statusLevel: 'ZERO' | 'NORMAL' | 'ATTENTION' | 'URGENT';
+  statusLabel: string;
+}
+
 // Statuts d'une Opération de Remise de Fonds
 export type RemittanceStatus =
   | 'PENDING_VALIDATION'
   | 'VALIDATED'
   | 'PARTIALLY_VALIDATED'
+  | 'DISCREPANCY_DETECTED'
   | 'DISPUTED';
 
 // Opération de Remise de Fonds Livreur
@@ -218,13 +266,18 @@ export interface CodRemittance {
   livreurName: string;
   amountExpected: number;
   amountDeclared: number;
+  receivedAmount?: number;
   amountValidated?: number;
   discrepancyAmount?: number;
   discrepancyJustification?: string;
+  discrepancyReason?: string;
   ordersCount: number;
   orderIds: string[];
   period: string;
   createdAt: string;
+  receivedAt?: string;
+  receivedBy?: string;
+  receivedById?: string;
   validatedAt?: string;
   validatedBy?: string;
   status: RemittanceStatus;
