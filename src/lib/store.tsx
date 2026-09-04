@@ -34,9 +34,15 @@ import {
   LivreurStatus,
   CloseuseStatus,
   FinancialTransaction,
+  CodCollection,
+  CodRemittance,
+  FinancialAuditLog,
 } from "./types";
 import {
   initialTransactions,
+  initialCodCollections,
+  initialCodRemittances,
+  initialFinancialAuditLogs,
 } from "./mock-data";
 
 interface OperationsContextType {
@@ -48,6 +54,9 @@ interface OperationsContextType {
   closeuses: CloseuseProfile[];
   payoutRequests: PayoutRequest[];
   transactions: FinancialTransaction[];
+  codCollections: CodCollection[];
+  codRemittances: CodRemittance[];
+  auditLogs: FinancialAuditLog[];
   conversations: Conversation[];
   activities: ActivityItem[];
   alerts: AgencyAlert[];
@@ -129,6 +138,14 @@ interface OperationsContextType {
   validatePayout: (payoutId: string) => void;
   payPayout: (payoutId: string, paymentReference: string, adminName?: string) => void;
   rejectPayout: (payoutId: string, reason?: string) => void;
+  verifyWithdrawal: (withdrawalId: string, internalNote?: string) => void;
+  approveWithdrawal: (withdrawalId: string, internalNote?: string) => void;
+  rejectWithdrawal: (withdrawalId: string, reason: string) => void;
+  payWithdrawal: (withdrawalId: string, paymentReference: string, adminName?: string) => void;
+  declareRemittance: (livreurId: string, amountDeclared: number, orderIds: string[], notes?: string) => CodRemittance;
+  validateRemittance: (remittanceId: string, amountValidated?: number) => void;
+  disputeRemittance: (remittanceId: string, notes: string) => void;
+  reportCodDiscrepancy: (orderId: string, actualAmount: number, justification: string) => void;
   addTransaction: (data: Partial<FinancialTransaction>) => FinancialTransaction;
   sendConversationMessage: (convId: string, text: string, isInternalNote?: boolean) => void;
   assignConversation: (convId: string, agentName: string, agentRole: string) => void;
@@ -204,6 +221,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const [closeuses, setCloseuses] = useState<CloseuseProfile[]>(initialCloseuses);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>(initialPayoutRequests);
   const [transactions, setTransactions] = useState<FinancialTransaction[]>(initialTransactions);
+  const [codCollections, setCodCollections] = useState<CodCollection[]>(initialCodCollections);
+  const [codRemittances, setCodRemittances] = useState<CodRemittance[]>(initialCodRemittances);
+  const [auditLogs, setAuditLogs] = useState<FinancialAuditLog[]>(initialFinancialAuditLogs);
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [activities, setActivities] = useState<ActivityItem[]>(initialAgencyPulseActivities);
   const [alerts, setAlerts] = useState<AgencyAlert[]>(initialAgencyAlerts);
@@ -797,41 +817,133 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
   const changePassword = (_newPassword: string) => {};
 
   const approvePayout = (payoutId: string) => {
-    validatePayout(payoutId);
+    approveWithdrawal(payoutId);
   };
 
   const validatePayout = (payoutId: string) => {
+    approveWithdrawal(payoutId);
+  };
+
+  const verifyWithdrawal = (withdrawalId: string, internalNote?: string) => {
     setPayoutRequests((prev) =>
       prev.map((p) =>
-        p.id === payoutId
+        p.id === withdrawalId
           ? {
               ...p,
-              status: "VALIDATED",
-              validatedAt: new Date().toISOString(),
+              status: "IN_VERIFICATION",
+              internalNote: internalNote || p.internalNote,
+            }
+          : p
+      )
+    );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Demande de retrait mise en vérification",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "WITHDRAWAL",
+        targetId: withdrawalId,
+        details: internalNote || "Contrôle de sécurité des coordonnées de paiement.",
+      },
+      ...prev,
+    ]);
+  };
+
+  const approveWithdrawal = (withdrawalId: string, internalNote?: string) => {
+    setPayoutRequests((prev) =>
+      prev.map((p) =>
+        p.id === withdrawalId
+          ? {
+              ...p,
+              status: "APPROVED",
+              approvedAt: new Date().toISOString(),
+              internalNote: internalNote || p.internalNote,
               txReference: p.txReference || `TX-VAL-${Date.now()}`,
             }
           : p
       )
     );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Demande de retrait approuvée",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "WITHDRAWAL",
+        targetId: withdrawalId,
+        details: internalNote || "Approbation par le PDG. Prêt pour virement.",
+      },
+      ...prev,
+    ]);
   };
 
-  const payPayout = (payoutId: string, paymentReference: string, adminName = "Direction ENO") => {
-    const payout = payoutRequests.find((p) => p.id === payoutId);
-    if (!payout || payout.status === "PAID" || payout.status === "APPROVED") return;
+  const rejectWithdrawal = (withdrawalId: string, reason: string) => {
+    const payout = payoutRequests.find((p) => p.id === withdrawalId);
+    if (!payout) return;
 
-    const partner = partners.find((p) => p.id === payout.partnerId);
-    const balanceBefore = partner?.availableBalance || payout.amount;
-    const balanceAfter = Math.max(0, balanceBefore - payout.amount);
+    // Restituer le montant réservé au solde disponible
+    if (payout.partnerId) {
+      setPartners((prev) =>
+        prev.map((prt) =>
+          prt.id === payout.partnerId
+            ? {
+                ...prt,
+                availableBalance: (prt.availableBalance || 0) + (payout.reservedAmount || payout.amount),
+              }
+            : prt
+        )
+      );
+    }
 
     setPayoutRequests((prev) =>
       prev.map((p) =>
-        p.id === payoutId
+        p.id === withdrawalId
+          ? {
+              ...p,
+              status: "REJECTED",
+              reservedAmount: 0,
+              rejectionReason: reason || "Demande refusée par la direction.",
+            }
+          : p
+      )
+    );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Demande de retrait refusée & solde restitué",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "WITHDRAWAL",
+        targetId: withdrawalId,
+        amount: payout.amount,
+        details: `Motif: ${reason}. Montant réintégré au solde disponible.`,
+      },
+      ...prev,
+    ]);
+  };
+
+  const payWithdrawal = (withdrawalId: string, paymentReference: string, adminName = "Direction ENO") => {
+    const payout = payoutRequests.find((p) => p.id === withdrawalId);
+    if (!payout || payout.status === "PAID") return;
+
+    const partner = partners.find((p) => p.id === payout.partnerId);
+    const balanceBefore = (partner?.availableBalance || 0) + (payout.reservedAmount || payout.amount);
+    const balanceAfter = Math.max(0, partner?.availableBalance || 0);
+
+    setPayoutRequests((prev) =>
+      prev.map((p) =>
+        p.id === withdrawalId
           ? {
               ...p,
               status: "PAID",
               paidAt: new Date().toISOString(),
               paymentReference,
               adminProcessorName: adminName,
+              reservedAmount: 0,
               balanceBefore,
               balanceAfter,
               txReference: `TX-PAY-${Date.now()}`,
@@ -840,14 +952,13 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       )
     );
 
-    // Déduire du solde du marchand
+    // Mettre à jour la date du dernier virement partenaire
     if (partner) {
       setPartners((prev) =>
         prev.map((prt) =>
           prt.id === partner.id
             ? {
                 ...prt,
-                availableBalance: balanceAfter,
                 lastPayoutDate: new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
               }
             : prt
@@ -866,25 +977,204 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
       partnerName: payout.partnerName,
       inflow: 0,
       outflow: payout.amount,
-      balanceAfter: 14800000 - payout.amount,
+      balanceAfter: 14850000 - payout.amount,
       status: "COMPLETED",
-      notes: `Virement exécuté. Réf: ${paymentReference}. Traité par ${adminName}.`,
+      notes: `Virement exécuté (${payout.operator}). Réf: ${paymentReference}. Traité par ${adminName}.`,
     };
     setTransactions((prev) => [newTx, ...prev]);
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Virement de retrait payé & archivé",
+        actor: adminName,
+        targetType: "WITHDRAWAL",
+        targetId: withdrawalId,
+        amount: payout.amount,
+        details: `Règlement ${payout.operator} exécuté. Réf: ${paymentReference}.`,
+      },
+      ...prev,
+    ]);
+  };
+
+  const payPayout = (payoutId: string, paymentReference: string, adminName = "Direction ENO") => {
+    payWithdrawal(payoutId, paymentReference, adminName);
   };
 
   const rejectPayout = (payoutId: string, reason?: string) => {
-    setPayoutRequests((prev) =>
-      prev.map((p) =>
-        p.id === payoutId
-          ? {
-              ...p,
-              status: "REJECTED",
-              rejectionReason: reason || "Demande refusée par la direction.",
-            }
-          : p
+    rejectWithdrawal(payoutId, reason || "Demande refusée par la direction.");
+  };
+
+  const declareRemittance = (
+    livreurId: string,
+    amountDeclared: number,
+    orderIds: string[],
+    notes?: string
+  ): CodRemittance => {
+    const livreur = livreurs.find((l) => l.id === livreurId);
+    const newRem: CodRemittance = {
+      id: `rem-${Date.now()}`,
+      reference: `REM-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+      livreurId,
+      livreurName: livreur?.name || "Livreur",
+      amountExpected: amountDeclared,
+      amountDeclared,
+      ordersCount: orderIds.length,
+      orderIds,
+      period: `Remise du ${new Date().toLocaleDateString("fr-FR")}`,
+      createdAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+      status: "PENDING_VALIDATION",
+      notes,
+    };
+
+    setCodRemittances((prev) => [newRem, ...prev]);
+
+    // Mettre à jour les statuts de remise des commandes concernées
+    setCodCollections((prev) =>
+      prev.map((c) =>
+        orderIds.includes(c.orderId)
+          ? { ...c, remittanceStatus: "REMITTANCE_PENDING", remittanceId: newRem.id }
+          : c
       )
     );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Remise de fonds déclarée par le livreur",
+        actor: livreur?.name || "Livreur",
+        targetType: "REMITTANCE",
+        targetId: newRem.reference,
+        amount: amountDeclared,
+        details: `${amountDeclared} FCFA déclarés sur ${orderIds.length} colis livrés.`,
+      },
+      ...prev,
+    ]);
+
+    return newRem;
+  };
+
+  const validateRemittance = (remittanceId: string, amountValidated?: number) => {
+    const rem = codRemittances.find((r) => r.id === remittanceId);
+    if (!rem) return;
+
+    const validatedAmt = amountValidated ?? rem.amountDeclared;
+
+    setCodRemittances((prev) =>
+      prev.map((r) =>
+        r.id === remittanceId
+          ? {
+              ...r,
+              status: "VALIDATED",
+              amountValidated: validatedAmt,
+              validatedAt: new Date().toISOString().replace("T", " ").slice(0, 16),
+              validatedBy: "Direction ENO (Super Admin)",
+            }
+          : r
+      )
+    );
+
+    // Mettre à jour les collections
+    setCodCollections((prev) =>
+      prev.map((c) =>
+        rem.orderIds.includes(c.orderId) || c.remittanceId === remittanceId
+          ? { ...c, remittanceStatus: "VALIDATED" }
+          : c
+      )
+    );
+
+    // Écriture de remise dans le Grand Livre
+    const newTx: FinancialTransaction = {
+      id: `tx-${Date.now()}`,
+      txReference: `TX-REM-${Date.now().toString().slice(-6)}`,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      type: "REMISE_LIVREUR",
+      label: `Remise de fonds ${rem.livreurName} (${rem.reference})`,
+      livreurId: rem.livreurId,
+      livreurName: rem.livreurName,
+      inflow: validatedAmt,
+      outflow: 0,
+      balanceAfter: 14850000 + validatedAmt,
+      status: "COMPLETED",
+      notes: `Fonds vérifiés et encaissés au coffre-fort. ${rem.ordersCount} commandes validées.`,
+    };
+    setTransactions((prev) => [newTx, ...prev]);
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Remise de fonds validée par le PDG",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "REMITTANCE",
+        targetId: rem.reference,
+        amount: validatedAmt,
+        details: `Validation physique au coffre de ${validatedAmt} FCFA. Commandes libérées.`,
+      },
+      ...prev,
+    ]);
+  };
+
+  const disputeRemittance = (remittanceId: string, notes: string) => {
+    setCodRemittances((prev) =>
+      prev.map((r) =>
+        r.id === remittanceId
+          ? {
+              ...r,
+              status: "DISPUTED",
+              notes: `${r.notes ? r.notes + " | " : ""}Contestation PDG: ${notes}`,
+            }
+          : r
+      )
+    );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Remise de fonds contestée par la direction",
+        actor: "Direction ENO (Super Admin)",
+        targetType: "REMITTANCE",
+        targetId: remittanceId,
+        details: `Motif de contestation: ${notes}`,
+      },
+      ...prev,
+    ]);
+  };
+
+  const reportCodDiscrepancy = (orderId: string, actualAmount: number, justification: string) => {
+    setCodCollections((prev) =>
+      prev.map((c) => {
+        if (c.orderId === orderId) {
+          const discrepancy = actualAmount - c.expectedAmount;
+          return {
+            ...c,
+            collectedAmount: actualAmount,
+            discrepancy,
+            discrepancyJustification: justification,
+            collectionStatus: discrepancy !== 0 ? "DISCREPANCY_FLAGGED" : "COLLECTED",
+            remittanceStatus: discrepancy !== 0 ? "DISCREPANCY_DETECTED" : c.remittanceStatus,
+          };
+        }
+        return c;
+      })
+    );
+
+    setAuditLogs((prev) => [
+      {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").slice(0, 16),
+        action: "Écart d'encaissement signalé",
+        actor: "Opérations / Livreur",
+        targetType: "DISCREPANCY",
+        targetId: orderId,
+        amount: actualAmount,
+        details: `Justification enregistrée: ${justification}`,
+      },
+      ...prev,
+    ]);
   };
 
   const addTransaction = (data: Partial<FinancialTransaction>): FinancialTransaction => {
@@ -961,6 +1251,9 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         closeuses,
         payoutRequests,
         transactions,
+        codCollections,
+        codRemittances,
+        auditLogs,
         conversations,
         activities,
         alerts,
@@ -1001,6 +1294,14 @@ export function OperationsProvider({ children }: { children: React.ReactNode }) 
         validatePayout,
         payPayout,
         rejectPayout,
+        verifyWithdrawal,
+        approveWithdrawal,
+        rejectWithdrawal,
+        payWithdrawal,
+        declareRemittance,
+        validateRemittance,
+        disputeRemittance,
+        reportCodDiscrepancy,
         addTransaction,
         sendConversationMessage,
         assignConversation,

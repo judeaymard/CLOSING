@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -71,7 +71,7 @@ export default function AdminRetraitsPage() {
         const q = searchTerm.toLowerCase();
         const matchId = p.id.toLowerCase().includes(q);
         const matchPartner = p.partnerName.toLowerCase().includes(q);
-        const matchPhone = p.phone.includes(q);
+        const matchPhone = (p.phone || p.leekpayPhone || "").includes(q);
         const matchOperator = p.operator.toLowerCase().includes(q);
         return matchId || matchPartner || matchPhone || matchOperator;
       }
@@ -480,10 +480,10 @@ export default function AdminRetraitsPage() {
                   <span className="text-slate-500">Compte Réception :</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono font-bold text-slate-900">
-                      {selectedPayout.cryptoAddress || `${selectedPayout.countryCode} ${selectedPayout.phone}`}
+                      {selectedPayout.cryptoAddress || `${selectedPayout.countryCode || ""} ${selectedPayout.phone || selectedPayout.leekpayPhone || ""}`}
                     </span>
                     <button
-                      onClick={() => handleCopy(selectedPayout.cryptoAddress || selectedPayout.phone, selectedPayout.id)}
+                      onClick={() => handleCopy(selectedPayout.cryptoAddress || selectedPayout.phone || selectedPayout.leekpayPhone || "", selectedPayout.id)}
                       className="p-1 rounded-md hover:bg-slate-200 text-slate-400 cursor-pointer"
                     >
                       {copiedId === selectedPayout.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}

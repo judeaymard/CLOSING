@@ -123,10 +123,18 @@ export interface CloseuseProfile {
   lastActivityAt?: string;
 }
 
-// Opérateurs de Retrait (Mobile Money & Crypto)
-export type PayoutOperator = 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE' | 'USDT_TRC20' | 'BINANCE_PAY';
+// Opérateurs de Retrait (LeekPay, Binance Pay, USDT, etc.)
+export type PayoutOperator = 'LEEKPAY' | 'BINANCE_PAY' | 'USDT' | 'MTN' | 'MOOV' | 'WAVE' | 'ORANGE' | 'USDT_TRC20';
 
-export type PayoutStatus = 'PENDING' | 'VALIDATED' | 'APPROVED' | 'PAID' | 'REJECTED';
+export type PayoutStatus =
+  | 'PENDING'
+  | 'IN_VERIFICATION'
+  | 'APPROVED'
+  | 'IN_TREATMENT'
+  | 'VALIDATED'
+  | 'PAID'
+  | 'REJECTED'
+  | 'FAILED';
 
 // Demande de Retrait Financier E-commerçant
 export interface PayoutRequest {
@@ -134,9 +142,14 @@ export interface PayoutRequest {
   partnerId: string;
   partnerName: string;
   amount: number;
+  reservedAmount?: number;
   operator: PayoutOperator;
-  phone: string;
-  countryCode: string;
+  phone?: string;
+  countryCode?: string;
+  leekpayPhone?: string;
+  leekpayCountry?: string;
+  binancePayId?: string;
+  binanceEmail?: string;
   cryptoAddress?: string;
   cryptoNetwork?: string;
   cryptoEstimatedUsdt?: number;
@@ -151,14 +164,97 @@ export interface PayoutRequest {
   paymentReference?: string;
   txReference?: string;
   rejectionReason?: string;
+  internalNote?: string;
+}
+
+// Statuts d'Encaissement COD
+export type CodCollectionStatus =
+  | 'PENDING'
+  | 'COLLECTED'
+  | 'PARTIALLY_COLLECTED'
+  | 'NOT_COLLECTED'
+  | 'DISCREPANCY_FLAGGED';
+
+// Statuts de Remise de Fonds par le Livreur
+export type RemittanceDeliveryStatus =
+  | 'HELD_BY_DRIVER'
+  | 'REMITTANCE_PENDING'
+  | 'REMITTED'
+  | 'VALIDATED'
+  | 'DISCREPANCY_DETECTED';
+
+// Fiche Encaissement COD
+export interface CodCollection {
+  orderId: string;
+  orderNumber: string;
+  partnerId: string;
+  partnerName: string;
+  clientName: string;
+  clientPhone: string;
+  livreurId: string;
+  livreurName: string;
+  expectedAmount: number;
+  collectedAmount: number;
+  discrepancy: number;
+  discrepancyJustification?: string;
+  collectionStatus: CodCollectionStatus;
+  remittanceStatus: RemittanceDeliveryStatus;
+  deliveredAt: string;
+  remittanceId?: string;
+}
+
+// Statuts d'une Opération de Remise de Fonds
+export type RemittanceStatus =
+  | 'PENDING_VALIDATION'
+  | 'VALIDATED'
+  | 'PARTIALLY_VALIDATED'
+  | 'DISPUTED';
+
+// Opération de Remise de Fonds Livreur
+export interface CodRemittance {
+  id: string;
+  reference: string;
+  livreurId: string;
+  livreurName: string;
+  amountExpected: number;
+  amountDeclared: number;
+  amountValidated?: number;
+  discrepancyAmount?: number;
+  discrepancyJustification?: string;
+  ordersCount: number;
+  orderIds: string[];
+  period: string;
+  createdAt: string;
+  validatedAt?: string;
+  validatedBy?: string;
+  status: RemittanceStatus;
+  notes?: string;
+}
+
+// Journal d'Audit Financier Non-Destructif
+export interface FinancialAuditLog {
+  id: string;
+  timestamp: string;
+  action: string;
+  actor: string;
+  targetType: 'REMITTANCE' | 'WITHDRAWAL' | 'ORDER' | 'PARTNER' | 'DISCREPANCY' | 'TRANSACTION';
+  targetId: string;
+  amount?: number;
+  details: string;
 }
 
 // Types d'opérations du Grand Livre de Trésorerie
 export type TransactionType =
   | 'ENCAISSEMENT_COD'
+  | 'REMISE_LIVREUR'
   | 'CREDIT_MARCHAND'
-  | 'COMMISSION_ENO'
+  | 'MONTANT_RESERVE'
   | 'RETRAIT'
+  | 'COMMISSION_ENO'
+  | 'COMMISSION_AGENCE'
+  | 'COMMISSION_CLOSEUSE'
+  | 'COMMISSION_LIVREUR'
+  | 'CORRECTION_VALIDEE'
   | 'DEPENSE'
   | 'AJUSTEMENT';
 
