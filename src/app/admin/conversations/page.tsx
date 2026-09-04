@@ -215,33 +215,33 @@ export default function CommunicationHubPage() {
       case "URGENT":
       case "ESCALATED":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
             <span>Escaladée</span>
           </span>
         );
       case "WAITING":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
             <span>En attente</span>
           </span>
         );
       case "IN_PROGRESS":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
             <span>En cours</span>
           </span>
         );
       case "RESOLVED":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 shrink-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 shrink-0">
             <span>Résolue</span>
           </span>
         );
       case "OPEN":
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
             <span>Ouverte</span>
           </span>
         );
@@ -300,7 +300,7 @@ export default function CommunicationHubPage() {
       <div className="xl:hidden flex items-center justify-between bg-white p-1 rounded-2xl border border-slate-200 shadow-xs">
         <button
           onClick={() => setMobileView("LIST")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate ${
+          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "LIST" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -308,7 +308,7 @@ export default function CommunicationHubPage() {
         </button>
         <button
           onClick={() => setMobileView("CHAT")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate ${
+          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "CHAT" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -316,7 +316,7 @@ export default function CommunicationHubPage() {
         </button>
         <button
           onClick={() => setMobileView("DETAILS")}
-          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate ${
+          className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all text-center truncate cursor-pointer ${
             mobileView === "DETAILS" ? "bg-slate-900 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -328,10 +328,10 @@ export default function CommunicationHubPage() {
       <div className="flex flex-col xl:grid xl:grid-cols-12 gap-0 h-[calc(100vh-13.5rem)] min-h-[580px] bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-hidden">
         
         {/* ======================================================== */}
-        {/* 1. LEFT PANEL: CONVERSATIONS LIST (4 Columns on XL)       */}
+        {/* 1. LEFT PANEL: CONVERSATIONS LIST (3 Columns on XL)       */}
         {/* ======================================================== */}
         <div
-          className={`xl:col-span-4 border-r border-slate-200/80 flex flex-col min-h-0 bg-white ${
+          className={`xl:col-span-3 border-r border-slate-200/80 flex flex-col min-h-0 bg-white ${
             mobileView !== "LIST" ? "hidden xl:flex" : "flex flex-1"
           }`}
         >
@@ -376,7 +376,7 @@ export default function CommunicationHubPage() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate"
+                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
               >
                 <option value="ALL">Tous statuts</option>
                 <option value="OPEN">🟢 Ouverte</option>
@@ -389,7 +389,7 @@ export default function CommunicationHubPage() {
               <select
                 value={filterAgent}
                 onChange={(e) => setFilterAgent(e.target.value)}
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate"
+                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-semibold text-slate-700 focus:outline-none truncate cursor-pointer"
               >
                 <option value="ALL">Tous les agents</option>
                 <option value="Jude S. (PDG)">Jude S. (PDG)</option>
@@ -451,7 +451,7 @@ export default function CommunicationHubPage() {
                       {getStatusBadge(c.status)}
 
                       {c.assignedAgentName && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold truncate max-w-[120px] flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold truncate max-w-[110px] flex items-center gap-1">
                           <UserCheck className="w-2.5 h-2.5 text-slate-500 shrink-0" />
                           <span className="truncate">{c.assignedAgentName}</span>
                         </span>
@@ -479,92 +479,95 @@ export default function CommunicationHubPage() {
         </div>
 
         {/* ======================================================== */}
-        {/* 2. MIDDLE PANEL: CHAT THREAD (5 Columns on XL)            */}
+        {/* 2. MIDDLE PANEL: CHAT THREAD (6 Columns on XL)            */}
         {/* ======================================================== */}
         <div
-          className={`xl:col-span-5 flex flex-col min-h-0 bg-slate-50/40 border-r border-slate-200/80 ${
+          className={`xl:col-span-6 flex flex-col min-h-0 bg-slate-50/40 border-r border-slate-200/80 ${
             mobileView !== "CHAT" ? "hidden xl:flex" : "flex flex-1"
           }`}
         >
           {activeConversation ? (
             <>
-              {/* Thread Top Header */}
-              <div className="p-3 sm:p-3.5 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  {/* Return button on mobile/tablet view */}
-                  <button
-                    onClick={() => setMobileView("LIST")}
-                    className="xl:hidden p-1.5 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 shrink-0"
-                    title="Retour à la liste"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
+              {/* Thread Top Header: Robust Non-overlapping Layout */}
+              <div className="p-3.5 sm:p-4 border-b border-slate-200/80 bg-white shrink-0">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  {/* Left: Merchant Profile Info */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <button
+                      onClick={() => setMobileView("LIST")}
+                      className="xl:hidden p-1.5 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 shrink-0 cursor-pointer"
+                      title="Retour à la liste"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
 
-                  <div className="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                    {activeConversation.companyName?.charAt(0) || "M"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-xs sm:text-sm font-black text-slate-900 truncate">
-                        {activeConversation.companyName}
-                      </h3>
-                      {getStatusBadge(activeConversation.status)}
+                    <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
+                      {activeConversation.companyName?.charAt(0) || "M"}
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate">
-                      {activeConversation.partnerName} • {activeConversation.phone}
-                    </p>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 truncate">
+                          {activeConversation.companyName}
+                        </h3>
+                        {getStatusBadge(activeConversation.status)}
+                      </div>
+                      <p className="text-xs text-slate-500 truncate mt-0.5">
+                        {activeConversation.partnerName} • <span className="text-slate-400 font-mono">{activeConversation.phone}</span>
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Header Actions (Takeover, Transfer, Resolve + Mobile Info toggle) */}
-                <div className="flex items-center gap-1.5 flex-wrap self-end sm:self-center shrink-0">
-                  <button
-                    onClick={() => takeoverConversation(activeConversation.id)}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
-                    title="Prendre en charge immédiatement cette conversation"
-                  >
-                    <Zap className="w-3 h-3 text-amber-400 shrink-0" />
-                    <span>Prendre (PDG)</span>
-                  </button>
-
-                  <button
-                    onClick={() => setShowTransferModal(true)}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1"
-                    title="Transférer à une closeuse ou au trésorier"
-                  >
-                    <UserPlus className="w-3 h-3 text-slate-500 shrink-0" />
-                    <span>Transférer</span>
-                  </button>
-
-                  {activeConversation.status === "RESOLVED" ? (
+                  {/* Right: Quick Action Buttons */}
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
                     <button
-                      onClick={() => reopenConversation(activeConversation.id)}
-                      className="px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1 border border-emerald-200"
-                      title="Réouvrir la conversation"
+                      onClick={() => takeoverConversation(activeConversation.id)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                      title="Prendre en charge immédiatement cette conversation"
                     >
-                      <RotateCcw className="w-3 h-3 shrink-0" />
-                      <span>Réouvrir</span>
+                      <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>Prendre (PDG)</span>
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => resolveConversation(activeConversation.id)}
-                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1"
-                      title="Clôturer et marquer comme résolue"
-                    >
-                      <Check className="w-3 h-3 shrink-0" />
-                      <span>Résoudre</span>
-                    </button>
-                  )}
 
-                  {/* Toggle Details on Tablet / Mobile */}
-                  <button
-                    onClick={() => setMobileView("DETAILS")}
-                    className="xl:hidden px-2.5 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1 border border-indigo-200"
-                    title="Voir la fiche marchand et commandes liées"
-                  >
-                    <Info className="w-3 h-3 shrink-0" />
-                    <span>Fiche</span>
-                  </button>
+                    <button
+                      onClick={() => setShowTransferModal(true)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5"
+                      title="Transférer à une closeuse ou au trésorier"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      <span>Transférer</span>
+                    </button>
+
+                    {activeConversation.status === "RESOLVED" ? (
+                      <button
+                        onClick={() => reopenConversation(activeConversation.id)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-200"
+                        title="Réouvrir la conversation"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                        <span>Réouvrir</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => resolveConversation(activeConversation.id)}
+                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5"
+                        title="Clôturer et marquer comme résolue"
+                      >
+                        <Check className="w-3.5 h-3.5 shrink-0" />
+                        <span>Résoudre</span>
+                      </button>
+                    )}
+
+                    {/* Toggle Details on Tablet / Mobile */}
+                    <button
+                      onClick={() => setMobileView("DETAILS")}
+                      className="xl:hidden px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-200"
+                      title="Voir la fiche marchand et commandes liées"
+                    >
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>Fiche</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -716,7 +719,7 @@ export default function CommunicationHubPage() {
                     <button
                       type="button"
                       onClick={() => setAttachedFile(null)}
-                      className="p-1 rounded text-slate-400 hover:text-slate-700 shrink-0"
+                      className="p-1 rounded text-slate-400 hover:text-slate-700 shrink-0 cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -774,7 +777,7 @@ export default function CommunicationHubPage() {
           <div className="xl:hidden flex items-center justify-between pb-2 border-b border-slate-100">
             <button
               onClick={() => setMobileView("CHAT")}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900"
+              className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Retour à la conversation</span>
@@ -785,13 +788,13 @@ export default function CommunicationHubPage() {
             <>
               {/* 1. FICHE E-COMMERÇANT */}
               <div className="space-y-3 pb-4 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">
                     Fiche E-commerçant
                   </span>
                   <Link
                     href={`/admin/partenaires/${activePartner.id}`}
-                    className="text-[11px] font-bold text-slate-900 hover:underline inline-flex items-center gap-1"
+                    className="text-[11px] font-bold text-slate-900 hover:underline inline-flex items-center gap-1 shrink-0"
                   >
                     <span>Voir profil</span>
                     <ExternalLink className="w-3 h-3" />
@@ -825,7 +828,7 @@ export default function CommunicationHubPage() {
                   <p className="flex items-center gap-2">
                     <Wallet className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">
-                      Solde disponible : <strong>{formatCFA(activePartner.availableBalance || 520000)}</strong>
+                      Solde dispo : <strong className="text-slate-900">{formatCFA(activePartner.availableBalance || 520000)}</strong>
                     </span>
                   </p>
                 </div>
@@ -833,12 +836,12 @@ export default function CommunicationHubPage() {
 
               {/* 2. COMMANDES LIÉES */}
               <div className="space-y-3 pb-4 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 shrink-0">
                     <Package className="w-3 h-3 text-slate-500 shrink-0" />
                     <span>Commandes Liées ({partnerOrders.length})</span>
                   </span>
-                  <Link href="/admin/commandes" className="text-[10px] font-bold text-slate-900 hover:underline">
+                  <Link href="/admin/commandes" className="text-[10px] font-bold text-slate-900 hover:underline shrink-0">
                     Tout voir
                   </Link>
                 </div>
@@ -873,14 +876,14 @@ export default function CommunicationHubPage() {
 
               {/* 3. ASSIGNATION & GESTION DES CAPACITÉS */}
               <div className="space-y-3 pb-4 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 shrink-0">
                     <Headset className="w-3 h-3 text-slate-500 shrink-0" />
                     <span>Pôle Opérateurs &amp; Charge</span>
                   </span>
                   <button
                     onClick={() => smartAutoAssignConversation(activeConversation.id)}
-                    className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-[10px] font-bold flex items-center gap-1 cursor-pointer shrink-0"
                     title="Attribuer automatiquement à la closeuse la plus disponible"
                   >
                     <Sparkles className="w-2.5 h-2.5 shrink-0" />
@@ -977,7 +980,7 @@ export default function CommunicationHubPage() {
               </div>
               <button
                 onClick={() => setShowTransferModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -996,7 +999,7 @@ export default function CommunicationHubPage() {
                     else if (name.includes("AGOSSOU") || name.includes("MENSAH")) setTransferTargetRole("Responsable Trésorerie");
                     else setTransferTargetRole("Closeuse Senior");
                   }}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white cursor-pointer"
                 >
                   <option value="Jude S. (PDG)">Jude S. (Direction Générale)</option>
                   {closeuses.map((c) => (
